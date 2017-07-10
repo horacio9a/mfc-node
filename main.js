@@ -25,8 +25,8 @@ var cachedModels = [];  // "cached" copy of onlineModels (primarily for index.ht
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = config.captureDirectory || './capture';
-config.completeDirectory = config.completeDirectory || './complete';
+config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
+config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.port = config.port || 9080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
@@ -36,7 +36,6 @@ config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
 
 var captureDirectory = path.resolve(config.captureDirectory);
-var completeDirectory = path.resolve(config.completeDirectory);
 
 function mkdir(dir) {
   mkdirp(dir, err => {
@@ -47,34 +46,23 @@ function mkdir(dir) {
   });
 }
 
-function getCurrentDateTime() {
-  return moment().format('MM/DD/YYYY - HH:mm:ss'); // The only true way of writing out dates and times, ISO 8601
-}
+function getCurrentTime() {return moment().format('HH:mm:ss');};
 
-function printMsg(msg) {
-  console.log(colors.blue(`[${getCurrentDateTime()}]`), msg);
-}
+function printMsg(msg) {console.log(colors.gray(`[${getCurrentTime()}]`), msg);}
 
-function printErrorMsg(msg) {
-  console.log(colors.blue(`[${getCurrentDateTime()}]`), colors.red('[ERROR]'), msg);
-}
+function printErrorMsg(msg) {console.log(colors.gray(`[${getCurrentTime()}]`), colors.red('[ERROR]'), msg);}
 
 function printDebugMsg(msg) {
   if (config.debug && msg) {
-    console.log(colors.blue(`[${getCurrentDateTime()}]`), colors.yellow('[DEBUG]'), msg);
+    console.log(colors.gray(`[${getCurrentTime()}]`), colors.magenta('[DEBUG]'), msg);
   }
 }
 
-function remove(value, array) {
-  var idx = array.indexOf(value);
+function remove(value, array) {var idx = array.indexOf(value);
 
-  if (idx !== -1) {
-    array.splice(idx, 1);
-  }
-}
+  if (idx !== -1) {array.splice(idx, 1);}}
 
-function getOnlineModels() {
-  var models = [];
+function getOnlineModels() {var models = [];
 
   mfc.Model.knownModels.forEach(m => {
     if (m.bestSession.vs !== mfc.STATE.Offline && m.bestSession.camserv > 0) {
@@ -83,31 +71,31 @@ function getOnlineModels() {
       }
 
       models.push({
+        nm: m.bestSession.nm,
+        sid: m.bestSession.sid,
         uid: m.bestSession.uid,
         vs: m.bestSession.vs,
-        nm: m.bestSession.nm,
         camserv: m.bestSession.camserv,
+        topic: m.bestSession.topic,
+        missmfc: m.bestSession.missmfc,
+        new_model: m.bestSession.new_model,
         camscore: m.bestSession.camscore,
         continent: m.bestSession.continent,
-        new_model: m.bestSession.new_model,
+        rank: m.bestSession.rank,
         rc: m.bestSession.rc,
-        age: m.bestSession.age,
-        missmfc: m.bestSession.missmfc,
-        city: m.bestSession.city,
-        country: m.bestSession.country,
-        ethnic: m.bestSession.ethnic
+        tags: m.bestSession.tags
       });
     }
   });
 
   onlineModels = models;
 
-  printMsg(`${onlineModels.length} model(s) online`);
+  printMsg(`${onlineModels.length} model(s) online.`);
 }
 
 // goes through the models in the queue and updates their settings in config
 function updateConfigModels() {
-  printDebugMsg(`${config.queue.length} model(s) in the queue`);
+  printDebugMsg(`${config.queue.length} model(s) in queue.`);
 
   var isDirty = false;
 
@@ -150,7 +138,7 @@ function updateConfigModels() {
 }
 
 function selectMyModels() {
-  printDebugMsg(`${config.models.length} model(s) in config`);
+  printDebugMsg(`${config.models.length} model(s) in config.`);
 
   var myModels = [];
   var isDirty = false;
@@ -169,7 +157,7 @@ function selectMyModels() {
       if (onlineModel.vs === 0 || onlineModel.vs === 90) { // probably 90 should be removed
         myModels.push(onlineModel);
       } else {
-        printMsg(`${colors.green(onlineModel.nm)} is away or in a private`);
+        printMsg(`${colors.green(onlineModel.nm)} is AWAY or PRIVATE.`);
       }
     }
 
@@ -186,7 +174,7 @@ function selectMyModels() {
     fs.writeFileSync('config.yml', yaml.safeDump(config), 'utf8');
   }
 
-  printDebugMsg(myModels.length + ' model(s) to capture');
+  printDebugMsg(myModels.length + ' model(s) to record.');
 
   return myModels;
 }
@@ -198,7 +186,7 @@ function createRtmpCaptureProcess(myModel) {
 function createFfmpegCaptureProcess(myModel) {
   return Promise
     .try(() => {
-      var filename = myModel.nm + '-' + moment().format('YYYYMMDD-HHmmss') + '.ts';
+      var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat) + '.flv';
 
       var captureProcess = childProcess.spawn('ffmpeg', [
         '-hide_banner',
@@ -206,14 +194,12 @@ function createFfmpegCaptureProcess(myModel) {
         'fatal',
         '-i',
         `http://video${myModel.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${100000000 + myModel.uid}.f4v_mobile/playlist.m3u8?nc=1423603882490`,
-        '-c',
+        '-c:v',
         'copy',
-        '-vsync',
-        '2',
-        '-r',
-        '60',
-        '-b:v',
-        '500k',
+        '-c:a',
+        'aac',
+        '-b:a',
+        '160k',
         `${captureDirectory}/${filename}`
       ]);
 
@@ -230,7 +216,7 @@ function createFfmpegCaptureProcess(myModel) {
       });
 
       captureProcess.on('close', code => {
-        printMsg(`${colors.green(myModel.nm)} stopped streaming`);
+        printMsg(`${colors.green(myModel.nm)} <<< stopped recording.`);
 
         var stoppedModel = _.findWhere(capturingModels, { captureProcess: captureProcess });
 
@@ -244,12 +230,11 @@ function createFfmpegCaptureProcess(myModel) {
               fs.unlink(captureDirectory + '/' + filename, err => {
                 // do nothing, shit happens
               });
-            } else {
-              mv(captureDirectory + '/' + filename, completeDirectory + '/' + filename, err => {
+            } 
+              {
                 if (err) {
                   printErrorMsg('[' + colors.green(myModel.nm) + '] ' + err.toString());
-                }
-              });
+              }
             }
           })
           .catch(err => {
@@ -277,12 +262,12 @@ function createCaptureProcess(myModel) {
   var capturingModel = _.findWhere(capturingModels, { uid: myModel.uid });
 
   if (capturingModel !== undefined) {
-    printDebugMsg(colors.green(myModel.nm) + ' is already capturing');
+    printDebugMsg(colors.green(myModel.nm) + ' is already recording.');
 
     return; // resolve immediately
   }
 
-  printMsg(colors.green(myModel.nm) + ' is now online, starting capturing process');
+  printMsg(colors.green(myModel.nm) + ' is online >>> start recording.');
 
   return config.rtmp ? createRtmpCaptureProcess(myModel) : createFfmpegCaptureProcess(myModel);
 }
@@ -295,7 +280,7 @@ function checkCaptureProcess(capturingModel) {
       onlineModel.capturing = true;
     } else if (capturingModel.captureProcess) {
       // if the model has been excluded or deleted we stop capturing process and resolve immediately
-      printDebugMsg(colors.green(capturingModel.nm) + ' has to be stopped');
+      printDebugMsg(colors.green(capturingModel.nm) + ' has to be stopped.');
 
       capturingModel.captureProcess.kill();
 
@@ -378,7 +363,7 @@ function addInQueue(req, res) {
 }
 
 function mainLoop() {
-  printDebugMsg('Start new cycle');
+  printDebugMsg('Start new cycle.');
 
   Promise
     .try(() => getOnlineModels())
@@ -393,7 +378,7 @@ function mainLoop() {
       printErrorMsg(err);
     })
     .finally(() => {
-      printMsg('Done, will search for new models in ' + config.modelScanInterval + ' second(s).');
+      printMsg('Done >>> will search for new models in ' + config.modelScanInterval + ' seconds.');
 
       setTimeout(mainLoop, config.modelScanInterval * 1000);
     });
@@ -406,7 +391,6 @@ Promise
   .timeout(120000) // 2 mins
   .then(() => {
     mkdir(captureDirectory);
-    mkdir(completeDirectory);
 
     mainLoop();
   })
@@ -451,5 +435,5 @@ dispatcher.onError((req, res) => {
 http.createServer((req, res) => {
   dispatcher.dispatch(req, res);
 }).listen(config.port, () => {
-  printMsg('Server listening on: ' + colors.green('0.0.0.0:' + config.port));
+  printMsg('Server listening on: ' + colors.cyan('0.0.0.0:' + config.port));
 });
