@@ -1,15 +1,13 @@
-<!doctype html>
-
 <html lang="en" ng-app="app">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <title>MyFreeCams Recorder</title>
-  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-red.min.css" />
-  <style>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<title>MyFreeCams Recorder</title>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.green-red.min.css" />
+<style>
     a[disabled] {
       pointer-events: none;
     }
@@ -19,15 +17,11 @@
     }
 
     body {
-      background-color: #efefef;
+      background-color: #DDD;
     }
 
     main.mdl-layout__content {
       overflow-x: auto;
-    }
-
-    .mdl-layout__header-row {
-      padding-left: 40px;
     }
 
     .padding {
@@ -35,26 +29,23 @@
       width: 50%;
     }
 
-    .table{
-      padding: 40px 0px 150px;
+    .container {
       display: table-cell;
     }
 
-    a[ng-href],
     a[ng-click],
     th[ng-click] {
-      text-decoration: none;
       cursor: pointer;
     }
 
-    .material-icons.mdi-24 {
-      font-size: 24px;
+    .material-icons.mdi-30 {
+      font-size: 30px;
     }
 
     .spinner {
       position: fixed;
       top: 0; right: 0; bottom: 0; left: 0;
-      background: #efefef;
+      background: #464646;
       z-index: 9999;
       display: flex;
       align-items: center;
@@ -64,18 +55,8 @@
     .refresh {
       position: relative;
       top: 30px;
-    }
+  }
 
-    .ko-fi {
-      display: none;
-    }
-
-    @media (min-width: 768px) {
-      .ko-fi {
-        margin-right: 15px;
-        display: block;
-      }
-    }
   </style>
 </head>
 <body ng-controller="AppController as vm">
@@ -85,189 +66,228 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.0 by horacio9a (credits to @sstativa)</span>
         <div class="mdl-layout-spacer"></div>
-        <a class="ko-fi" href='https://ko-fi.com/A320FTJ' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=f' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
         <nav class="mdl-navigation">
-          <button class="refresh mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-shadow--4dp" ng-click="vm.refresh()" title="reload">
+          <button class="refresh mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-shadow--16dp" ng-click="vm.refresh()" title="reload">
             <i class="material-icons">refresh</i>
           </button>
         </nav>
       </div>
     </header>
     <main class="mdl-layout__content">
-      <div class="padding"></div>
-      <div class="table">
-        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-          <thead>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('nm')" ng-class="vm.sortType == 'nm' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Name</th>
-              <th ng-click="vm.sort('age')" ng-class="vm.sortType == 'age' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Age</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('city')" ng-class="vm.sortType == 'city' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">City</th>
-              <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('country')" ng-class="vm.sortType == 'country' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Contry</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('missmfc')" ng-class="vm.sortType == 'missmfc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Miss MFC</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
-              <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Viewers</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="model in vm.models | orderBy:vm.sortType:vm.sortReverse" ng-class="model.color">
-              <td class="mdl-data-table__cell--non-numeric">
-                <a class="mdl-color-text--blue-800" target="_blank" ng-href="https://www.myfreecams.com/#{{ model.nm }}" ng-click="vm.log(model)" ng-bind="model.nm"></a>
-              </td>
-              <td ng-bind="model.age"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="model.state"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="model.city"></td>
-              <td ng-bind="model.camscore"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="model.country"></td>
-              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--amber-500" ng-bind="model.missmfc"></i></td>
-              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="model.new_model"></i></td>
-              <td ng-bind="model.rc"></td>
-              <td>
-                <button id="{{ 'action-list-' + model.uid }}" class="mdl-button mdl-js-button mdl-button--icon">
-                  <i class="material-icons">more_vert</i>
-                </button>
-                <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu" for="{{ 'action-list-' + model.uid }}">
-                  <li class="mdl-menu__item" ng-click="vm.includeUid(model)" ng-disabled="model.incDisabled">Include</li>
-                  <li class="mdl-menu__item mdl-menu__item--full-bleed-divider" ng-click="vm.excludeUid(model)" ng-disabled="model.excDisabled">Exclude</li>
-                  <li class="mdl-menu__item" ng-click="vm.deleteUid(model)" ng-disabled="model.delDisabled">Delete</li>
-                  <!-- <li class="mdl-menu__item" ng-click="vm.dump(model)" ng-disabled="model.delDisabled">Dump</li> -->
-                </ul>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="padding"></div>
+      <div class="mdl-grid--no-spacing">
+        <div class="padding"></div>
+        <div class="container ng-cloak">
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+              <thead>
+                <tr>
+                  <th>Menu</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('nm')" ng-class="vm.sortType == 'nm' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Name</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
+                  <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
+                  <th ng-click="vm.sort('rank')" ng-class="vm.sortType == 'rank' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Rank</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('continent')" ng-class="vm.sortType == 'continent' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Continent</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
+                  <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Viewers</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('topic')" ng-class="vm.sortType == 'topic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Topic</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="model in vm.models | orderBy:vm.sortType:vm.sortReverse" ng-class="vm.rowColor(model.vs)">
+                  <td background="{{ snapimg }}" ng-mouseover="count = count + 1; snapimg = vm.snapimg_url(model, count);" ng-init="count = 0; snapimg = vm.snapimg_url(model, count);" class="backimage">
+                  <script> { document.write("<button id=\"{{ 'action-list-' + model.uid }}\" class=\"buttonmenubig mdl-button mdl-js-button mdl-button--icon\"></button>") } </script>
+                  </button><ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="{{ 'action-list-' + model.uid }}">
+                  <li class="mdl-menu__item"><a class="mdl-color-text--blue-900 mdl-color--blue-100" ng-click="vm.includeUid(model)" ng-disabled="vm.includeDisabled(model)"> ==> Include == </a></li>
+                  <li class="mdl-menu__item mdl-menu__item--full-bleed-divider"><a class="mdl-color-text--yellow-100 mdl-color--yellow-900" ng-click="vm.excludeUid(model)" ng-disabled="vm.excludeDisabled(model)"> <== Exclude == </a></li>
+                  <li class="mdl-menu__item"><a class="mdl-color-text--red-900 mdl-color--red-100" ng-click="vm.deleteUid(model)" ng-disabled="model.nextMode == -1"> === Delete === </li></a>
+                  </ul>
+                  </td>
+                  </div>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-800" ng-click="vm.preview(model)" ng-bind="model.nm"></a></td>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
+                  <td>{{ model.camscore.toFixed(0) }}</td>
+                  <td>{{ model.rank }}</td>
+                  <td>{{ model.continent }}</td>
+                  <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="model.new_model"></i></td>
+                  <td>{{ model.rc }}</td>
+                  <td>{{ model.topic }}</td>
+                  <td>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="padding"></div>
+<!--         </div>
+      </div> -->
     </main>
   </div>
 
-  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-  <script src="https://code.angularjs.org/1.5.11/angular.min.js"></script>
+  <script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+  <script src="https://code.angularjs.org/1.5.8/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
   <script>
+    var getState = function(vs) {
+      var state = {
+        'vs-4': 'Recording',
+        'vs-3': 'Include',
+        'vs-2': 'Exclude',
+        'vs-1': 'Delete',
+        'vs0': 'Online',
+        'vs2': 'Away',
+        'vs12': 'Private',
+        'vs13': 'Group Show',
+        'vs90': 'Online',
+        'vs91': 'Private',
+        'vs127': 'Offline',
+        'vs1000': 'Recording',
+        'vs1001': 'Iclude',
+        'vs1002': 'Exclude'
+      };
+
+      return state['vs' + vs] || 'Unknown';
+    };
+
     var app = angular.module('app', []);
 
-    app.controller('AppController', ['$timeout', '$http', function ($timeout, $http) {
+    app.controller('AppController', ['$timeout', '$http', function($timeout, $http) {
       var vm = this;
 
       vm.models = [];
 
+      vm.snapimg_url = function(model, x) {
+
+      // The random number in the url is to force the browser to reload the image and not to use its cache
+      var snapshot_url = ('http://204.15.8.11/snapimg/' + (model.camserv - 500) + '/80x60/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      // Only auto-load snapshots for models with 20 or higher viewers, this prevents a higher load on MFC servers and saves bandwidth since only ~25% of the models will get sanpshots
+        if (model.rc > 9 || x > 0){return snapshot_url;
+         } else {return '';
+        }
+      };
+
       vm.sortType = 'nm';
       vm.sortReverse = false;
 
-      vm.log = function (model) {
-        console.log('http://video' + (model.u.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?nc=1423603882490');
-      };
-
-      vm.sort = function (sortType) {
-        if (vm.sortType === sortType) {
+      vm.sort = function(sortType) {
+        if (vm.sortType == sortType) {
           vm.sortReverse = !vm.sortReverse;
         } else {
           vm.sortType = sortType;
         }
       };
 
-      vm.setVs = function (model) {
-        var state = {
-          vs9996: 'Capturing',  // 10000 + -4 = 9996
-          vs9997: 'To Include', // 10000 + -3 = 9997
-          vs9998: 'To Exclude', // 10000 + -2 = 9998
-          vs9999: 'To Delete',  // 10000 + -1 = 9999
-          vs10000: 'Online',
-          vs10002: 'Away',
-          vs10012: 'In Private',
-          vs10013: 'In Group Show',
-          vs10090: 'Online',
-          vs10091: 'In Private',
-          vs10127: 'Offline'
-        };
-
-        // set our own virtual value for vs field
-        if (model.nextMode === -1) {
-          model.vs = -1; // to delete
-        } else if (model.nextMode === 0) {
-          model.vs = -2; // to exclude
-        } else if (model.nextMode === 1) {
-          model.vs = -3; // to include
-        } else if (model.capturing) {
-          model.vs = -4; // capturing
-        }
-
-        model.state = state['vs' + (10000 + model.vs)] || 'Unknown';
-
-        if (model.vs === -4) {
-          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
-        } else if (model.vs === -3) {
-          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
-        } else if (model.vs === -1) {
-          model.color = 'mdl-color-text--red-300 mdl-color--red-50';
-        } else if (model.vs === -2 || model.vs > 0) {
-          model.color = 'mdl-color-text--grey-400 mdl-color--grey-100';
-        } else {
-          model.color = '';
-        }
-
-        model.incDisabled = model.vs === -4 || model.vs === -3;
-        model.excDisabled = model.vs !== -4 && model.vs !== -3;
-        model.delDisabled = model.vs === -1;
-      };
-
-      vm.includeUid = function (model) {
-        $http.get('/models/include', { params: { uid: model.uid } }).then(function (response) {
+      vm.includeUid = function(model) {
+        $http.get('/models/include', {params: {uid: model.uid}}).then(function(response) {
           model.nextMode = 1;
-          vm.setVs(model);
+          model.vs = -3;
+          model.state = getState(model.vs);
         });
       };
 
-      vm.excludeUid = function (model) {
-        $http.get('/models/exclude', { params: { uid: model.uid } }).then(function (response) {
+      vm.excludeUid = function(model) {
+        $http.get('/models/exclude', {params: {uid: model.uid}}).then(function(response) {
           model.nextMode = 0;
-          vm.setVs(model);
+          model.vs = -2;
+          model.state = getState(model.vs);
         });
       };
 
-      vm.deleteUid = function (model) {
-        $http.get('/models/delete', { params: { uid: model.uid } }).then(function (response) {
+      vm.deleteUid = function(model) {
+        $http.get('/models/delete', {params: {uid: model.uid}}).then(function(response) {
           model.nextMode = -1;
-          vm.setVs(model);
+          model.vs = -1;
+          model.state = getState(model.vs);
         });
       };
 
-      vm.dump = function (model) {
-      	console.log(model);
+      vm.includeDisabled = function(model) {
+        return model.nextMode == 1 || (model.mode == 1 && model.nextMode == undefined);
       };
 
-      vm.refresh = function () {
+      vm.excludeDisabled = function(model) {
+        return model.nextMode == 0 || (model.mode == 0 && model.nextMode == undefined);
+      };
+
+      vm.enter_room = function(model) {
+        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?nc=1423603882490');
+        var url = 'https://www.myfreecams.com/#' + model.nm;
+        open(url);
+      };
+
+      vm.preview = function(model) {
+        if ((model.camserv) > 840) {
+          var url1 = ('http://204.15.8.11/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
+          open (url1);
+        } else if ((model.camserv) < 840) {
+          var url2 = ('http://img.mfcimg.com/livesnap320/?user=' + (100000000 + model.uid) + '#cs=' + model.camserv + '#' + model.nm);
+          open(url2);
+        }
+      };
+
+      vm.video_preview = function(model) {
+        if ((model.camserv) > 840) {
+          var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
+          open (url3);
+        } else if ((model.camserv) < 840) {
+          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this method.\n\nClick 'Online' for enter in model room.");
+        }
+      };
+
+      vm.rowColor = function(vs) {
+        if (vs == -4) {
+          return 'mdl-color-text--green-400 mdl-color--green-50';
+        } else if (vs == -3) {
+          return 'mdl-color-text--blue-300 mdl-color--blue-50';
+        } else if (vs == -1) {
+          return 'mdl-color-text--red-300 mdl-color--red-50';
+        } else if (vs == -2 || vs > 0) {
+          return 'mdl-color-text--grey-400 mdl-color--grey-100';
+        }
+      };
+
+      vm.refresh = function() {
         vm.ready = false;
 
         $http
           .get('/models')
-          .then(function (response) {
-            vm.models = response.data.map(function (m) {
-              vm.setVs(m);
+          .then(function(response) {
 
-              if (m.city && m.city.length > 20) {
-                m.city = m.city.substr(0, 19) + '…';
-              }
+            vm.models = _
+              .reject(response.data, function(m) {
+                return m.mode < 0; // remove deleted models
+              })
+              .map(function(m) {
+                if (!m.mode) {
+                  m.mode = 0; // set "default" mode for models without mode
+                }
 
-              if (m.country && m.country.length > 20) {
-                m.country = m.country.substr(0, 19) + '…';
-              }
+                // set our own virtual value for vs field
+                if (m.nextMode === 1) {
+                  m.vs = -3; // to include
+                } else if (m.nextMode === 0) {
+                  m.vs = -2; // to exclude
+                } else if (m.nextMode === -1) {
+                  m.vs = -1; // to delete
+                } else if (m.capturing == true) {
+                  m.vs = -4; // capturing
+                }
 
-              m.missmfc = m.missmfc ? 'star' : '';
-              m.new_model = m.new_model ? 'new_releases' : '';
+                // get text description of the state
+                m.state = getState(m.vs);
 
-              m.rc = m.rc || 0;
+                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,130);}
 
-              return m;
-            });
+                if (m.rank == 0){m.rank = '';}
 
-            $timeout(function () {
+                m.new_model = m.new_model ? 'new_releases' : '';return m;});
+
+            $timeout(function() {
               componentHandler.upgradeAllRegistered();
               vm.ready = true;
             });
