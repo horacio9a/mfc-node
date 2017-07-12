@@ -231,11 +231,6 @@ function createFfmpegCaptureProcess(myModel) {
                 // do nothing, shit happens
               });
             } 
-              {
-                if (err) {
-                  printErrorMsg('[' + colors.green(myModel.nm) + '] ' + err.toString());
-              }
-            }
           })
           .catch(err => {
             if (err.code !== 'ENOENT') {
@@ -262,7 +257,7 @@ function createCaptureProcess(myModel) {
   var capturingModel = _.findWhere(capturingModels, { uid: myModel.uid });
 
   if (capturingModel !== undefined) {
-    printDebugMsg(colors.green(myModel.nm) + ' is already recording.');
+    printDebugMsg(colors.yellow(myModel.nm + '_MFC_' + moment().format(config.dateFormat) + '.flv ') + (capturingModel.size/1048576).toFixed(1) + ' MB');
 
     return; // resolve immediately
   }
