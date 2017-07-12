@@ -257,7 +257,7 @@ function createCaptureProcess(myModel) {
   var capturingModel = _.findWhere(capturingModels, { uid: myModel.uid });
 
   if (capturingModel !== undefined) {
-    printDebugMsg(colors.yellow(myModel.nm + '_MFC_' + moment().format(config.dateFormat) + '.flv ') + (capturingModel.size/1048576).toFixed(1) + ' MB');
+  printDebugMsg(colors.yellow(capturingModel.filename) + ' ' + (capturingModel.size/1048576).toFixed(1) + ' MB');
 
     return; // resolve immediately
   }
