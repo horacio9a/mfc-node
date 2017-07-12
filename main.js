@@ -294,13 +294,13 @@ function checkCaptureProcess(capturingModel) {
       // we check the process every 10 minutes since its start,
       // if the size of the file has not changed for the last 10 min, we kill the process
       if (stats.size - capturingModel.size > 0) {
-        printDebugMsg(colors.green(capturingModel.nm) + ' is alive');
+        printDebugMsg(colors.green(capturingModel.nm) + ' is alive.');
 
         capturingModel.checkAfter = moment().unix() + 300; // 5 minutes
         capturingModel.size = stats.size;
       } else if (capturingModel.captureProcess) {
         // we assume that onClose will do all clean up for us
-        printErrorMsg('[' + colors.green(capturingModel.nm) + '] Process is dead');
+        printErrorMsg('[' + colors.green(capturingModel.nm) + '] Process is dead.');
         capturingModel.captureProcess.kill();
       } else {
         // suppose here we should forcefully remove the model from capturingModels
@@ -340,7 +340,7 @@ function addInQueue(req, res) {
 
   if (_.isUndefined(model)) {
     res.writeHead(422, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Invalid request' }));
+    res.end(JSON.stringify({ error: 'Invalid request.' }));
   } else {
     printDebugMsg(colors.green(model.uid || model.nm) + ' to ' + (mode === 1 ? 'include.' : (mode === 0 ? 'exclude.' : 'delete.')));
 
@@ -397,7 +397,7 @@ dispatcher.onGet('/', (req, res) => {
   fs.readFile('./index.html', (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/html' });
-      res.end('Not Found');
+      res.end('Not Found.');
     } else {
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(data, 'utf-8');
