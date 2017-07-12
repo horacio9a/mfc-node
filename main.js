@@ -138,7 +138,7 @@ function updateConfigModels() {
 }
 
 function selectMyModels() {
-  printDebugMsg(`${config.models.length} model(s) in config.`);
+  printDebugMsg(`${config.models.length} model(s) in config.yml`);
 
   var myModels = [];
   var isDirty = false;
@@ -342,7 +342,7 @@ function addInQueue(req, res) {
     res.writeHead(422, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Invalid request' }));
   } else {
-    printDebugMsg(colors.green(model.uid || model.nm) + ' to ' + (mode === 1 ? 'include' : (mode === 0 ? 'exclude' : 'delete')));
+    printDebugMsg(colors.green(model.uid || model.nm) + ' to ' + (mode === 1 ? 'include.' : (mode === 0 ? 'exclude.' : 'delete.')));
 
     config.queue.push(model);
 
