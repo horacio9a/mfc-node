@@ -193,14 +193,14 @@ function createFfmpegCaptureProcess(myModel) {
         '-v',
         'fatal',
         '-i',
-        `http://video${myModel.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${100000000 + myModel.uid}.f4v_mobile/playlist.m3u8?nc=1423603882490`,
+        'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8',
         '-c:v',
         'copy',
         '-c:a',
         'aac',
         '-b:a',
         '160k',
-        `${captureDirectory}/${filename}`
+        config.captureDirectory + '/' + filename
       ]);
 
       if (!captureProcess.pid) {
