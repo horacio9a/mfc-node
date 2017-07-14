@@ -38,12 +38,12 @@ config.queue = Array.isArray(config.queue) ? config.queue : [];
 var captureDirectory = path.resolve(config.captureDirectory);
 
 function mkdir(dir) {
-  mkdirp(dir, err => {
-    if (err) {
-      printErrorMsg(err);
-      process.exit(1);
-    }
-  });
+mkdirp(captureDirectory, function(err) {
+  if (err) {
+    printErrorMsg(err);
+    process.exit(1);
+  }
+});
 }
 
 function getCurrentTime() {return moment().format('HH:mm:ss');};
