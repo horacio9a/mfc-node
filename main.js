@@ -48,15 +48,11 @@ function mkdir(dir) {
 
 function getCurrentTime() {return moment().format('HH:mm:ss');};
 
-function printMsg(msg) {console.log(colors.gray(`[${getCurrentTime()}]`), msg);}
+function printMsg(msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), msg);}
 
-function printErrorMsg(msg) {console.log(colors.gray(`[${getCurrentTime()}]`), colors.red('[ERROR]'), msg);}
+function printErrorMsg(msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), colors.red('[ERROR]'), msg);}
 
-function printDebugMsg(msg) {
-  if (config.debug && msg) {
-    console.log(colors.gray(`[${getCurrentTime()}]`), colors.magenta('[DEBUG]'), msg);
-  }
-}
+function printDebugMsg(msg) {if (config.debug && msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), colors.magenta('[DEBUG]'), msg);}}
 
 function remove(value, array) {var idx = array.indexOf(value);
 
@@ -90,12 +86,12 @@ function getOnlineModels() {var models = [];
 
   onlineModels = models;
 
-  printMsg(`${onlineModels.length} model(s) online.`);
+  printMsg(onlineModels.length + ' model(s) online.');
 }
 
 // goes through the models in the queue and updates their settings in config
 function updateConfigModels() {
-  printDebugMsg(`${config.queue.length} model(s) in queue.`);
+  printDebugMsg(config.queue.length + ' model(s) in queue.');
 
   var isDirty = false;
 
@@ -138,7 +134,7 @@ function updateConfigModels() {
 }
 
 function selectMyModels() {
-  printDebugMsg(`${config.models.length} model(s) in config.yml`);
+  printDebugMsg(config.models.length + ' models in config.yml');
 
   var myModels = [];
   var isDirty = false;
@@ -157,7 +153,7 @@ function selectMyModels() {
       if (onlineModel.vs === 0 || onlineModel.vs === 90) { // probably 90 should be removed
         myModels.push(onlineModel);
       } else {
-        printMsg(`${colors.green(onlineModel.nm)} is AWAY or PRIVATE.`);
+        printMsg(colors.green(onlineModel.nm) + (colors.cyan(' is AWAY or PRIVATE.')));
       }
     }
 
@@ -216,7 +212,7 @@ function createFfmpegCaptureProcess(myModel) {
       });
 
       captureProcess.on('close', code => {
-        printMsg(`${colors.green(myModel.nm)} <<< stopped recording.`);
+        printMsg(colors.green(myModel.nm) + ' <<< stopped recording.');
 
         var stoppedModel = _.findWhere(capturingModels, { captureProcess: captureProcess });
 
@@ -224,7 +220,7 @@ function createFfmpegCaptureProcess(myModel) {
           remove(stoppedModel, capturingModels);
         }
 
-        fs.statAsync(`${captureDirectory}/${filename}`)
+        fs.statAsync(config.captureDirectory + '/' + filename)
           .then(stats => {
             if (stats.size <= (config.minFileSizeMb * 1048576)) {
               fs.unlink(captureDirectory + '/' + filename, err => {
