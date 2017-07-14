@@ -37,15 +37,6 @@ config.queue = Array.isArray(config.queue) ? config.queue : [];
 
 var captureDirectory = path.resolve(config.captureDirectory);
 
-function mkdir(dir) {
-mkdirp(captureDirectory, function(err) {
-  if (err) {
-    printErrorMsg(err);
-    process.exit(1);
-  }
-});
-}
-
 function getCurrentTime() {return moment().format('HH:mm:ss');};
 
 function printMsg(msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), msg);}
@@ -184,6 +175,11 @@ function createFfmpegCaptureProcess(myModel) {
     .try(() => {
       var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat) + '.flv';
 
+mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
+    if (err) console.error(err)
+    else (printMsg(colors.green(myModel.nm) + (colors.yellow(' subdirectory is created or exists.'))));
+});
+
       var captureProcess = childProcess.spawn('ffmpeg', [
         '-hide_banner',
         '-v',
@@ -196,7 +192,7 @@ function createFfmpegCaptureProcess(myModel) {
         'aac',
         '-b:a',
         '160k',
-        config.captureDirectory + '/' + filename
+        captureDirectory + '/' + myModel.nm + '/'+ filename
       ]);
 
       if (!captureProcess.pid) {
@@ -220,10 +216,10 @@ function createFfmpegCaptureProcess(myModel) {
           remove(stoppedModel, capturingModels);
         }
 
-        fs.statAsync(config.captureDirectory + '/' + filename)
+        fs.statAsync(captureDirectory + '/' + myModel.nm + '/'+ filename)
           .then(stats => {
             if (stats.size <= (config.minFileSizeMb * 1048576)) {
-              fs.unlink(captureDirectory + '/' + filename, err => {
+              fs.unlink(captureDirectory + '/' + myModel.nm + '/'+ filename, err => {
                 // do nothing, shit happens
               });
             } 
@@ -381,7 +377,7 @@ Promise
   .try(() => mfcClient.connectAndWaitForModels())
   .timeout(120000) // 2 mins
   .then(() => {
-    mkdir(captureDirectory);
+    mkdirp(captureDirectory);
 
     mainLoop();
   })
