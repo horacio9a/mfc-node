@@ -274,7 +274,7 @@ function createCaptureProcess(myModel) {
   var capturingModel = _.findWhere(capturingModels, { uid: myModel.uid });
 
   if (capturingModel !== undefined) {
-  printDebugMsg(colors.yellow(capturingModel.filename + '.' + config.fileFormat) + ' ' + (capturingModel.size/1048576).toFixed(1) + ' MB');
+  printDebugMsg(colors.yellow('>>> ' + capturingModel.filename + '.' + config.fileFormat));
 
     return; // resolve immediately
   }
