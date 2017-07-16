@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 <title>MyFreeCams Recorder</title>
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.green-red.min.css" />
 <style>
@@ -66,7 +66,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.0 by horacio9a (credits to @sstativa)</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.1 by horacio9a (credits to @sstativa)</span>
         <div class="mdl-layout-spacer"></div>
         <nav class="mdl-navigation">
           <button class="refresh mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-shadow--16dp" ng-click="vm.refresh()" title="reload">
@@ -215,7 +215,7 @@
       };
 
       vm.enter_room = function(model) {
-        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?nc=1423603882490');
+        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
         var url = 'https://www.myfreecams.com/#' + model.nm;
         open(url);
       };
