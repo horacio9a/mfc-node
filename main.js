@@ -14,6 +14,7 @@ var session = bhttp.session();
 var childProcess = require('child_process');
 var HttpDispatcher = require('httpdispatcher');
 var dispatcher = new HttpDispatcher();
+var https = require('https');
 var http = require('http');
 var mfc = require('MFCAuto');
 
@@ -25,8 +26,9 @@ var cachedModels = [];  // "cached" copy of onlineModels (primarily for index.ht
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
+config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
+config.fileFormat = config.fileFormat || 'flv';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.port = config.port || 9080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
@@ -173,27 +175,50 @@ function createRtmpCaptureProcess(myModel) {
 function createFfmpegCaptureProcess(myModel) {
   return Promise
     .try(() => {
-      var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat) + '.flv';
+      var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
 
 mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
     if (err) console.error(err)
     else (printMsg(colors.green(myModel.nm) + (colors.yellow(' subdirectory is created or exists.'))));
 });
 
-      var captureProcess = childProcess.spawn('ffmpeg', [
-        '-hide_banner',
-        '-v',
-        'fatal',
-        '-i',
-        'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8',
-        '-c:v',
-        'copy',
-        '-c:a',
-        'aac',
-        '-b:a',
-        '160k',
-        captureDirectory + '/' + myModel.nm + '/'+ filename
-      ]);
+  var hls_url = 'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8';
+
+  var mySpawnArguments;
+  if (config.fileFormat == 'flv') {
+    mySpawnArguments = [
+      '-hide_banner',
+      '-v',
+      'fatal',
+      '-i',
+      hls_url,
+      '-c:v',
+      'copy',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '160k',
+      captureDirectory + '/' + myModel.nm + '/'+ filename + '.flv'];
+
+  } else if (config.fileFormat == 'ts') {
+    mySpawnArguments = [
+      '-hide_banner',
+      '-v',
+      'fatal',
+      '-i',
+      hls_url,
+      '-c',
+      'copy',
+      '-vsync',
+      '2',
+      '-r',
+      '60',
+      '-b:v',
+      '500k',
+      captureDirectory + '/' + myModel.nm + '/'+ filename + '.ts'];
+  }
+
+      var captureProcess = childProcess.spawn('ffmpeg', mySpawnArguments);
 
       if (!captureProcess.pid) {
         return;
@@ -249,7 +274,7 @@ function createCaptureProcess(myModel) {
   var capturingModel = _.findWhere(capturingModels, { uid: myModel.uid });
 
   if (capturingModel !== undefined) {
-  printDebugMsg(colors.yellow(capturingModel.filename) + ' ' + (capturingModel.size/1048576).toFixed(1) + ' MB');
+  printDebugMsg(colors.yellow(capturingModel.filename + '.' + config.fileFormat) + ' ' + (capturingModel.size/1048576).toFixed(1) + ' MB');
 
     return; // resolve immediately
   }
@@ -385,8 +410,7 @@ Promise
     printErrorMsg(err.toString());
   });
 
-dispatcher.onGet('/', (req, res) => {
-  fs.readFile('./index.html', (err, data) => {
+dispatcher.onGet('/', (req, res) => {fs.readFile('./index.html', (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/html' });
       res.end('Not Found.');
@@ -415,12 +439,7 @@ dispatcher.onGet('/models/exclude', addInQueue);
 // in fact the model will be markd as "deleted" in config only with the next iteration of mainLoop
 dispatcher.onGet('/models/delete', addInQueue);
 
-dispatcher.onError((req, res) => {
-  res.writeHead(404);
-});
+dispatcher.onError((req,res) => {res.writeHead(404);});
 
-http.createServer((req, res) => {
-  dispatcher.dispatch(req, res);
-}).listen(config.port, () => {
-  printMsg('Server listening on: ' + colors.cyan('0.0.0.0:' + config.port));
-});
+http.createServer((req, res) => {dispatcher.dispatch(req, res);
+}).listen(config.port, () => {printMsg('Server listening on: ' + colors.cyan('0.0.0.0:' + config.port));});
