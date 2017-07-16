@@ -1,9 +1,9 @@
-captureDirectory: 'C:\Videos\MFC'
-dateFormat: DDMMYYYY-HHmmss
-modelScanInterval: 30
-minFileSizeMb: 0
-port: 9080
+captureDirectory: 'C:/Videos/MFC' # Where you want the captures to be saved
+dateFormat: DDMMYYYY-HHmmss # Your date format for the name of the recorded file for example: YYYY-MM-DD_HH-mm-ss
+fileFormat: flv # You can choose between 'flv' and 'ts' file format
+modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models
+minFileSizeMb: 0 # If you do not want to save a file smaller than 5 MB enter number 5
+port: 9080 # number of port for your browser url for example: http://localhost:9080/
 debug: true
 models: []
 queue: []
-rtmp: false
