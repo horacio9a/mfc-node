@@ -51,12 +51,13 @@ The list of online models will be displayed with a set of allowed commands for e
 The MFC Recorder now captures the MFC stream in standard FLV quality, as if it was recorded eg with rtmpdump. 
 That's why I think that only one directory is enough where all the files are recorded and in most cases don't need a conversion.
 It also allows you to watch the recorded file during recording with possible jumps forward and back if needed.
-I added in config.yml the option to edit the date format for the recorded file.
+- I added in config.yml the option to edit the 'date format' and 'file format' for the recorded file. You can choose between 'flv' and 'ts' as in the original version.
+- Lot of people are asking, so I added the option that every model now has its own subdirectory
 - The menu have a small preview, and when the mouse cursor is hover, it will update.
 - When you click on a preview thumbnail, you get menu for include, exclude and delete models from list in config.yml.
 - By pressing the model 'Name' you get a picture preview of the current model in the room. You can refresh this page later if you are interested in a new situation. If the model is called 'No Mobile Feed' then you will get a link that you can copy and start in a separate browser page and see what's happening in the room. Unfortunately, you can not record this unit with this recorder, but by pressing 'State/Online' you can watch the stream of that model in your browser. 
 - By pressing 'State/Online' you can enter in the model room with your browser.
-- By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related)
+- By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native-hls-0-7-10/?src=api)
 
 For advanced users
 ==================
