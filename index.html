@@ -165,8 +165,8 @@
 
       // The random number in the url is to force the browser to reload the image and not to use its cache
       var snapshot_url = ('http://204.15.8.11/snapimg/' + (model.camserv - 500) + '/80x60/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
-      // Only auto-load snapshots for models with 20 or higher viewers, this prevents a higher load on MFC servers and saves bandwidth since only ~25% of the models will get sanpshots
-        if (model.rc > 9 || x > 0){return snapshot_url;
+      // Only auto-load snapshots for models with 700 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~30% of the models will get sanpshots
+        if (model.camscore > 700 || x > 0){return snapshot_url;
          } else {return '';
         }
       };
