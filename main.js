@@ -70,6 +70,9 @@ function getOnlineModels() {var models = [];
         new_model: m.bestSession.new_model,
         camscore: m.bestSession.camscore,
         continent: m.bestSession.continent,
+        age: m.bestSession.age,
+        city: m.bestSession.city,
+        country: m.bestSession.country,
         rank: m.bestSession.rank,
         rc: m.bestSession.rc,
         tags: m.bestSession.tags
@@ -177,9 +180,9 @@ function createFfmpegCaptureProcess(myModel) {
     .try(() => {
       var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
 
-mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
+mkdirp(captureDirectory + '/' + myModel.uid + '_' + myModel.nm, function (err) {
     if (err) console.error(err)
-    else (printMsg(colors.green(myModel.nm) + (colors.yellow(' subdirectory is created or exists.'))));
+    else (printMsg(colors.green(myModel.uid + '_' + myModel.nm) + (colors.yellow(' subdirectory is created or exists.'))));
 });
 
   var hls_url = 'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8';
@@ -198,7 +201,7 @@ mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
       'aac',
       '-b:a',
       '160k',
-      captureDirectory + '/' + myModel.nm + '/'+ filename + '.flv'];
+      captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename + '.flv'];
 
   } else if (config.fileFormat == 'ts') {
     mySpawnArguments = [
@@ -215,7 +218,7 @@ mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
       '60',
       '-b:v',
       '500k',
-      captureDirectory + '/' + myModel.nm + '/'+ filename + '.ts'];
+      captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename + '.ts'];
   }
 
       var captureProcess = childProcess.spawn('ffmpeg', mySpawnArguments);
@@ -241,10 +244,10 @@ mkdirp(captureDirectory + '/' + myModel.nm, function (err) {
           remove(stoppedModel, capturingModels);
         }
 
-        fs.statAsync(captureDirectory + '/' + myModel.nm + '/'+ filename)
+        fs.statAsync(captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename)
           .then(stats => {
             if (stats.size <= (config.minFileSizeMb * 1048576)) {
-              fs.unlink(captureDirectory + '/' + myModel.nm + '/'+ filename, err => {
+              fs.unlink(captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename, err => {
                 // do nothing, shit happens
               });
             } 
