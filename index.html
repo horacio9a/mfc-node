@@ -88,7 +88,10 @@
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
                   <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
                   <th ng-click="vm.sort('rank')" ng-class="vm.sortType == 'rank' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Rank</th>
+                  <th ng-click="vm.sort('age')" ng-class="vm.sortType == 'age' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Age</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('continent')" ng-class="vm.sortType == 'continent' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Continent</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('country')" ng-class="vm.sortType == 'country' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Country</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('city')" ng-class="vm.sortType == 'city' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">City</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
                   <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Viewers</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('topic')" ng-class="vm.sortType == 'topic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Topic</th>
@@ -111,7 +114,10 @@
                   <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
                   <td>{{ model.camscore.toFixed(0) }}</td>
                   <td>{{ model.rank }}</td>
+                  <td>{{ model.age }}</td>
                   <td>{{ model.continent }}</td>
+                  <td>{{ model.country }}</td>
+                  <td>{{ model.city }}</td>
                   <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="model.new_model"></i></td>
                   <td>{{ model.rc }}</td>
                   <td>{{ model.topic }}</td>
@@ -281,7 +287,11 @@
                 // get text description of the state
                 m.state = getState(m.vs);
 
-                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,130);}
+                if (m.country && m.country.length > 3) {m.country = m.country.substr(0,18);}
+
+                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,18);}
+
+                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,80);}
 
                 if (m.rank == 0){m.rank = '';}
 
