@@ -73,6 +73,9 @@ function getOnlineModels() {var models = [];
         age: m.bestSession.age,
         city: m.bestSession.city,
         country: m.bestSession.country,
+        blurb: m.bestSession.blurb,
+        occupation: m.bestSession.occupation,
+        ethnic: m.bestSession.ethnic,
         rank: m.bestSession.rank,
         rc: m.bestSession.rc,
         tags: m.bestSession.tags
