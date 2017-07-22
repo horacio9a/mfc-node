@@ -291,17 +291,20 @@
                 // get text description of the state
                 m.state = getState(m.vs);
 
-                if (m.country && m.country.length > 3) {m.country = m.country.substr(0,13);}
+                if (m.country && m.country.length > 3) {m.country = m.country.substr(0,14);}
 
-                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,13);}
+                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,12);}
 
-                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,9);}
+                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,12);}
+                if (m.ethnic == 'No Answer'){m.ethnic = '---';}
+                if (m.ethnic == 'Other'){m.ethnic = '---';}
+                if (m.ethnic == 'Various'){m.ethnic = '---';}
 
-                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,13);}
+                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,12);}
 
-                if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,16);}
+                if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,18);}
 
-                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,50);}
+                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,48);}
 
                 m.new_model = m.new_model ? 'new_releases' : '';return m;});
 
