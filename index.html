@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 <title>MyFreeCams Recorder</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.green-red.min.css" />
 <style>
@@ -66,7 +66,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.1 by horacio9a (credits to @sstativa)</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.2 by horacio9a (credits to @sstativa)</span>
         <div class="mdl-layout-spacer"></div>
         <nav class="mdl-navigation">
           <button class="refresh mdl-button mdl-js-button mdl-button--fab mdl-button--colored mdl-shadow--16dp" ng-click="vm.refresh()" title="reload">
@@ -115,16 +115,16 @@
                   <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
                   <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
                   <td>{{ model.camscore.toFixed(0) }}</td>
-                  <td>{{ model.age }}</td>
-                  <td>{{ model.ethnic }}</td>
-                  <td>{{ model.continent }}</td>
-                  <td>{{ model.country }}</td>
-                  <td>{{ model.city }}</td>
-                  <td>{{ model.occupation }}</td>
-                  <td>{{ model.blurb }}</td>
-                  <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="model.new_model"></i></td>
-                  <td>{{ model.rc }}</td>
-                  <td>{{ model.topic }}</td>
+                  <td>{{ ::model.age }}</td>
+                  <td>{{ ::model.ethnic }}</td>
+                  <td>{{ ::model.continent }}</td>
+                  <td>{{ ::model.country }}</td>
+                  <td>{{ ::model.city }}</td>
+                  <td>{{ ::model.occupation }}</td>
+                  <td>{{ ::model.blurb }}</td>
+                  <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="::model.new_model"></i></td>
+                  <td>{{ ::model.rc }}</td>
+                  <td>{{ ::model.topic }}</td>
                   <td>
                     </ul>
                   </td>
@@ -156,9 +156,6 @@
         'vs90': 'Online',
         'vs91': 'Private',
         'vs127': 'Offline',
-        'vs1000': 'Recording',
-        'vs1001': 'Iclude',
-        'vs1002': 'Exclude'
       };
 
       return state['vs' + vs] || 'Unknown';
@@ -293,14 +290,14 @@
 
                 if (m.country && m.country.length > 3) {m.country = m.country.substr(0,14);}
 
-                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,12);}
+                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,14);}
 
-                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,12);}
+                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,14);}
                 if (m.ethnic == 'No Answer'){m.ethnic = '---';}
                 if (m.ethnic == 'Other'){m.ethnic = '---';}
                 if (m.ethnic == 'Various'){m.ethnic = '---';}
 
-                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,12);}
+                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,14);}
 
                 if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,18);}
 
