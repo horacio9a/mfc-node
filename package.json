@@ -1,33 +1,33 @@
 {
-	"name": "mfc-node",
-	"version": "2.0.0",
-	"description": "MyFreeCams Recorder",
-	"main": "main.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/sstativa/mfc-node.git"
-	},
-	"author": "sstativa",
-	"license": "WTFPL",
-	"bugs": {
-		"url": "https://github.com/sstativa/mfc-node/issues"
-	},
-	"homepage": "https://github.com/sstativa/mfc-node",
-	"dependencies": {
-		"bluebird": "latest",
-		"js-yaml": "^3.3.1",
-		"bhttp": "^1.2.1",
-		"mkdirp": "^0.5.1",
-		"moment": "^2.10.3",
-		"string": "^3.1.1",
-		"underscore": "^1.8.3",
-		"MFCAuto": "ZombieAlex/MFCAuto",
-		"colors": "^1.1.2",
-		"httpdispatcher": "^2.0.0",
-		"mv": "^2.1.1",
-		"promise-queue": "^2.2.3"
-	}
+  "name": "mfc-node",
+  "version": "2.0.2",
+  "description": "MyFreeCams Recorder",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+	"type": "git",
+	"url": "git://github.com/sstativa/mfc-node.git"
+  },
+  "author": "sstativa",
+  "license": "WTFPL",
+  "bugs": {
+	"url": "https://github.com/sstativa/mfc-node/issues"
+  },
+  "homepage": "https://github.com/sstativa/mfc-node",
+  "dependencies": {
+    "MFCAuto": "ZombieAlex/MFCAuto",
+    "bluebird": "^2.9.25",
+    "colors": "^1.1.2",
+    "filewalker": "^0.1.3",
+    "httpdispatcher": "^2.0.0",
+    "js-yaml": "^3.3.1",
+    "mkdirp": "^0.5.1",
+    "moment": "^2.10.3",
+    "mv": "^2.1.1",
+    "promise-queue": "^2.2.3",
+    "string": "^3.1.1",
+    "underscore": "^1.8.3"
+  }
 }
