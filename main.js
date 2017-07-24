@@ -9,14 +9,13 @@ var mkdirp = require('mkdirp');
 var yaml = require('js-yaml');
 var _ = require('underscore');
 var path = require('path');
-var bhttp = require('bhttp');
-var session = bhttp.session();
 var childProcess = require('child_process');
 var HttpDispatcher = require('httpdispatcher');
 var dispatcher = new HttpDispatcher();
 var https = require('https');
 var http = require('http');
 var mfc = require('MFCAuto');
+var EOL = require('os').EOL;
 
 // mfc.setLogLevel(5);
 
@@ -27,17 +26,19 @@ var cachedModels = [];  // "cached" copy of onlineModels (primarily for index.ht
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
 config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
+config.createModelDirectory = config.createModelDirectory || false;
+config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.fileFormat = config.fileFormat || 'flv';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.port = config.port || 9080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
-config.debug = config.debug || false;
+config.debug = config.debug || true;
 config.rtmp = config.rtmp || false;
 config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
 
-var captureDirectory = path.resolve(config.captureDirectory);
+var captureDirectory = config.captureDirectory;
 
 function getCurrentTime() {return moment().format('HH:mm:ss');};
 
@@ -102,7 +103,7 @@ function updateConfigModels() {
       let onlineModel = _.findWhere(onlineModels, { nm: queueModel.nm });
 
       if (_.isUndefined(onlineModel)) {
-        return true;
+        return true; // keep in the queue
       }
 
       uid = onlineModel.uid;
@@ -128,7 +129,7 @@ function updateConfigModels() {
 
     printDebugMsg('Save changes in config.yml');
 
-    fs.writeFileSync('config.yml', yaml.safeDump(config), 'utf8');
+    fs.writeFileSync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8');
   }
 }
 
@@ -139,6 +140,10 @@ function selectMyModels() {
   var isDirty = false;
 
   _.each(config.models, configModel => {
+    if (configModel.mode !== 1) {
+      return;
+    }
+
     var onlineModel = _.findWhere(onlineModels, { uid: configModel.uid });
 
     // if undefined then the model is offline
@@ -180,12 +185,28 @@ function createRtmpCaptureProcess(myModel) {
 
 function createFfmpegCaptureProcess(myModel) {
   return Promise
-    .try(() => {
-      var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
+    .try(() => {var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
 
-mkdirp(captureDirectory + '/' + myModel.uid + '_' + myModel.nm, function (err) {
+var directoryFormat;
+ if (config.directoryFormat == 'id+nm') {
+   directoryFormat = myModel.uid + '_' + myModel.nm;
+ } else if (config.directoryFormat == 'id') {
+   directoryFormat = myModel.uid;
+ } else if (config.directoryFormat == 'nm') {
+   directoryFormat = myModel.nm;
+ } else if (config.directoryFormat == 'nm+id') {
+   directoryFormat = myModel.nm + '_' + myModel.uid;}
+
+var path;
+ if (config.createModelDirectory == false) {
+   path = captureDirectory;
+ } else if (config.createModelDirectory == true) {
+   path = captureDirectory + '/' + directoryFormat;
+ }
+
+mkdirp(path, function (err) {
     if (err) console.error(err)
-    else (printMsg(colors.green(myModel.uid + '_' + myModel.nm) + (colors.yellow(' subdirectory is created or exists.'))));
+    else {};  // do nothing
 });
 
   var hls_url = 'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8';
@@ -204,7 +225,7 @@ mkdirp(captureDirectory + '/' + myModel.uid + '_' + myModel.nm, function (err) {
       'aac',
       '-b:a',
       '160k',
-      captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename + '.flv'];
+      path + '/' + filename + '.flv'];
 
   } else if (config.fileFormat == 'ts') {
     mySpawnArguments = [
@@ -221,7 +242,7 @@ mkdirp(captureDirectory + '/' + myModel.uid + '_' + myModel.nm, function (err) {
       '60',
       '-b:v',
       '500k',
-      captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename + '.ts'];
+      path + '/' + filename + '.ts'];
   }
 
       var captureProcess = childProcess.spawn('ffmpeg', mySpawnArguments);
@@ -247,13 +268,13 @@ mkdirp(captureDirectory + '/' + myModel.uid + '_' + myModel.nm, function (err) {
           remove(stoppedModel, capturingModels);
         }
 
-        fs.statAsync(captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename)
+        fs.statAsync(path + '/' + filename)
           .then(stats => {
             if (stats.size <= (config.minFileSizeMb * 1048576)) {
-              fs.unlink(captureDirectory + '/' + myModel.uid + '_' + myModel.nm + '/' + filename, err => {
+              fs.unlink(path + '/' + filename, err => {
                 // do nothing, shit happens
               });
-            } 
+            }
           })
           .catch(err => {
             if (err.code !== 'ENOENT') {
@@ -442,7 +463,7 @@ dispatcher.onGet('/models/include', addInQueue);
 dispatcher.onGet('/models/exclude', addInQueue);
 
 // whenever we delete the model we only "express our intention" to do so,
-// in fact the model will be markd as "deleted" in config only with the next iteration of mainLoop
+// in fact the model will be marked as "deleted" in config only with the next iteration of mainLoop
 dispatcher.onGet('/models/delete', addInQueue);
 
 dispatcher.onError((req,res) => {res.writeHead(404);});
