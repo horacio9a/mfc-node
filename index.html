@@ -87,16 +87,22 @@
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
                   <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
+                  <th ng-click="vm.sort('rank')" ng-class="vm.sortType == 'rank' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Rank</th>
                   <th ng-click="vm.sort('age')" ng-class="vm.sortType == 'age' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Age</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('ethnic')" ng-class="vm.sortType == 'ethnic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Ethnic</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('continent')" ng-class="vm.sortType == 'continent' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Cont.</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('country')" ng-class="vm.sortType == 'country' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Country</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('city')" ng-class="vm.sortType == 'city' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">City</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('occupation')" ng-class="vm.sortType == 'occupation' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Occupation</th>
-                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('blurb')" ng-class="vm.sortType == 'blurb' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Blurb</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('missmfc')" ng-class="vm.sortType == 'missmfc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Miss MFC</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('blurb')" ng-class="vm.sortType == 'blurb' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Blurb</th>
                   <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Users</th>
                   <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('topic')" ng-class="vm.sortType == 'topic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Topic</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
+                  <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('nm')" ng-class="vm.sortType == 'nm' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Name</th>
+                  <th ng-click="vm.sort('snapimg')" ng-class="vm.sortType == 'snapimg' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Thumb.</th>
                   <th></th>
                 </tr>
               </thead>
@@ -104,7 +110,7 @@
                 <tr ng-repeat="model in vm.models | orderBy:vm.sortType:vm.sortReverse" ng-class="vm.rowColor(model.vs)">
                   <td background="{{ snapimg }}" ng-mouseover="count = count + 1; snapimg = vm.snapimg_url(model, count);" ng-init="count = 0; snapimg = vm.snapimg_url(model, count);" class="backimage">
                   <script> { document.write("<button id=\"{{ 'action-list-' + model.uid }}\" class=\"buttonmenubig mdl-button mdl-js-button mdl-button--icon\"></button>") } </script>
-                  </button><ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="{{ 'action-list-' + model.uid }}">
+                  </button><ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="{{ 'action-list-' + model.uid }}">
                   <li class="mdl-menu__item"><a class="mdl-color-text--blue-900 mdl-color--blue-100" ng-click="vm.includeUid(model)" ng-disabled="vm.includeDisabled(model)"> ==> Include == </a></li>
                   <li class="mdl-menu__item mdl-menu__item--full-bleed-divider"><a class="mdl-color-text--yellow-100 mdl-color--yellow-900" ng-click="vm.excludeUid(model)" ng-disabled="vm.excludeDisabled(model)"> <== Exclude == </a></li>
                   <li class="mdl-menu__item"><a class="mdl-color-text--red-900 mdl-color--red-100" ng-click="vm.deleteUid(model)" ng-disabled="model.nextMode == -1"> === Delete === </li></a>
@@ -115,20 +121,30 @@
                   <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
                   <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
                   <td>{{ model.camscore.toFixed(0) }}</td>
+                  <td>{{ ::model.rank }}</td>
                   <td>{{ ::model.age }}</td>
                   <td>{{ ::model.ethnic }}</td>
                   <td>{{ ::model.continent }}</td>
                   <td>{{ ::model.country }}</td>
                   <td>{{ ::model.city }}</td>
                   <td>{{ ::model.occupation }}</td>
-                  <td>{{ ::model.blurb }}</td>
                   <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="::model.new_model"></i></td>
+                  <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--amber-500" ng-bind="::model.missmfc"></i></td>
+                  <td>{{ ::model.blurb }}</td>
                   <td>{{ ::model.rc }}</td>
                   <td>{{ ::model.topic }}</td>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
+                  <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-800" ng-click="vm.preview(model)" ng-bind="model.nm"></a></td>
+                  <td background="{{ snapimg }}" ng-mouseover="count = count + 1; snapimg = vm.snapimg_url(model, count);" ng-init="count = 0; snapimg = vm.snapimg_url(model, count);" class="backimage">
                   <td>
+                    <button id="{{ 'action-list' + model.uid }}" class="mdl-button mdl-js-button mdl-button--icon"><i class="material-icons">more_vert</i></button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu" for="{{ 'action-list' + model.uid }}">
+                      <li class="mdl-menu__item"><a class="mdl-color-text--blue-900 mdl-color--blue-100" ng-click="vm.includeUid(model)" ng-disabled="vm.includeDisabled(model)"> ==> Include == </a></li>
+                      <li class="mdl-menu__item mdl-menu__item--full-bleed-divider"><a class="mdl-color-text--yellow-100 mdl-color--yellow-900" ng-click="vm.excludeUid(model)" ng-disabled="vm.excludeDisabled(model)"> <== Exclude == </a></li>
+                      <li class="mdl-menu__item"><a class="mdl-color-text--red-900 mdl-color--red-100" ng-click="vm.deleteUid(model)" ng-disabled="model.nextMode == -1"> === Delete === </li></a>
                     </ul>
-                  </td>
-                </tr>
+                  </tr>
               </tbody>
             </table>
           </div>
@@ -288,21 +304,24 @@
                 // get text description of the state
                 m.state = getState(m.vs);
 
-                if (m.country && m.country.length > 3) {m.country = m.country.substr(0,14);}
+                if (m.country && m.country.length > 3) {m.country = m.country.substr(0,16);}
 
-                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,14);}
+                if (m.city && m.city.length > 3) {m.city = m.city.substr(0,16);}
 
-                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,14);}
+                if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,16);}
                 if (m.ethnic == 'No Answer'){m.ethnic = '---';}
                 if (m.ethnic == 'Other'){m.ethnic = '---';}
                 if (m.ethnic == 'Various'){m.ethnic = '---';}
 
-                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,14);}
+                if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,16);}
 
-                if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,18);}
+                if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,24);}
 
-                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,48);}
+                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,120);}
 
+                if (m.rank == 0){m.rank = '';}
+
+                m.missmfc = m.missmfc ? 'star' : '';
                 m.new_model = m.new_model ? 'new_releases' : '';return m;});
 
             $timeout(function() {
