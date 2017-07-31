@@ -435,6 +435,7 @@ Promise
   })
   .catch(err => {
     printErrorMsg(err.toString());
+    process.exit(1);
   });
 
 dispatcher.onGet('/', (req, res) => {fs.readFile('./index.html', (err, data) => {
