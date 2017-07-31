@@ -171,7 +171,7 @@ function selectMyModels() {
   if (isDirty) {
     printDebugMsg('Save changes in config.yml');
 
-    fs.writeFileSync('config.yml', yaml.safeDump(config), 'utf8');
+    fs.writeFileSync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8');
   }
 
   printDebugMsg(myModels.length + ' model(s) to record.');
