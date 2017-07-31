@@ -204,6 +204,11 @@
         });
       };
 
+      vm.dump = function (model) {
+        console.log(model);
+        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
+      };
+
       vm.includeDisabled = function(model) {
         return model.nextMode == 1 || (model.mode == 1 && model.nextMode == undefined);
       };
@@ -298,7 +303,7 @@
 
                 if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,24);}
 
-                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,120);}
+                if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,110);}
 
                 m.new_model = m.new_model ? 'new_releases' : '';return m;});
 
