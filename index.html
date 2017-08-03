@@ -244,7 +244,7 @@
         <h2 class="mdl-card__title-text">{{ vm.model.nm }}</h2>
         <table>
           <tr><td style="width:120px">State</td><td>{{ vm.model.state }}</td></tr>
-          <tr><td>No Mobile Feed</td><td>{{ vm.model.camserv < 840 ? 'Yes' : 'No' }}</td></tr>
+          <tr><td>No Mobile Feed</td><td>{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported yet' : 'No' }}</td></tr>
           <tr><td>Age</td><td>{{ vm.model.age || '-' }}</td></tr>
           <tr><td>Ethnic</td><td>{{ vm.model.ethnic || '-' }}</td></tr>
           <tr><td>Continent</td><td>{{ vm.model.continent || '-' }}</td></tr>
