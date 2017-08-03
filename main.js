@@ -140,9 +140,6 @@ function selectMyModels() {
   var isDirty = false;
 
   _.each(config.models, configModel => {
-    if (configModel.mode !== 1) {
-      return;
-    }
 
     var onlineModel = _.findWhere(onlineModels, { uid: configModel.uid });
 
@@ -151,20 +148,26 @@ function selectMyModels() {
       return; // skip the rest of the function
     }
 
-    onlineModel.mode = configModel.mode;
+    if (configModel.mode !== 1) {
+      onlineModel.mode = configModel.mode;
 
-    if (onlineModel.mode === 1) {
-      if (onlineModel.vs === 0 || onlineModel.vs === 90) { // probably 90 should be removed
-        myModels.push(onlineModel);
-      } else {
-        printMsg(colors.green(onlineModel.nm) + (colors.cyan(' is AWAY or PRIVATE.')));
-      }
+      return;
     }
 
     // save the name of the model in config
     if (!configModel.nm) {
       configModel.nm = onlineModel.nm;
+
       isDirty = true;
+    }
+
+    onlineModel.mode = configModel.mode;
+    onlineModel.dir_nm = configModel.nm;
+
+    if (onlineModel.vs === 0 || onlineModel.vs === 90) { // probably 90 should be removed
+      myModels.push(onlineModel);
+    } else {
+      printMsg(colors.green(onlineModel.nm) + (colors.cyan(' is AWAY or PRIVATE.')));
     }
   });
 
