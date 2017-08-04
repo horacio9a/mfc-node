@@ -59,7 +59,7 @@
 
     .spinner {
       position: fixed;
-      top: 0; right: 0; bottom: 0; left: 0;
+      top: 0; right: 0; bottom: 0; left: 100;
       background: #efefef;
       z-index: 9999;
       display: flex;
@@ -77,6 +77,10 @@
     }
 
     .mdl-layout-spacer {
+      display: none;
+    }
+
+    .ko-fi {
       display: none;
     }
 
@@ -112,7 +116,7 @@
       position: absolute;
       left: 7px;
       top: 7px;
-      font-size: 20px;
+      font-size: 30px;
       transition: color 0.2s linear;
     }
 
@@ -134,7 +138,12 @@
     .filter input:focus + .search-icon + .filter-clear {
       color: #fff;
     }
-    @media (min-width: 768px){.{margin-right: 15px;display: block;}
+
+    @media (min-width: 768px) {
+      .ko-fi {
+        margin-right: 15px;
+        display: block;
+      }
 
       .mdl-layout-title {
         display: block;
@@ -160,7 +169,7 @@
     }
 
     .mdl-card {
-      width: 480px;
+      width: 960px;
     }
 
     .mdl-card__menu {
@@ -211,11 +220,15 @@
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
               <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
+              <th ng-click="vm.sort('rank')" ng-class="vm.sortType == 'rank' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Rank</th>
               <th ng-click="vm.sort('age')" ng-class="vm.sortType == 'age' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Age</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('ethnic')" ng-class="vm.sortType == 'ethnic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Ethnic</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('continent')" ng-class="vm.sortType == 'continent' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Cont.</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('blurb')" ng-class="vm.sortType == 'blurb' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Blurb</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('country')" ng-class="vm.sortType == 'country' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Country</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('city')" ng-class="vm.sortType == 'city' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">City</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('missmfc')" ng-class="vm.sortType == 'missmfc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Miss MFC</th>
               <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Viewers</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('topic')" ng-class="vm.sortType == 'topic' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Topic</th>
             </tr>
           </thead>
           <tbody>
@@ -225,11 +238,15 @@
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
               <td ng-bind="::model.camscore.toFixed(0)"></td>
+              <td ng-bind="::model.rank"></td>
               <td ng-bind="::model.age"></td>
+              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.ethnic"></td>
               <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.continent"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.blurb"></td>
+              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.country"></td>
+              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.city"></td>
+              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="::model.new_model"></i></td>
+              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--amber-500" ng-bind="::model.missmfc"></i></td>
               <td ng-bind="::model.rc"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.topic"></td>
             </tr>
           </tbody>
         </table>
@@ -251,10 +268,12 @@
           <tr><td>Country</td><td>{{ vm.model.country || '-' }}</td></tr>
           <tr><td>City</td><td>{{ vm.model.city || '-' }}</td></tr>
           <tr><td>Occupation</td><td>{{ vm.model.occupation || '-' }}</td></tr>
+          <tr><td>Blurb</td><td>{{ vm.model.blurb || '-' }}</td></tr>
+          <tr><td>Topic</td><td>{{ vm.model.topic || '-' }}</td></tr>
           <tr><td>Camscore</td><td>{{ vm.model.camscore.toFixed(0) }}</td></tr>
-          <tr><td>Miss MFC</td><td>{{ vm.model.missmfc ? 'Yes' : 'No' }}</td></tr>
-          <tr><td>New model</td><td>{{ vm.model.new_model ? 'Yes' : 'No' }}</td></tr>
           <tr><td>Viewers</td><td>{{ vm.model.rc }}</td></tr>
+          <tr><td>New model</td><td>{{ vm.model.new_model ? 'Yes' : 'No' }}</td></tr>
+          <tr><td>Miss MFC</td><td>{{ vm.model.missmfc ? 'Yes' : 'No' }}</td></tr>
           <tr><td>...</td></tr>
         </table>
       </div>
@@ -271,7 +290,7 @@
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="next">Next model</div>
       </div>
       <div class="mdl-card__menu">
-        <a target="_blank" ng-href="http://video{{ vm.model.camserv - 500}}.myfreecams.com:1935/NxServer/ngrp:mfc_{{ 100000000 + vm.model.uid }}.f4v_mobile/playlist.m3u8?{{ vm.model.nm }}" class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+        <a target="_blank" ng-href="http://video{{ vm.model.camserv - 500}}.myfreecams.com:1935/NxServer/ngrp:mfc_{{ 100000000 + vm.model.uid }}.f4v_mobile/playlist.m3u8?{{ vm.model.nm }}" class="mdl-button mdl-js-button mdl-button--fab mdl-button mdl-shadow--2dp">
           <i class="material-icons">open_in_new</i>
         </a>
       </div>
@@ -295,7 +314,7 @@
       vm.snapimg_url = function(model, x) {
 
       // The random number in the url is to force the browser to reload the image and not to use its cache
-      var snapshot_url = ('http://204.15.8.11/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 700 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~30% of the models will get sanpshots
         if (model.camscore > 700 || x > 0){return snapshot_url;
          } else {return '';
@@ -427,7 +446,7 @@
 
       vm.preview = function(model) {
         if ((model.camserv) > 840) {
-          var url1 = ('http://204.15.8.11/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
+          var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
           open (url1);
         } else if ((model.camserv) < 840) {
           var url2 = ('http://img.mfcimg.com/livesnap320/?user=' + (100000000 + model.uid) + '#cs=' + model.camserv + '#' + model.nm);
@@ -489,22 +508,27 @@
             vm.serverModels = response.data.map(function (m) {
               vm.setVs(m);
 
-              m.keywords = m.nm + '\n' + m.city + '\n' + m.country;
+              m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic;
 
-              if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,100);}
+              if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20);}
               if (m.ethnic == 'No Answer'){m.ethnic = '---';}
               if (m.ethnic == 'Other'){m.ethnic = '---';}
               if (m.ethnic == 'Various'){m.ethnic = '---';}
 
-              if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,100);}
+              if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20);}
 
-              if (m.country && m.country.length > 3) {m.country = m.country.substr(0,100);}
+              if (m.country && m.country.length > 3) {m.country = m.country.substr(0,20);}
 
-              if (m.city && m.city.length > 3) {m.city = m.city.substr(0,100);}
+              if (m.city && m.city.length > 3) {m.city = m.city.substr(0,20);}
 
-              if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,50);}
+              if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,100);}
 
-              if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,100);}
+              if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,160);}
+
+              if (m.rank == 0){m.rank = '';}
+
+              m.new_model = m.new_model ? 'new_releases' : '';
+              m.missmfc = m.missmfc ? 'star' : '';
 
               m.rc = m.rc || 0;
 
