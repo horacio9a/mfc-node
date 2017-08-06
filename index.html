@@ -258,10 +258,10 @@
     <div class="mdl-card mdl-shadow--8dp" onclick="stopPropogate(event)">
       <img class="snapshot" ng-src="{{ vm.snapshot }}" alt=""/>
       <div class="mdl-card__supporting-text">
-        <h2 class="mdl-card__title-text">{{ vm.model.nm }}</h2>
+        <h2 class="mdl-color-text--green-800">{{ vm.model.nm }}</h2>
         <table>
-          <tr><td style="width:120px">State</td><td>{{ vm.model.state }}</td></tr>
-          <tr><td>No Mobile Feed</td><td>{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported yet' : 'No' }}</td></tr>
+          <tr><td style="width:120px">State</td><td><a class="mdl-color-text--blue-900">{{ vm.model.state }}</a></td></tr>
+          <tr><td>No Mobile Feed</td><td><a class="mdl-color-text--red-900">{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported yet' : 'No' }}</a></td></tr>
           <tr><td>Age</td><td>{{ vm.model.age || '-' }}</td></tr>
           <tr><td>Ethnic</td><td>{{ vm.model.ethnic || '-' }}</td></tr>
           <tr><td>Continent</td><td>{{ vm.model.continent || '-' }}</td></tr>
@@ -513,7 +513,6 @@
               if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20);}
               if (m.ethnic == 'No Answer'){m.ethnic = '---';}
               if (m.ethnic == 'Other'){m.ethnic = '---';}
-              if (m.ethnic == 'Various'){m.ethnic = '---';}
 
               if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20);}
 
