@@ -426,7 +426,7 @@ function mainLoop() {
     });
 }
 
-var mfcClient = new mfc.Client();
+var mfcClient = new mfc.Client('guest', 'guest', true);
 
 Promise
   .try(() => mfcClient.connectAndWaitForModels())
