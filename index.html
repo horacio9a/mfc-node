@@ -270,10 +270,8 @@
           <tr><td>Occupation</td><td>{{ vm.model.occupation || '-' }}</td></tr>
           <tr><td>Blurb</td><td>{{ vm.model.blurb || '-' }}</td></tr>
           <tr><td>Topic</td><td>{{ vm.model.topic || '-' }}</td></tr>
-          <tr><td>Camscore</td><td>{{ vm.model.camscore.toFixed(0) }}</td></tr>
           <tr><td>Viewers</td><td>{{ vm.model.rc }}</td></tr>
           <tr><td>New model</td><td>{{ vm.model.new_model ? 'Yes' : 'No' }}</td></tr>
-          <tr><td>Miss MFC</td><td>{{ vm.model.missmfc ? 'Yes' : 'No' }}</td></tr>
           <tr><td>...</td></tr>
         </table>
       </div>
@@ -512,7 +510,6 @@
 
               if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20);}
               if (m.ethnic == 'No Answer'){m.ethnic = '---';}
-              if (m.ethnic == 'Other'){m.ethnic = '---';}
 
               if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20);}
 
