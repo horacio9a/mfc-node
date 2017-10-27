@@ -195,7 +195,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.6 by horacio9a (credits to @sstativa)</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.6 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -517,9 +517,9 @@
 
               if (m.city && m.city.length > 3) {m.city = m.city.substr(0,20);}
 
-              if (m.blurb && m.blurb.length > 3) {m.blurb = m.blurb.substr(0,100);}
+              if (m.blurb && m.blurb.length > 3) {try {m.blurb = m.blurb.substr(0,100);} catch (err) {console.log(err);}}
 
-              if (m.topic && m.topic.length > 3) {m.topic = decodeURIComponent(m.topic).substr(0,160);}
+              if (m.topic && m.topic.length > 3) {try {m.topic = decodeURIComponent(m.topic).substr(0,160);} catch (err) {console.log(err);}}
 
               if (m.rank == 0){m.rank = '';}
 
