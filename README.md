@@ -31,10 +31,9 @@ Setup
 Running
 =======
 1. Open console and go into the directory where you unpacked the files.
-2. Run `npm install` in the same folder as main.js is.
-3. Edit config.yml file
-4. Start program with `node main.js`.
+2. Start program with `node main.js`.
 3. Open http://localhost:8888 in your browser. 
+
 The list of online models will be displayed with a set of allowed commands for each model:
 	* __Include__ - if you want to record the model
 	* __Exclude__ - if you don't want to record the model anymore
@@ -62,32 +61,29 @@ For advanced users
 There are several special URLs that allow implementing some operations with a model even if she is offline.
 
 __Include__
-
 ```
 http://localhost:9080/models/include?nm=modelname
 http://localhost:9080/models/include?uid=12345678
 ```
-
 __Exclude__
-
 ```
 http://localhost:9080/models/exclude?nm=modelname
 http://localhost:9080/models/exclude?uid=12345678
 ```
-
 __Delete__
-
 ```
 http://localhost:9080/models/delete?nm=modelname
 http://localhost:9080/models/delete?uid=12345678
 ```
-
 ![alt screenshot](./screenshot.jpg)
 
 ![alt screenshot](./screenshot1.jpg)
 
 Livestreamer version (default)
+
 ![alt screenshot](./screenshot2.jpg)
 
 Streamelink version
+
 ![alt screenshot](./screenshot3.jpg)
+
