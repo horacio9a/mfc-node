@@ -4,13 +4,9 @@ Note: This is version has absolutely the same functionality with previous one, h
 mfc-node lets you follow and record your favorite models' shows on myfreecams.com
 This is an attempt to create a script similar to [capturbate-node](https://github.com/SN4T14/capturebate-node) and [mfc-node](https://github.com/sstativa/mfc-node) based on different pieces of code found on the Internet.
 
-
 mfc-node
 ==========
 This is an attempt to create a script similar to [capturbate-node](https://github.com/sstativa/capturebate-node) based on different pieces of code found on the Internet.
-
-![alt screenshot](./screenshot.jpg)
-![alt screenshot](./screenshot2.jpg)
 
 Credits:
 * [capturbate-node](https://github.com/sstativa/capturebate-node)
@@ -18,25 +14,27 @@ Credits:
 
 Requirements
 ============
-[Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with `7.9.0` and `8.1.3`)
-[ffmpeg](https://ffmpeg.zeranoe.com/builds/) must be a last version somewere in the path.
-This produce a high quality flv file who not need conversion, so that part is removed from the script.
+[Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v8.1.3)
+[Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 can bi installed like python module with 'pip install livestreamer==1.12.2'
+[Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0 can bi installed like python module with 'pip install streamlink==0.9.0'
 
 Setup
 =====
-1. Install [Node.js](https://nodejs.org/download/release/) (tested with `7.9.0` and `8.1.3`).
+1. Install [Node.js](https://nodejs.org/download/release/) (v8.1.3 or higher).
 2. Install [Git](https://git-scm.com/downloads).
 2. Download and unpack the [code](https://codeload.github.com/horacio9a/mfc-node/zip/v2).
 3. Open console and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is.
 5. Edit `config.yml` file and set desirable values for `captureDirectory`, `dateFormat` and `modelScanInterval`
-6. Install [ffmpeg](https://ffmpeg.zeranoe.com/builds/). For Windows users, copy `ffmpeg.exe` into same directory as `main.js` or somewhere in the path ('C:\Windows\' for example)
+6. Install [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 or [Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0
 
 Running
 =======
 1. Open console and go into the directory where you unpacked the files.
-2. Run `node main.js`.
-3. Open http://localhost:9080 in your browser. 
+2. Run `npm install` in the same folder as main.js is.
+3. Edit config.yml file
+4. Start program with `node main.js`.
+3. Open http://localhost:8888 in your browser. 
 The list of online models will be displayed with a set of allowed commands for each model:
 	* __Include__ - if you want to record the model
 	* __Exclude__ - if you don't want to record the model anymore
@@ -51,7 +49,7 @@ The list of online models will be displayed with a set of allowed commands for e
 The MFC Recorder now captures the MFC stream in standard FLV quality, as if it was recorded eg with rtmpdump. 
 That's why I think that only one directory is enough where all the files are recorded and in most cases don't need a conversion.
 It also allows you to watch the recorded file during recording with possible jumps forward and back if needed.
-- I added in config.yml the option to edit the 'date format' and 'file format' for the recorded file. You can choose between 'flv' and 'ts' as in the original version.
+- I added in config.yml the option to edit the 'date format' and 'file format' for the recorded file. You can choose between 'mp4' and 'ts'.
 - Lot of people are asking, so I added the option that every model now has its own subdirectory
 - The menu have a small preview, and when the mouse cursor is hover, it will update.
 - When you click on a preview thumbnail, you get menu for include, exclude and delete models from list in config.yml.
@@ -84,3 +82,12 @@ http://localhost:9080/models/delete?nm=modelname
 http://localhost:9080/models/delete?uid=12345678
 ```
 
+![alt screenshot](./screenshot.jpg)
+
+![alt screenshot](./screenshot1.jpg)
+
+Livestreamer version (default)
+![alt screenshot](./screenshot2.jpg)
+
+Streamelink version
+![alt screenshot](./screenshot3.jpg)
