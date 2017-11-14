@@ -29,7 +29,7 @@ config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.createModelDirectory = config.createModelDirectory || false;
 config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
-config.fileFormat = config.fileFormat || 'flv';
+config.fileFormat = config.fileFormat || 'mp4';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.port = config.port || 9080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
@@ -215,40 +215,24 @@ mkdirp(path, function (err) {
   var hls_url = 'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + myModel.uid) + '.f4v_mobile/playlist.m3u8';
 
   var mySpawnArguments;
-  if (config.fileFormat == 'flv') {
+  if (config.fileFormat == 'mp4') {
     mySpawnArguments = [
-      '-hide_banner',
-      '-v',
-      'fatal',
-      '-i',
-      hls_url,
-      '-c:v',
-      'copy',
-      '-c:a',
-      'aac',
-      '-b:a',
-      '160k',
-      path + '/' + filename + '.flv'];
+      '-Q',
+      'hlsvariant://' + hls_url,
+      'best',
+      '-o',
+      path + '/' + filename + '.mp4'];
 
   } else if (config.fileFormat == 'ts') {
     mySpawnArguments = [
-      '-hide_banner',
-      '-v',
-      'fatal',
-      '-i',
-      hls_url,
-      '-c',
-      'copy',
-      '-vsync',
-      '2',
-      '-r',
-      '60',
-      '-b:v',
-      '500k',
+      '--quiet',
+      'hlsvariant://' + hls_url,
+      'best',
+      '-o',
       path + '/' + filename + '.ts'];
   }
 
-      var captureProcess = childProcess.spawn('ffmpeg', mySpawnArguments);
+      var captureProcess = childProcess.spawn('livestreamer', mySpawnArguments);
 
       if (!captureProcess.pid) {
         return;
