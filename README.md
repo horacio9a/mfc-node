@@ -1,22 +1,19 @@
 mfc-node-recorder
 =================
-Note: This is version has absolutely the same functionality with previous one, however, the code was simplified and cleaned from outdated parts.
-mfc-node lets you follow and record your favorite models' shows on myfreecams.com
-This is an attempt to create a script similar to [capturbate-node](https://github.com/SN4T14/capturebate-node) and [mfc-node](https://github.com/sstativa/mfc-node) based on different pieces of code found on the Internet.
+Note: This is version has absolutely the same functionality with previous one, however, the code was simplified and cleaned from outdated parts. mfc-node lets you follow and record your favorite models' shows on myfreecams.com
 
 mfc-node
 ==========
-This is an attempt to create a script similar to [capturbate-node](https://github.com/sstativa/capturebate-node) based on different pieces of code found on the Internet.
+This is an attempt to create a script similar to [capturbate-node](https://github.com/SN4T14/capturebate-node) based on different pieces of code found on the Internet.
 
 Credits:
-* [capturbate-node](https://github.com/sstativa/capturebate-node)
 * [MFCAuto](https://github.com/ZombieAlex/MFCAuto)
 
 Requirements
 ============
-[Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v8.1.3)
-[Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 can bi installed like python module with 'pip install livestreamer==1.12.2'
-[Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0 can bi installed like python module with 'pip install streamlink==0.9.0'
+1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v8.1.3)
+2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 can bi installed like python module with 'pip install livestreamer==1.12.2'
+3. [Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0 can bi installed like python module with 'pip install streamlink==0.9.0'
 
 Setup
 =====
