@@ -28,7 +28,7 @@
     "mv": "latest",
     "promise-queue": "^2.2.3",
     "string": "^3.1.1",
-	"livestreamer": "^0.8.0",
+    "livestreamer": "^0.8.0",
     "underscore": "^1.8.3"
   }
 }
