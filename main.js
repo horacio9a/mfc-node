@@ -31,10 +31,9 @@ config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.fileFormat = config.fileFormat || 'mp4';
 config.modelScanInterval = config.modelScanInterval || 30;
-config.port = config.port || 9080;
+config.port = config.port || 8080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
 config.debug = config.debug || true;
-config.rtmp = config.rtmp || false;
 config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
 
@@ -179,14 +178,9 @@ function selectMyModels() {
 
   printDebugMsg(myModels.length + ' model(s) to record.');
 
-  return myModels;
-}
+  return myModels;}
 
-function createRtmpCaptureProcess(myModel) {
-  // "classified", currently I'm not interested to make this part public
-}
-
-function createFfmpegCaptureProcess(myModel) {
+function createLivestreamerCaptureProcess(myModel) {
   return Promise
     .try(() => {var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
 
@@ -295,7 +289,7 @@ function createCaptureProcess(myModel) {
 
   printMsg(colors.green(myModel.nm) + ' is online >>> start recording.');
 
-  return config.rtmp ? createRtmpCaptureProcess(myModel) : createFfmpegCaptureProcess(myModel);
+  return createLivestreamerCaptureProcess(myModel);
 }
 
 function checkCaptureProcess(capturingModel) {
