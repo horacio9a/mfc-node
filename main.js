@@ -29,10 +29,11 @@ config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.createModelDirectory = config.createModelDirectory || false;
 config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
+config.downloadProgram = config.downloadProgram || 'ls';
 config.fileFormat = config.fileFormat || 'mp4';
 config.modelScanInterval = config.modelScanInterval || 30;
-config.port = config.port || 8080;
 config.minFileSizeMb = config.minFileSizeMb || 0;
+config.port = config.port || 8888;
 config.debug = config.debug || true;
 config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
@@ -180,7 +181,7 @@ function selectMyModels() {
 
   return myModels;}
 
-function createLivestreamerCaptureProcess(myModel) {
+function createMainCaptureProcess(myModel) {
   return Promise
     .try(() => {var filename = myModel.nm + '_MFC_' + moment().format(config.dateFormat);
 
@@ -219,14 +220,20 @@ mkdirp(path, function (err) {
 
   } else if (config.fileFormat == 'ts') {
     mySpawnArguments = [
-      '--quiet',
+      '-Q',
       'hlsvariant://' + hls_url,
       'best',
       '-o',
       path + '/' + filename + '.ts'];
   }
 
-      var captureProcess = childProcess.spawn('livestreamer', mySpawnArguments);
+var downloadProgram;
+ if (config.downloadProgram == 'ls') {
+   downloadProgram = 'livestreamer';
+ } else if (config.downloadProgram == 'sl') {
+   downloadProgram = 'streamlink';}
+
+      var captureProcess = childProcess.spawn(downloadProgram, mySpawnArguments);
 
       if (!captureProcess.pid) {
         return;
@@ -289,7 +296,7 @@ function createCaptureProcess(myModel) {
 
   printMsg(colors.green(myModel.nm) + ' is online >>> start recording.');
 
-  return createLivestreamerCaptureProcess(myModel);
+  return createMainCaptureProcess(myModel);
 }
 
 function checkCaptureProcess(capturingModel) {
