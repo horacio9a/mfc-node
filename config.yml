@@ -5,10 +5,11 @@ dateFormat: DDMMYYYY-HHmmss # Your date format for the name of the recorded file
 fileFormat: mp4 # You can choose between 'mp4' and 'ts' file format for livestreamer support
 modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models
 minFileSizeMb: 0 # If you do not want to save a file smaller than 5 MB enter number 5
-port: 8888 # number of port for your browser url for example: http://localhost:8888/
+port: 9080 # number of port for your browser url for example: http://localhost:9080/
 debug: true # If you want a more detailed view put 'true'
 models: # This is only example - models will be added with your browser
   - uid: 18363406
     mode: 1
     nm: HOTREAL36DD
 queue: []
+rtmp: false # Currently this option is 'false'
