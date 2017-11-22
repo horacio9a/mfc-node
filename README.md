@@ -50,16 +50,15 @@ Livestreamer and streamlink produce `mp4' files and `ffmpeg` produce `flv` or 't
 - By pressing the model 'Name' you get a picture preview of the current model in the room. You can refresh this page later if you are interested in a new situation. If the model is called 'No Mobile Feed' then you will get a link that you can copy and start in a separate browser page and see what's happening in the room. Unfortunately, you can not record this unit with this recorder, but by pressing 'State/Online' you can watch the stream of that model in your browser. 
 - By pressing 'State/Online' you can enter in the model room with your browser.
 - By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native_hls_playback/)
-
-If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. 
+- If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. 
 This can be of help with other downloadings that we do with livestreamer and streamlink.
 In your instalation you must found:
 
-... /livestreamer_cli/utils/
+... /livestreamer_cli/utils/progress.pyc
 or
-... /streamlink_cli/utils/
+... /streamlink_cli/utils/progress.py
 
-... and owerwrite existing files with this one.
+... and owerwrite existing files with 'progress.py' on this page.
 
 For advanced users
 ==================
@@ -88,9 +87,7 @@ New look of 'spinner'
 
 ![alt screenshot](./screenshot1.jpg)
 
-Livestreamer version (default)
-
-Appearance after replacement of 'progress.py'
+Look after replacement of 'progress.py'
 
 ![alt screenshot](./screenshot2.jpg)
 
