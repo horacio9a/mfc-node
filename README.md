@@ -12,8 +12,9 @@ Credits:
 Requirements
 ============
 1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v8.1.3)
-2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 can bi installed like python module with 'pip install livestreamer==1.12.2'
-3. [Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0 can bi installed like python module with 'pip install streamlink==0.9.0'
+2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 It's best to be in C:/Livestreamer
+3. [Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0 better to install it independently (not in python)
+4. [ffmpeg](https://ffmpeg.zeranoe.com/builds/) must be a last version somewere in the path.
 
 Setup
 =====
@@ -22,8 +23,7 @@ Setup
 2. Download and unpack the [code](https://codeload.github.com/horacio9a/mfc-node/zip/v2).
 3. Open console and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is.
-5. Edit `config.yml` file and set desirable values for `captureDirectory`, `dateFormat` and `modelScanInterval`
-6. Install [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 or [Streamlink](https://github.com/streamlink/streamlink) last version 0.9.0
+5. Edit `config.yml` file and set desirable values for `captureDirectory`, `dateFormat`, `downloadProgram` and `modelScanInterval`
 
 Running
 =======
@@ -32,26 +32,34 @@ Running
 3. Open http://localhost:8888 in your browser. 
 
 The list of online models will be displayed with a set of allowed commands for each model:
-	* __Include__ - if you want to record the model
-	* __Exclude__ - if you don't want to record the model anymore
-	* __Delete__ - if you are not interested in the model and wanna hide her permanently
+	Include - if you want to record the model
+	Exclude - if you don't want to record the model anymore
+	Delete - if you are not interested in the model and wanna hide her permanently
 
-> Note: This is not a real-time application. Whenever your __include__, __exclude__ or __delete__ the model your changes will be applied only with the next iteration of `mainLoop` function of the script. `mainLoop` runs every 30 seconds (default value for `modelScanInterval`).
+This is not a real-time application. Whenever your `include`, `exclude` or `delete` the model your changes will be applied only with the next iteration of `mainLoop` function of the script. `mainLoop` runs every 30 seconds (default value for `modelScanInterval`).
 
-> Note: There is no __auto reload__ feature, you have to reload the list manually (__big red button__), however, keep in mind the script updates the list internally every 30 seconds (`modelScanInterval`), therefore sometimes you'll have to wait 30 seconds to see any updates.
+There is no `auto reload` feature, you have to reload the list manually with `big red button`, however, keep in mind the script updates the list internally every 30 seconds (`modelScanInterval`), therefore sometimes you'll have to wait 30 seconds to see any updates.
 
-> Note: Be mindful when capturing many streams at once to have plenty of space on disk and the bandwidth available or you’ll end up dropping a lot of frames and the files will be useless.
+Be mindful when capturing many streams at once to have plenty of space on disk and the bandwidth available or you’ll end up dropping a lot of frames and the files will be useless.
 
-The MFC Recorder now captures the MFC stream in standard FLV quality, as if it was recorded eg with rtmpdump. 
-That's why I think that only one directory is enough where all the files are recorded and in most cases don't need a conversion.
-It also allows you to watch the recorded file during recording with possible jumps forward and back if needed.
-- I added in config.yml the option to edit the 'date format' and 'file format' for the recorded file. You can choose between 'mp4' and 'ts'.
+The MFC Recorder now captures the MFC streams with three different programs (livestreamer, streamlink and ffmpeg).
+Livestreamer and streamlink produce `mp4' files and `ffmpeg` produce `flv` or 'ts' depending on the choice in the `config.yml`.
 - Lot of people are asking, so I added the option that every model now has its own subdirectory
 - The menu have a small preview, and when the mouse cursor is hover, it will update.
 - When you click on a preview thumbnail, you get menu for include, exclude and delete models from list in config.yml.
 - By pressing the model 'Name' you get a picture preview of the current model in the room. You can refresh this page later if you are interested in a new situation. If the model is called 'No Mobile Feed' then you will get a link that you can copy and start in a separate browser page and see what's happening in the room. Unfortunately, you can not record this unit with this recorder, but by pressing 'State/Online' you can watch the stream of that model in your browser. 
 - By pressing 'State/Online' you can enter in the model room with your browser.
-- By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native-hls-0-7-10/?src=api)
+- By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native_hls_playback/)
+
+If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. 
+This can be of help with other downloadings that we do with livestreamer and streamlink.
+In your instalation you must found:
+
+... /livestreamer_cli/utils/
+or
+... /streamlink_cli/utils/
+
+... and owerwrite existing files with this one.
 
 For advanced users
 ==================
@@ -72,15 +80,17 @@ __Delete__
 http://localhost:9080/models/delete?nm=modelname
 http://localhost:9080/models/delete?uid=12345678
 ```
+Places that can be clicked
+
 ![alt screenshot](./screenshot.jpg)
+
+New look of 'spinner'
 
 ![alt screenshot](./screenshot1.jpg)
 
 Livestreamer version (default)
 
+Appearance after replacement of 'progress.py'
+
 ![alt screenshot](./screenshot2.jpg)
-
-Streamelink version
-
-![alt screenshot](./screenshot3.jpg)
 
