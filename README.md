@@ -65,18 +65,18 @@ There are several special URLs that allow implementing some operations with a mo
 
 __Include__
 ```
-http://localhost:9080/models/include?nm=modelname
-http://localhost:9080/models/include?uid=12345678
+http://localhost:8888/models/include?nm=modelname
+http://localhost:8888/models/include?uid=12345678
 ```
 __Exclude__
 ```
-http://localhost:9080/models/exclude?nm=modelname
-http://localhost:9080/models/exclude?uid=12345678
+http://localhost:8888/models/exclude?nm=modelname
+http://localhost:8888/models/exclude?uid=12345678
 ```
 __Delete__
 ```
-http://localhost:9080/models/delete?nm=modelname
-http://localhost:9080/models/delete?uid=12345678
+http://localhost:8888/models/delete?nm=modelname
+http://localhost:8888/models/delete?uid=12345678
 ```
 Places that can be clicked
 
