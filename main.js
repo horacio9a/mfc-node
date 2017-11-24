@@ -168,7 +168,7 @@ var hls_url = 'http://video' + (myModel.camserv - 500) + '.myfreecams.com:1935/N
 var captureProcess;
    if (config.downloadProgram == 'ls') {captureProcess = spawn('livestreamer', ['-Q','hlsvariant://' + hls_url,'best','-o',path + '/' + filename + '.' + fileFormat])}
    if (config.downloadProgram == 'sl') {captureProcess = spawn('streamlink', ['-Q','hlsvariant://' + hls_url,'best','-o',path + '/' + filename + '.' + fileFormat])}
-   if (config.downloadProgram == 'ff-ts') {captureProcess = spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hls_url,'-c','copy','-vsync','2','-r','60','-b:v','500k',path + '/' + filename + '.ts'])}
+   if (config.downloadProgram == 'ff-ts') {captureProcess = spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hls_url,'-c','copy','-vsync','2','-r','60','-b:v','500k',path + '/' + filename + '.' + fileFormat])}
    if (config.downloadProgram == 'ff-flv') {captureProcess = spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hls_url,'-c:v','copy','-c:a','aac','-b:a','192k','-ar','44100',path + '/' + filename + '.' + fileFormat])}
 
    if (!captureProcess.pid) {return}
