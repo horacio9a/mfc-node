@@ -81,7 +81,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.2.0.8 by horacio9a</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.1 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -147,12 +147,14 @@
         <h2 class="mdl-color-text--green-800">{{ vm.model.nm }}</h2>
       <div class="mdl-card__actions mdl-card--border">
         <a id="prev" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.prev()"><i class="material-icons">chevron_left</i></a>
-        <a id="inc" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid()" ng-disabled="vm.model.incDisabled"><i class="material-icons">fiber_manual_record</i></a>
+        <a id="inc" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid(vm.model, 0)" ng-disabled="vm.model.incDisabled"><i class="material-icons">fiber_manual_record</i></a>
+        <a id="exp" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid(vm.model, 24)" ng-disabled="vm.model.incDisabled"><i class="material-icons">timelapse</i></a>
         <a id="exc" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.excludeUid()" ng-disabled="vm.model.excDisabled"><i class="material-icons">stop</i></a>
         <a id="del" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.deleteUid()" ng-disabled="vm.model.delDisabled"><i class="material-icons">delete</i></a>
         <a id="next" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.next()"><i class="material-icons">chevron_right</i></a>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="prev">Previous model</div>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="inc">Include to the list for recording</div>
+        <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="exp">Record only within next 24 hours</div>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="exc">Exclude from the list for recording</div>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="del">Delete</div>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="next">Next model</div>
@@ -172,7 +174,7 @@
         </table>
       </div>
       <div class="mdl-card__menu">
-        <a target="_blank" ng-href="http://video{{ vm.model.camserv - 500}}.myfreecams.com:1935/NxServer/ngrp:mfc_{{ 100000000 + vm.model.uid }}.f4v_mobile/playlist.m3u8?{{ vm.model.nm }}" class="mdl-button mdl-js-button mdl-button--fab mdl-button mdl-shadow--2dp">
+        <a id="goto" target="_blank" ng-href="http://video{{ vm.model.camserv - 500}}.myfreecams.com:1935/NxServer/ngrp:mfc_{{ 100000000 + vm.model.uid }}.f4v_mobile/playlist.m3u8?{{ vm.model.nm }}" class="mdl-button mdl-button--icon">
           <i class="material-icons">open_in_new</i>
         </a>
       </div>
