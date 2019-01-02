@@ -208,7 +208,7 @@ function selectModelsToCapture() {
     if (onlineModel.vs === 0) {
       modelsToCapture.push(onlineModel);
     } else {
-      printMsg(`${colors.green(onlineModel.nm)} is away or private (vs=${onlineModel.vs})`)}});
+      printMsg(`${colors.green(onlineModel.nm)} is away or private (vs=${onlineModel.vs}).`)}});
 
   printDebugMsg(`${modelsToCapture.length} model(s) to capture.`);
 
@@ -220,6 +220,7 @@ let fileFormat;
    if (config.downloadProgram == 'ff-ts') {fileFormat = 'ts'}
    if (config.downloadProgram == 'ff-flv') {fileFormat = 'flv'}
    if (config.downloadProgram == 'rtmp') {fileFormat = 'flv'}
+   if (config.downloadProgram == 'hls') {fileFormat = 'mp4'}
 
 function createFfmpegCaptureProcess(model) {
   return Promise
@@ -237,6 +238,7 @@ function createFfmpegCaptureProcess(model) {
          if (config.downloadProgram == 'ff-ts') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-flv') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'rtmp') {captureProcess = childProcess.spawn('mfcd', [model.nm,path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'hls') {captureProcess = childProcess.spawn('hlsdl', [hlsUrl,'-b','-q','-o',path.join(captureDirectory, filename)])}
 
       if (!captureProcess.pid) {
         return;
@@ -283,10 +285,7 @@ function createCaptureProcess(model) {if (model.camserv < 840) { // skip models 
   }
 
   let captureModel = captureModels.find(m => (m.uid === model.uid));
-
-  if (captureModel) {printDebugMsg(colors.green(model.nm) + ' is already recording.');
-//  if (captureModel) {printDebugMsg(colors.yellow('>>> ' + model.nm.filename));
-//  if (capturingModel !== undefined) {printMsg(colors.yellow('>>> ' + capturingModel.filename));
+  if (captureModel !== undefined) {printMsg(colors.yellow('>>> ' + captureModel.filename));
 
     return;
   }
@@ -383,9 +382,7 @@ function mainLoop() {
     .finally(() => {
       printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
 
-      setTimeout(mainLoop, config.modelScanInterval * 1000);
-    });
-}
+      setTimeout(mainLoop, config.modelScanInterval * 1000)})}
 
 mkdir(captureDirectory);
 mkdir(completeDirectory);
