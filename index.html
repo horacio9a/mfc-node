@@ -149,8 +149,8 @@
         <a id="prev" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.prev()"><i class="material-icons">chevron_left</i></a>
         <a id="inc" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid(vm.model, 0)" ng-disabled="vm.model.incDisabled"><i class="material-icons">fiber_manual_record</i></a>
         <a id="exp" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid(vm.model, 24)" ng-disabled="vm.model.incDisabled"><i class="material-icons">timelapse</i></a>
-        <a id="exc" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.excludeUid()" ng-disabled="vm.model.excDisabled"><i class="material-icons">stop</i></a>
-        <a id="del" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.deleteUid()" ng-disabled="vm.model.delDisabled"><i class="material-icons">delete</i></a>
+        <a id="exc" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.excludeUid(vm.model)" ng-disabled="vm.model.excDisabled"><i class="material-icons">stop</i></a>
+        <a id="del" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.deleteUid(vm.model)" ng-disabled="vm.model.delDisabled"><i class="material-icons">delete</i></a>
         <a id="next" class="mdl-button mdl-js-button mdl-button--icon" ng-click="vm.next()"><i class="material-icons">chevron_right</i></a>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="prev">Previous model</div>
         <div class="mdl-tooltip mdl-tooltip--top" data-mdl-for="inc">Include to the list for recording</div>
@@ -195,8 +195,22 @@
     app.controller('AppController', ['$timeout', '$http', '$scope', '$filter', function ($timeout, $http, $scope, $filter) {
       var vm = this;
 
-      vm.snapimg_url = function(model, x) {
+      vm.serverModels = [];
+      vm.models = [];
+      vm.ngvideo_servers = {
+        "1545":"545",
+        "1546":"546",
+        "1547":"547",
+        "1548":"548",
+        "1549":"549",
+        "1550":"550",
+        "1551":"551",
+        "1552":"552",
+        "1553":"553",
+        "1554":"554"
+      };
 
+      vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
       var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 700 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~30% of the models will get sanpshots
@@ -205,14 +219,11 @@
         }
       };
 
-      vm.serverModels = [];
-      vm.models = [];
-
       vm.model = null;
 
       vm.keyword = null;
       vm.filter = {};
-      vm.sortType = 'vs';
+      vm.sortFields = ['vs'];
       vm.sortReverse = false;
 
       $scope.$watch(function () { return vm.keyword }, function (newVal, oldVal) {
@@ -228,19 +239,18 @@
         vm.filterAndSort();
       };
 
-      vm.sort = function (sortType) {
-        if (vm.sortType === sortType) {
+      vm.sort = function (field) {
+        if (vm.sortFields[0] === field) {
           vm.sortReverse = !vm.sortReverse;
         } else {
-          vm.sortType = sortType;
+          vm.sortFields = [field, vm.sortFields[0]];
         }
 
         vm.filterAndSort();
       };
 
-
       vm.filterAndSort = function (ready) {
-        vm.models = $filter('orderBy')($filter('filter')(vm.serverModels, vm.filter), vm.sortType, vm.sortReverse);
+        vm.models = $filter('orderBy')($filter('filter')(vm.serverModels, vm.filter), vm.sortFields, vm.sortReverse);
 
         $timeout(function () {
           componentHandler.upgradeAllRegistered();
@@ -251,17 +261,17 @@
 
       vm.setVs = function (model) {
         var state = {
-          vs9996: 'Recording',  // 10000 + -4 = 9996
-          vs9997: 'Include', // 10000 + -3 = 9997
-          vs9998: 'Exclude', // 10000 + -2 = 9998
-          vs9999: 'Delete',  // 10000 + -1 = 9999
-          vs10000: 'Online',
-          vs10002: 'Away',
-          vs10012: 'Private',
-          vs10013: 'Group Show',
-          vs10090: 'Online',
-          vs10091: 'Private',
-          vs10127: 'Offline'
+          '-4': 'Recording',
+          '-3': 'Include',
+          '-2': 'Exclude',
+          '-1': 'Delete',
+          '0': 'Online',
+          '2': 'Away',
+          '12': 'Private',
+          '13': 'Group Show',
+          '90': 'Online',
+          '91': 'Private',
+          '127': 'Offline'
         };
 
         // set our own virtual value for vs field
@@ -269,56 +279,61 @@
           model.vs = -1; // to delete
         } else if (model.nextMode === 0) {
           model.vs = -2; // to exclude
-        } else if (model.nextMode === 1) {
+        } else if (model.nextMode >= 1) {
           model.vs = -3; // to include
         } else if (model.capturing) {
           model.vs = -4; // capturing
         }
 
-        model.state = state['vs' + (10000 + model.vs)] || 'Unknown';
+        model.state = state[model.vs] || 'Unknown';
 
-        if (model.vs === -4) {
-          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
-        } else if (model.vs === -3) {
-          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
-        } else if (model.vs === -1) {
+        // "mark" the model if she has "expiration time"
+        if (model.mode > 1 || model.nextMode > 1) {
+          model.state += '*';
+        }
+
+        if (model.vs === -1) {
           model.color = 'mdl-color-text--red-300 mdl-color--red-50';
         } else if (model.vs === -2 || model.vs > 0) {
           model.color = 'mdl-color-text--grey-400 mdl-color--grey-100';
+        } else if (model.vs === -3) {
+          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
+        } else if (model.vs === -4) {
+          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
         } else {
           model.color = '';
         }
 
-        model.incDisabled = model.vs === -4 || model.vs === -3;
-        model.excDisabled = model.vs !== -4 && model.vs !== -3;
-        model.delDisabled = model.vs === -1;
-
-        var serverModel = _.findWhere(vm.serverModels, { uid: model.uid });
-
-        if (!!serverModel) {
-          var i = vm.serverModels.indexOf(serverModel);
-          vm.serverModels[i] = model;
-        }
+        model.incDisabled = model.nextMode >= 1 || (model.nextMode == void(0) && model.mode >= 1);
+        model.excDisabled = model.nextMode == 0 || (model.nextMode == void(0) && (model.mode == void(0) || model.mode == 0));
+        model.delDisabled = model.nextMode == -1;
       };
 
-      vm.includeUid = function () {
-        $http.get('/models/include', { params: { uid: vm.model.uid } }).then(function (response) {
-          vm.model.nextMode = 1;
-          vm.setVs(vm.model);
+      vm.getSortClass = function (field) {
+        return (vm.sortFields[0] === field)
+          ? (vm.sortReverse ? 'mdl-data-table__header--sorted-ascending' : 'mdl-data-table__header--sorted-descending')
+          : '';
+      };
+
+      vm.includeUid = function (model, expireAfter) {
+        $http.get('/models/include', { params: { uid: model.uid, expire_after: expireAfter } }).then(function (response) {
+          model.nextMode = response.data.mode;
+          vm.setVs(model);
         });
       };
 
-      vm.excludeUid = function () {
-        $http.get('/models/exclude', { params: { uid: vm.model.uid } }).then(function (response) {
-          vm.model.nextMode = 0;
-          vm.setVs(vm.model);
+      vm.excludeUid = function (model) {
+        $http.get('/models/exclude', { params: { uid: model.uid } }).then(function (response) {
+          model.nextMode = response.data.mode;
+          vm.setVs(model);
         });
       };
 
-      vm.deleteUid = function () {
-        $http.get('/models/delete', { params: { uid: vm.model.uid } }).then(function (response) {
-          vm.model.nextMode = -1;
-          vm.setVs(vm.model);
+      vm.deleteUid = function (model) {
+        $http.get('/models/delete', { params: { uid: model.uid } }).then(function (response) {
+          model.nextMode = response.data.mode;
+          console.log(model);
+          vm.setVs(model);
         });
       };
 
@@ -348,30 +363,22 @@
       };
 
       vm.prev = function () {
-        var model = _.findWhere(vm.models, { uid: vm.model.uid });
+        var i = vm.models.indexOf(vm.model) - 1;
 
-        if (!!model) {
-          var i = vm.models.indexOf(model);
-
-          vm.model = (i > 0) ? vm.models[i - 1] : vm.models[vm.models.length - 1];
-        }
+        vm.model = (i >= 0) ? vm.models[i] : vm.models[vm.models.length - 1];
       };
 
       vm.next = function () {
-        var model = _.findWhere(vm.models, { uid: vm.model.uid });
+        var i = vm.models.indexOf(vm.model) + 1;
 
-        if (!!model) {
-          var i = vm.models.indexOf(model);
-
-          vm.model = (i < (vm.models.length - 1)) ? vm.models[i + 1] : vm.models[0];
-        }
+        vm.model = (i < vm.models.length) ? vm.models[i] : vm.models[0];
       };
 
       vm.setSnapshot = function () {
         if (!vm.model) {
           vm.snapshot = null;
         } else {
-          vm.snapshot = 'https://snap.mfcimg.com/snapimg/' + (vm.model.camserv - 500) + '/320x230/mfc_' + (100000000 + vm.model.uid) + '?no-cache=' + Date.now();
+          vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
 
           $timeout(vm.setSnapshot, 500);
         }
@@ -385,14 +392,16 @@
 
       vm.refresh = function () {
         vm.ready = false;
+        var camserv;
 
         $http
           .get('/models')
           .then(function (response) {
             vm.serverModels = response.data.map(function (m) {
+
               vm.setVs(m);
 
-              m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic;
+              m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic + (m.phase === 'a' ? '\nHD' : '');
 
               if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20);}
               if (m.ethnic == 'No Answer'){m.ethnic = '---';}
@@ -414,6 +423,10 @@
 
               m.rc = m.rc || 0;
 
+              m.snapshot = !vm.ngvideo_servers[m.camserv]
+                ? 'https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid)
+                : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid);
+
               return m;
             });
 
@@ -423,6 +436,7 @@
 
       vm.refresh();
     }]);
+
   </script>
 </body>
 </html>
