@@ -32,12 +32,13 @@ var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
 config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.completeDirectory = config.completeDirectory || 'C:/Videos/MFC';
+config.modelScanInterval = config.modelScanInterval || 30;
 config.createModelDirectory = config.createModelDirectory || false;
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.downloadProgram = config.downloadProgram || 'rtmp';
-config.modelScanInterval = config.modelScanInterval || 30;
 config.minFileSizeMb = config.minFileSizeMb || 0;
 config.port = config.port || 8888;
+config.proxyServer = config.proxyServer;
 config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
 
@@ -80,11 +81,16 @@ function getProxyModels() {if (!config.proxyServer) {return []}
   return new Promise((resolve, reject) => {
     return Promise
       .try(() => session.get(`http://${config.proxyServer}/models?nc=${Date.now()}`))
-      .timeout(10000) // 10 seconds
-      .then(response => {resolve(response.body || []);
+      .timeout(15000) // 15 seconds
+      .then(response => {
+        resolve(response.body || []);
       })
-      .catch(err => {printDebugMsg(err.toString());
-        resolve([])})})}
+      .catch(err => {
+        printDebugMsg(err.toString());
+        resolve([]);
+      });
+  });
+}
 
 function getOnlineModels(proxyModels) {
   let models = [];
@@ -120,7 +126,7 @@ function getOnlineModels(proxyModels) {
     // remove models that available in the current region from proxyModels (foreign region)
     let newModels = proxyModels.filter(pm => !models.find(m => (m.uid === pm.uid)));
 
-    printDebugMsg(`${newModels.length} new model(s) from proxy.`);
+    printDebugMsg(`${newModels.length} new model(s) from proxy ${colors.green(config.proxyServer)}`);
 
     // merge newModels with "local" models
     onlineModels = newModels.concat(models);
@@ -210,7 +216,7 @@ function selectModelsToCapture() {
     } else {
       printMsg(`${colors.green(onlineModel.nm)} is away or private (vs=${onlineModel.vs}).`)}});
 
-  printDebugMsg(`${modelsToCapture.length} model(s) to capture.`);
+  printDebugMsg(`${modelsToCapture.length} model(s) to recording.`);
 
   return modelsToCapture}
 
@@ -285,6 +291,7 @@ function createCaptureProcess(model) {if (model.camserv < 840) { // skip models 
   }
 
   let captureModel = captureModels.find(m => (m.uid === model.uid));
+
   if (captureModel !== undefined) {printMsg(colors.yellow('>>> ' + captureModel.filename));
 
     return;
@@ -397,14 +404,14 @@ Promise
   });
 
 function addInQueue(req, res) {
-  var model;
-  var mode = 0;
+  let model;
+  let mode = 0;
 
   if (req.url.startsWith('/models/include')) {
     mode = 1;
 
     if (req.params && req.params.expire_after) {
-      var expireAfter = parseFloat(req.params.expire_after);
+      let expireAfter = parseFloat(req.params.expire_after);
 
       if (!Number.isNaN(expireAfter) && expireAfter > 0) {
         mode = moment().unix() + (expireAfter * 3600);
@@ -415,7 +422,7 @@ function addInQueue(req, res) {
   }
 
   if (req.params && req.params.uid) {
-    var uid = parseInt(req.params.uid, 10);
+    let uid = parseInt(req.params.uid, 10);
 
     if (!Number.isNaN(uid)) {
       model = { uid: uid, mode: mode };
