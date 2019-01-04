@@ -41,33 +41,37 @@ function getOnlineModels() {
   mfc.Model.knownModels.forEach(m => {
     if (m.bestSession.vs !== mfc.STATE.Offline && m.bestSession.camserv > 0 && !!m.bestSession.nm) {
       models.push({
-      models.push({
-      nm: m.bestSession.nm,
-      sid: m.bestSession.sid,
-      uid: m.bestSession.uid,
-      vs: m.bestSession.vs,
-      camserv: m.bestSession.camserv,
-      topic: m.bestSession.topic,
-      missmfc: m.bestSession.missmfc,
-      new_model: m.bestSession.new_model,
-      camscore: m.bestSession.camscore,
-      continent: m.bestSession.continent,
-      age: m.bestSession.age,
-      city: m.bestSession.city,
-      country: m.bestSession.country,
-      blurb: m.bestSession.blurb,
-      occupation: m.bestSession.occupation,
-      ethnic: m.bestSession.ethnic,
-      phase: m.bestSession.phase,
-      rank: m.bestSession.rank,
-      rc: m.bestSession.rc,
-      tags: m.bestSession.tags
-      })}});
+        nm: m.bestSession.nm,
+        sid: m.bestSession.sid,
+        uid: m.bestSession.uid,
+        vs: m.bestSession.vs,
+        camserv: m.bestSession.camserv,
+        topic: m.bestSession.topic,
+        missmfc: m.bestSession.missmfc,
+        new_model: m.bestSession.new_model,
+        camscore: m.bestSession.camscore,
+        continent: m.bestSession.continent,
+        age: m.bestSession.age,
+        city: m.bestSession.city,
+        country: m.bestSession.country,
+        blurb: m.bestSession.blurb,
+        occupation: m.bestSession.occupation,
+        ethnic: m.bestSession.ethnic,
+        phase: m.bestSession.phase,
+        rank: m.bestSession.rank,
+        rc: m.bestSession.rc,
+        tags: m.bestSession.tags
+      });
+    }
+  });
 
   onlineModels = models;
-  printMsg(`${onlineModels.length} model(s) online`)}
 
-function mainLoop() {printDebugMsg('Start new cycle');
+  printMsg(`${onlineModels.length} model(s) online`);
+}
+
+function mainLoop() {
+  printDebugMsg('Start new cycle.');
 
   Promise
     .try(getOnlineModels)
@@ -75,7 +79,9 @@ function mainLoop() {printDebugMsg('Start new cycle');
     .finally(() => {
       printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
 
-      setTimeout(mainLoop, config.modelScanInterval * 1000)})}
+      setTimeout(mainLoop, config.modelScanInterval * 1000);
+    });
+}
 
 Promise
   .try(() => mfcClient.connectAndWaitForModels())
@@ -83,7 +89,8 @@ Promise
   .then(() => mainLoop())
   .catch(err => {
     printErrorMsg(err.toString());
-    process.exit(1)});
+    process.exit(1);
+  });
 
 dispatcher.onGet('/models', (req, res) => {
   compress(req, res, noop);
