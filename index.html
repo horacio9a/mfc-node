@@ -192,8 +192,7 @@
 
     var app = angular.module('app', []);
 
-    app.controller('AppController', ['$timeout', '$http', '$scope', '$filter', function ($timeout, $http, $scope, $filter) {
-      var vm = this;
+    app.controller('AppController', ['$timeout', '$http', '$scope', '$filter', function ($timeout, $http, $scope, $filter) {var vm = this;
 
       vm.serverModels = [];
       vm.models = [];
@@ -213,14 +212,11 @@
       vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
       var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
-      // Only auto-load snapshots for models with 700 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~30% of the models will get sanpshots
-        if (model.camscore > 700 || x > 0){return snapshot_url;
-         } else {return '';
-        }
-      };
+      // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
+      if (model.camscore > 350 || x > 0){return snapshot_url;
+      } else {return ''}};
 
       vm.model = null;
-
       vm.keyword = null;
       vm.filter = {};
       vm.sortFields = ['vs'];
@@ -236,8 +232,7 @@
         vm.keyword = '';
         vm.filter = {};
 
-        vm.filterAndSort();
-      };
+        vm.filterAndSort()};
 
       vm.sort = function (field) {
         if (vm.sortFields[0] === field) {
@@ -246,8 +241,7 @@
           vm.sortFields = [field, vm.sortFields[0]];
         }
 
-        vm.filterAndSort();
-      };
+        vm.filterAndSort()};
 
       vm.filterAndSort = function (ready) {
         vm.models = $filter('orderBy')($filter('filter')(vm.serverModels, vm.filter), vm.sortFields, vm.sortReverse);
@@ -256,8 +250,7 @@
           componentHandler.upgradeAllRegistered();
 
           vm.ready = vm.ready || ready;
-        });
-      };
+        })};
 
       vm.setVs = function (model) {
         var state = {
@@ -312,36 +305,28 @@
       vm.getSortClass = function (field) {
         return (vm.sortFields[0] === field)
           ? (vm.sortReverse ? 'mdl-data-table__header--sorted-ascending' : 'mdl-data-table__header--sorted-descending')
-          : '';
-      };
+          : ''};
 
       vm.includeUid = function (model, expireAfter) {
         $http.get('/models/include', { params: { uid: model.uid, expire_after: expireAfter } }).then(function (response) {
           model.nextMode = response.data.mode;
-          vm.setVs(model);
-        });
-      };
+          vm.setVs(model)})};
 
       vm.excludeUid = function (model) {
         $http.get('/models/exclude', { params: { uid: model.uid } }).then(function (response) {
           model.nextMode = response.data.mode;
-          vm.setVs(model);
-        });
-      };
+          vm.setVs(model)})};
 
       vm.deleteUid = function (model) {
         $http.get('/models/delete', { params: { uid: model.uid } }).then(function (response) {
           model.nextMode = response.data.mode;
           console.log(model);
-          vm.setVs(model);
-        });
-      };
+          vm.setVs(model)})};
 
       vm.enter_room = function(model) {
         console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
         var url = 'https://www.myfreecams.com/#' + model.nm;
-        open(url);
-      };
+        open(url)};
 
       vm.preview = function(model) {
         if ((model.camserv) > 840) {
@@ -349,46 +334,34 @@
           open (url1);
         } else if ((model.camserv) < 840) {
           var url2 = ('http://img.mfcimg.com/livesnap320/?user=' + (100000000 + model.uid) + '#cs=' + model.camserv + '#' + model.nm);
-          open(url2);
-        }
-      };
+          open(url2)}};
 
       vm.video_preview = function(model) {
         if ((model.camserv) > 840) {
           var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
           open (url3);
         } else if ((model.camserv) < 840) {
-          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this method.\n\nClick 'Online' for enter in model room.");
-        }
-      };
+          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this method.\n\nClick 'Online' for enter in model room.")}};
 
       vm.prev = function () {
         var i = vm.models.indexOf(vm.model) - 1;
 
-        vm.model = (i >= 0) ? vm.models[i] : vm.models[vm.models.length - 1];
-      };
+        vm.model = (i >= 0) ? vm.models[i] : vm.models[vm.models.length - 1]};
 
-      vm.next = function () {
-        var i = vm.models.indexOf(vm.model) + 1;
+      vm.next = function () {var i = vm.models.indexOf(vm.model) + 1;
 
-        vm.model = (i < vm.models.length) ? vm.models[i] : vm.models[0];
-      };
+        vm.model = (i < vm.models.length) ? vm.models[i] : vm.models[0]};
 
       vm.setSnapshot = function () {
-        if (!vm.model) {
-          vm.snapshot = null;
-        } else {
-          vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
+        if (!vm.model) {vm.snapshot = null;
+        } else {vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
 
-          $timeout(vm.setSnapshot, 500);
-        }
-      };
+          $timeout(vm.setSnapshot, 500)}};
 
       vm.viewModel = function (model) {
         vm.model = model;
 
-        vm.setSnapshot();
-      };
+        vm.setSnapshot()};
 
       vm.refresh = function () {
         vm.ready = false;
@@ -430,12 +403,9 @@
               return m;
             });
 
-            vm.filterAndSort(true);
-          });
-      };
+            vm.filterAndSort(true)})};
 
-      vm.refresh();
-    }]);
+      vm.refresh()}]);
 
   </script>
 </body>
