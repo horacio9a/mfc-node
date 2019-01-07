@@ -55,13 +55,13 @@ Running
 2. Run `node main.js`.
 3. Open [http://localhost:8888](http://localhost:8888) in you browser. The list of online models will be displayed with a set of allowed commands for each model:
 
-- The online model list can be sorted by various criteria (default is 'state' because at the top are the models currently being recorded). Thumbnails of models ('menu' small preview) with camscore greater than 700 will be displayed immediately. After about 60 seconds, thumbnails of other models will be visible when the mouse cursor is hover and will be updated.
+- The online model list can be sorted by various criteria (default is 'state' because at the top are the models currently being recorded). Thumbnails of models ('menu' small preview) with camscore greater than 350 will be displayed immediately. After about 60 seconds, thumbnails of other models will be visible when the mouse cursor is hover and will be updated.
 - If you want to look at some of the models, click on the model name and a 'spinner' will appear with the model image in resolution 400x300 with all available model data.
-- If you want to start recording, you need to click the red button ('Japanese flag'). If you want to stop recording, you need to click the stop button (right of the red button). 
+- If you want to start recording, you need to click the red button ('Japanese flag'). If you want to stop recording, you need to click the stop button (right of the red button).
+- If some model does not want to recording constantly click red button right from 'Japanese flag' and after 24 hours that model will be expired (Mode in config.yml will become 0).
 - All this can be done online and track what is happening on the console, and you can view recorded file immediately if you start some media player, for example VLC.
 - When you click on a preview thumbnail the large image is obtained in the next tab of your browser.
-- The MFC Recorder now captures the MFC streams with three different programs (livestreamer, streamlink and ffmpeg) depending on the data in config.yml ('ls', 'sl', 'ff-ts' or 'ff-flv'). Currently it is better to use 'livestreamer' or 'streamlink' because they do not have the so-called 'freeze' problem as it currently has 'ffmpeg' for some models.
-- Livestreamer and streamlink produce 'mp4' files and 'ffmpeg' produce 'flv' or 'ts' depending on the choice in the 'config.yml'.
+- The MFC Recorder now can record the MFC streams with six different programs (rtmp, livestreamer, streamlink, hsldl and ffmpeg in ts or flv) depending on the data in config.yml ('rtmp', 'ls', 'sl', 'hsldl', 'ff-ts' or 'ff-flv'). Currently it is better to use 'livestreamer' or 'streamlink' because they do not have the so-called 'freeze' problem as it currently has 'ffmpeg' for some models.
 - By pressing 'State/Online' you can enter in the model room with your browser.
 - By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native_hls_playback/)
 - If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. This can be of help with other downloadings that we do with livestreamer and streamlink. In your instalation you must found:
@@ -71,7 +71,6 @@ Running
    ... /streamlink_cli/utils/progress.py
 
    ... and owerwrite existing files with 'progress.py' on this page.
-
 
 The list of online models will be displayed with a set of allowed commands for each model:
 	Include - if you want to record the model
@@ -116,8 +115,6 @@ Proxy
 This is just a Proof of Concept to avoid region block.
 To use it you have to start `proxy.js` on some remote server located in a different region then add a parameter `proxyServer` to your local `config.yml`, for example, `proxyServer: '54.206.109.161:9090'`.
 The `main.js` script will try to get models from the remote region then merge them with the list of models available in your region.
-Example:
-proxyServer: '97.72.74.166:87'
 
 Places that can be clicked
 
