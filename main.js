@@ -33,6 +33,7 @@ var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.completeDirectory = config.completeDirectory || 'C:/Videos/MFC';
 config.modelScanInterval = config.modelScanInterval || 30;
+config.directoryFormat = config.directoryFormat || 'id+nm';
 config.createModelDirectory = config.createModelDirectory || false;
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.downloadProgram = config.downloadProgram || 'rtmp';
@@ -81,7 +82,7 @@ function getProxyModels() {if (!config.proxyServer) {return []}
   return new Promise((resolve, reject) => {
     return Promise
       .try(() => session.get(`http://${config.proxyServer}/models?nc=${Date.now()}`))
-      .timeout(15000) // 15 seconds
+      .timeout(10000) // 10 seconds
       .then(response => {
         resolve(response.body || []);
       })
@@ -205,11 +206,13 @@ function selectModelsToCapture() {
     // save the name of the model in config if it has not been set before
     if (!configModel.nm) {
       configModel.nm = onlineModel.nm;
+      configModel.uid = onlineModel.uid;
 
       isDirty = true;
     }
 
     onlineModel.dir_nm = configModel.nm;
+    onlineModel.dir_uid = configModel.uid;
 
     if (onlineModel.vs === 0) {
       modelsToCapture.push(onlineModel);
@@ -228,7 +231,7 @@ let fileFormat;
    if (config.downloadProgram == 'rtmp') {fileFormat = 'flv'}
    if (config.downloadProgram == 'hls') {fileFormat = 'mp4'}
 
-function createFfmpegCaptureProcess(model) {
+function createVariousCaptureProcess(model) {
   return Promise
     .try(() => {
       let filename = model.nm + '_MFC_' + moment().format(config.dateFormat) + '.' + fileFormat;
@@ -239,8 +242,8 @@ function createFfmpegCaptureProcess(model) {
         : `https://video${ngvideoServers[model.camserv]}.myfreecams.com:8444/x-hls/${mfcClient.stream_cxid}/${roomId}/${mfcClient.stream_password}/${mfcClient.stream_vidctx}/mfc_${model.phase}_${roomId}.m3u8`;
 
       let captureProcess;
-         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
-         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>5564k','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>5564k','-o',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-ts') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-flv') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'rtmp') {captureProcess = childProcess.spawn('mfcd', [model.nm,path.join(captureDirectory, filename)])}
@@ -265,10 +268,16 @@ function createFfmpegCaptureProcess(model) {
 
         remove(stoppedModel, captureModels);
 
+        let directoryFormat;
+           if (config.directoryFormat == 'id+nm') {directoryFormat = model.dir_uid + '_' + model.dir_nm}
+           if (config.directoryFormat == 'id') {directoryFormat = model.dir_uid}
+           if (config.directoryFormat == 'nm') {directoryFormat = model.dir_nm}
+           if (config.directoryFormat == 'nm+id') {directoryFormat = model.dir_nm + '_' + model.dir_uid}
+
         let src = path.join(captureDirectory, filename);
         let dst = config.createModelDirectory
-          ? path.join(completeDirectory, model.dir_nm, filename)
-          : path.join(completeDirectory, filename);
+          ? path.join(completeDirectory + '/' + directoryFormat + '/' + filename)
+          : path.join(completeDirectory + '/' + filename);
 
         fs.statAsync(src)
           // if the file is big enough we keep it otherwise we delete it
@@ -299,7 +308,7 @@ function createCaptureProcess(model) {if (model.camserv < 840) { // skip models 
 
   printMsg(colors.green(model.nm) + ' now online - starting recording process.');
 
-  return createFfmpegCaptureProcess(model);
+  return createVariousCaptureProcess(model);
 }
 
 function checkCaptureProcess(model) {var onlineModel = onlineModels.find(m => (m.uid === model.uid));
