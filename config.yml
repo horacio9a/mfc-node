@@ -1,7 +1,8 @@
 captureDirectory: 'C:/Videos/MFC' # Choose a directory for the recorded files
 completeDirectory: 'C:/Videos/MFC' # Choose a directory for the complete recorded files
 modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models
-createModelDirectory: false # If you want all the files from same model be recorded in the separate subdirectory
+directoryFormat: id+nm # You can choose between 'id+nm','nm+id','id' and 'nm' separate subdirectory format
+createModelDirectory: true # If you want all the files from same model be recorded in the separate subdirectory
 dateFormat: DDMMYYYY-HHmmss # Choose date format for the filename, for example: YYYY-MM-DD_HH-mm-ss
 downloadProgram: rtmp # Choose program for download stream (rtmp, sl, ls, ff-ts, ff-flv and hls)
 minFileSizeMb: 0 # If you do not want to save a file smaller than 5 MB enter number 5
