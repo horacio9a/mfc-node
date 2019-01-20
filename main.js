@@ -33,7 +33,6 @@ var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.completeDirectory = config.completeDirectory || 'C:/Videos/MFC';
 config.modelScanInterval = config.modelScanInterval || 30;
-config.directoryFormat = config.directoryFormat || 'id+nm';
 config.createModelDirectory = config.createModelDirectory || false;
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.downloadProgram = config.downloadProgram || 'rtmp';
@@ -60,8 +59,7 @@ var ngvideoServers = {
   "1551": "551",
   "1552": "552",
   "1553": "553",
-  "1554": "554"
-};
+  "1554": "554"};
 
 function getCurrentTime() {return moment().format('HH:mm:ss')};
 
@@ -131,25 +129,19 @@ function getOnlineModels(proxyModels) {
 
     // merge newModels with "local" models
     onlineModels = models.concat(newModels);
-  } else {
-    onlineModels = models;
-  }
+  } else {onlineModels = models}
 
-  printMsg(`${onlineModels.length} model(s) online.`);
-}
+  printMsg(`${onlineModels.length} model(s) online.`)}
 
-function updateConfigModels() {
-  printDebugMsg(`${config.queue.length} model(s) in the queue.`);
+// goes through the models in the queue and updates their settings in config
+function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in the queue.`);
 
   config.queue = config.queue.filter(queueModel => {
     // if uid is not set then search uid of the model in the list of online models
-    if (!queueModel.uid) {
-      let onlineModel = onlineModels.find(m => (m.nm === queueModel.nm));
+    if (!queueModel.uid) {let onlineModel = onlineModels.find(m => (m.nm === queueModel.nm));
 
       // if we could not find the uid of the model we leave her in the queue and jump to the next queue model
-      if (!onlineModel) {
-        return true;
-      }
+      if (!onlineModel) {return true}
 
       queueModel.uid = onlineModel.uid;
     }
@@ -159,13 +151,8 @@ function updateConfigModels() {
 
     if (!configModel) {
       // if we don't have the model in our config we add here in
-      config.models.push({
-        uid: queueModel.uid,
-        mode: queueModel.mode
-      });
-    } else {
-      configModel.mode = queueModel.mode;
-    }
+      config.models.push({uid: queueModel.uid, mode: queueModel.mode});
+    } else {configModel.mode = queueModel.mode}
 
     isDirty = true;
 
@@ -175,14 +162,12 @@ function updateConfigModels() {
   });
 }
 
-function selectModelsToCapture() {
-  printDebugMsg(`${config.models.length} model(s) in config.`);
+function selectModelsToCapture() {printDebugMsg(`${config.models.length} model(s) in config.`);
 
   let modelsToCapture = [];
   let now = moment().unix();
 
-  config.models.forEach(configModel => {
-    let onlineModel = onlineModels.find(m => (m.uid === configModel.uid));
+  config.models.forEach(configModel => {let onlineModel = onlineModels.find(m => (m.uid === configModel.uid));
 
     if (!onlineModel) { // skip the model if she is not online
       return;
@@ -204,20 +189,18 @@ function selectModelsToCapture() {
     }
 
     // save the name of the model in config if it has not been set before
-    if (!configModel.nm) {
-      configModel.nm = onlineModel.nm;
-      configModel.uid = onlineModel.uid;
+    if (!configModel.nm) {configModel.nm = onlineModel.nm;
 
       isDirty = true;
     }
 
     onlineModel.dir_nm = configModel.nm;
-    onlineModel.dir_uid = configModel.uid;
 
-    if (onlineModel.vs === 0) {
-      modelsToCapture.push(onlineModel);
-    } else {
-      printMsg(`${colors.green(onlineModel.nm)} is away or private (vs=${onlineModel.vs}).`)}});
+    if (onlineModel.vs === 0) {modelsToCapture.push(onlineModel);
+    } else if (onlineModel.vs === 2) {printMsg(`${colors.green(onlineModel.nm)} is AWAY.`);
+    } else if (onlineModel.vs === 12) {printMsg(`${colors.green(onlineModel.nm)} is PRIVATE.`);
+    } else if (onlineModel.vs === 13) {printMsg(`${colors.green(onlineModel.nm)} is GROUP SHOW.`);
+    } else if (onlineModel.vs === 91) {printMsg(`${colors.green(onlineModel.nm)} is PRIVATE.`)}});
 
   printDebugMsg(`${modelsToCapture.length} model(s) to recording.`);
 
@@ -231,7 +214,7 @@ let fileFormat;
    if (config.downloadProgram == 'rtmp') {fileFormat = 'flv'}
    if (config.downloadProgram == 'hls') {fileFormat = 'mp4'}
 
-function createVariousCaptureProcess(model) {
+function createMainCaptureProcess(model) {
   return Promise
     .try(() => {
       let filename = model.nm + '_MFC_' + moment().format(config.dateFormat) + '.' + fileFormat;
@@ -242,8 +225,8 @@ function createVariousCaptureProcess(model) {
         : `https://video${ngvideoServers[model.camserv]}.myfreecams.com:8444/x-hls/${mfcClient.stream_cxid}/${roomId}/${mfcClient.stream_password}/${mfcClient.stream_vidctx}/mfc_${model.phase}_${roomId}.m3u8`;
 
       let captureProcess;
-         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>5564k','-o',path.join(captureDirectory, filename)])}
-         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>5564k','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-ts') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-flv') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'rtmp') {captureProcess = childProcess.spawn('mfcd', [model.nm,path.join(captureDirectory, filename)])}
@@ -253,13 +236,9 @@ function createVariousCaptureProcess(model) {
         return;
       }
 
-      captureProcess.stdout.on('data', data => {
-        printMsg(data.toString());
-      });
+      captureProcess.stdout.on('data', data => {printMsg(data.toString())});
 
-      captureProcess.stderr.on('data', data => {
-        printMsg(data.toString());
-      });
+      captureProcess.stderr.on('data', data => {printMsg(data.toString())});
 
       captureProcess.on('close', code => {
         printMsg(`${colors.green(model.nm)} stopped streaming.`);
@@ -268,16 +247,10 @@ function createVariousCaptureProcess(model) {
 
         remove(stoppedModel, captureModels);
 
-        let directoryFormat;
-           if (config.directoryFormat == 'id+nm') {directoryFormat = model.dir_uid + '_' + model.dir_nm}
-           if (config.directoryFormat == 'id') {directoryFormat = model.dir_uid}
-           if (config.directoryFormat == 'nm') {directoryFormat = model.dir_nm}
-           if (config.directoryFormat == 'nm+id') {directoryFormat = model.dir_nm + '_' + model.dir_uid}
-
         let src = path.join(captureDirectory, filename);
         let dst = config.createModelDirectory
-          ? path.join(completeDirectory + '/' + directoryFormat + '/' + filename)
-          : path.join(completeDirectory + '/' + filename);
+          ? path.join(completeDirectory, model.dir_nm, filename)
+          : path.join(completeDirectory, filename);
 
         fs.statAsync(src)
           // if the file is big enough we keep it otherwise we delete it
@@ -308,7 +281,7 @@ function createCaptureProcess(model) {if (model.camserv < 840) { // skip models 
 
   printMsg(colors.green(model.nm) + ' now online - starting recording process.');
 
-  return createVariousCaptureProcess(model);
+  return createMainCaptureProcess(model);
 }
 
 function checkCaptureProcess(model) {var onlineModel = onlineModels.find(m => (m.uid === model.uid));
@@ -354,16 +327,11 @@ function checkCaptureProcess(model) {var onlineModel = onlineModels.find(m => (m
     .catch(err => {
       if (err.code === 'ENOENT') {
         // do nothing, file does not exists,
+        // this is kind of impossible case, however, probably there should be some code to "clean up" the process
       } else {
-        printErrorMsg('[' + colors.green(model.nm) + '] ' + err.toString());
-      }
-    });
-}
+        printErrorMsg('[' + colors.green(model.nm) + '] ' + err.toString())}})}
 
-function saveConfig() {
-  if (!isDirty) {
-    return;
-  }
+function saveConfig() {if (!isDirty) {return}
 
   // remove duplicates,
   // we should not have them, but just in case...
@@ -372,18 +340,12 @@ function saveConfig() {
   printDebugMsg('Save changes in config.yml');
 
   return fs
-    .writeFileAsync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8')
-    .then(() => {
-      isDirty = false;
-    });
-}
+    .writeFileAsync('config.yml', yaml.safeDump(config), 'utf8')
+    .then(() => {isDirty = false})}
 
-function cacheModels() {
-  cachedModels = onlineModels.filter(m => (m.mode !== -1));
-}
+function cacheModels() {cachedModels = onlineModels.filter(m => (m.mode !== -1))}
 
-function mainLoop() {
-  printDebugMsg('Start new cycle.');
+function mainLoop() {printDebugMsg('Start new cycle.');
 
   Promise
     .try(getProxyModels)
@@ -395,10 +357,9 @@ function mainLoop() {
     .then(saveConfig)
     .then(cacheModels)
     .catch(printErrorMsg)
-    .finally(() => {
-      printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
+    .finally(() => {printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
 
-      setTimeout(mainLoop, config.modelScanInterval * 1000)})}
+     setTimeout(mainLoop, config.modelScanInterval * 1000)})}
 
 mkdir(captureDirectory);
 mkdir(completeDirectory);
@@ -409,42 +370,28 @@ Promise
   .then(() => mainLoop())
   .catch(err => {
     printErrorMsg(err.toString());
-    process.exit(1);
-  });
+    process.exit(1)});
 
 function addInQueue(req, res) {
   let model;
   let mode = 0;
 
-  if (req.url.startsWith('/models/include')) {
-    mode = 1;
+  if (req.url.startsWith('/models/include')) {mode = 1;
 
-    if (req.params && req.params.expire_after) {
-      let expireAfter = parseFloat(req.params.expire_after);
+  if (req.params && req.params.expire_after) {let expireAfter = parseFloat(req.params.expire_after);
 
-      if (!Number.isNaN(expireAfter) && expireAfter > 0) {
-        mode = moment().unix() + (expireAfter * 3600);
-      }
-    }
-  } else if (req.url.startsWith('/models/delete')) {
-    mode = -1;
-  }
+  if (!Number.isNaN(expireAfter) && expireAfter > 0) {mode = moment().unix() + (expireAfter * 3600)}}
+  } else if (req.url.startsWith('/models/delete')) {mode = -1}
 
-  if (req.params && req.params.uid) {
-    let uid = parseInt(req.params.uid, 10);
+  if (req.params && req.params.uid) {let uid = parseInt(req.params.uid, 10);
 
-    if (!Number.isNaN(uid)) {
-      model = { uid: uid, mode: mode };
-    }
-  } else if (req.params && req.params.nm) {
-    model = { nm: req.params.nm, mode: mode };
-  }
+  if (!Number.isNaN(uid)) {model = { uid: uid, mode: mode }}
+  } else if (req.params && req.params.nm) {model = { nm: req.params.nm, mode: mode }}
 
   if (!model) {
     res.writeHead(422, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Invalid request' }));
-  } else {
-    printDebugMsg(colors.green(model.uid || model.nm) + ' to ' + (mode >= 1 ? 'include.' : (mode === 0 ? 'exclude.' : 'delete.')));
+  } else {printDebugMsg(colors.green(model.uid || model.nm) + ' to ' + (mode >= 1 ? 'include.' : (mode === 0 ? 'exclude.' : 'delete.')));
 
     config.queue.push(model);
 
@@ -452,14 +399,10 @@ function addInQueue(req, res) {
       ? cachedModels.find(m => (m.nm === model.nm))
       : cachedModels.find(m => (m.uid === model.uid));
 
-    if (cachedModel) {
-      cachedModel.nextMode = mode;
-    }
+    if (cachedModel) {cachedModel.nextMode = mode}
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(model)); // this will be sent back to the browser
-  }
-}
+    res.end(JSON.stringify(model))}} // this will be sent back to the browser
 
 dispatcher.onGet('/', (req, res) => {
   fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
