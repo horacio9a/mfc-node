@@ -131,7 +131,7 @@ function getOnlineModels(proxyModels) {
     onlineModels = models.concat(newModels);
   } else {onlineModels = models}
 
-  printMsg(`${onlineModels.length} model(s) online.`)}
+  printMsg(`${onlineModels.length} models online.`)}
 
 // goes through the models in the queue and updates their settings in config
 function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in the queue.`);
@@ -162,7 +162,7 @@ function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in
   });
 }
 
-function selectModelsToCapture() {printDebugMsg(`${config.models.length} model(s) in config.`);
+function selectModelsToCapture() {printDebugMsg(`${config.models.length} models in config.`);
 
   let modelsToCapture = [];
   let now = moment().unix();
@@ -357,7 +357,7 @@ function mainLoop() {printDebugMsg('Start new cycle.');
     .then(saveConfig)
     .then(cacheModels)
     .catch(printErrorMsg)
-    .finally(() => {printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
+    .finally(() => {printMsg(`Done, will search for new models in ${config.modelScanInterval} seconds.`);
 
      setTimeout(mainLoop, config.modelScanInterval * 1000)})}
 
