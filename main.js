@@ -197,10 +197,10 @@ function selectModelsToCapture() {printDebugMsg(`${config.models.length} models 
     onlineModel.dir_nm = configModel.nm;
 
     if (onlineModel.vs === 0) {modelsToCapture.push(onlineModel);
-    } else if (onlineModel.vs === 2) {printMsg(`${colors.green(onlineModel.nm)} is AWAY.`);
-    } else if (onlineModel.vs === 12) {printMsg(`${colors.green(onlineModel.nm)} is in PRIVATE.`);
-    } else if (onlineModel.vs === 13) {printMsg(`${colors.green(onlineModel.nm)} is in GROUP SHOW.`);
-    } else if (onlineModel.vs === 91) {printMsg(`${colors.green(onlineModel.nm)} is in PRIVATE.`)}});
+    } else if (onlineModel.vs === 2) {printMsg(`${colors.green(onlineModel.nm)} is Away.`);
+    } else if (onlineModel.vs === 12) {printMsg(`${colors.green(onlineModel.nm)} is in Private.`);
+    } else if (onlineModel.vs === 13) {printMsg(`${colors.green(onlineModel.nm)} is in Group Show.`);
+    } else if (onlineModel.vs === 14) {printMsg(`${colors.green(onlineModel.nm)} is in Club Show.`)}});
 
   printDebugMsg(`${modelsToCapture.length} model(s) to recording.`);
 
