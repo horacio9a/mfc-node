@@ -200,7 +200,8 @@ function selectModelsToCapture() {printDebugMsg(`${config.models.length} models 
     } else if (onlineModel.vs === 2) {printMsg(`${colors.green(onlineModel.nm)} is Away.`);
     } else if (onlineModel.vs === 12) {printMsg(`${colors.green(onlineModel.nm)} is in Private.`);
     } else if (onlineModel.vs === 13) {printMsg(`${colors.green(onlineModel.nm)} is in Group Show.`);
-    } else if (onlineModel.vs === 14) {printMsg(`${colors.green(onlineModel.nm)} is in Club Show.`)}});
+    } else if (onlineModel.vs === 14) {printMsg(`${colors.green(onlineModel.nm)} is in Club Show.`);
+    } else if (onlineModel.vs === 90) {printMsg(`${colors.green(onlineModel.nm)} is Cam Off.`)}});
 
   printDebugMsg(`${modelsToCapture.length} model(s) to recording.`);
 
