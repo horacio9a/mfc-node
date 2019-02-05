@@ -263,8 +263,7 @@
           '2': 'Away',
           '12': 'Private',
           '13': 'Group Show',
-          '90': 'Online',
-          '91': 'Private',
+          '14': 'Club Show',
           '127': 'Offline'
         };
 
@@ -342,7 +341,7 @@
           var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
           open (url3);
         } else if ((model.camserv) < 840) {
-          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this method.\n\nClick 'Online' for enter in model room.")}};
+          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this version.\n\nClick 'Online' for enter in model room.")}};
 
       vm.prev = function () {
         var i = vm.models.indexOf(vm.model) - 1;
