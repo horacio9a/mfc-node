@@ -226,8 +226,8 @@ function createMainCaptureProcess(model) {
         : `https://video${ngvideoServers[model.camserv]}.myfreecams.com:8444/x-hls/${mfcClient.stream_cxid}/${roomId}/${mfcClient.stream_password}/${mfcClient.stream_vidctx}/mfc_${model.phase}_${roomId}.m3u8`;
 
       let captureProcess;
-         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
-         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'ls') {captureProcess = childProcess.spawn('livestreamer', ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=960p','-o',path.join(captureDirectory, filename)])}
+         if (config.downloadProgram == 'sl') {captureProcess = childProcess.spawn('streamlink', ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=960p','-o',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-ts') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'ff-flv') {captureProcess = childProcess.spawn('ffmpeg', ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',path.join(captureDirectory, filename)])}
          if (config.downloadProgram == 'rtmp') {captureProcess = childProcess.spawn('mfcd', [model.nm,path.join(captureDirectory, filename)])}
