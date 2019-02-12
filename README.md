@@ -1,9 +1,10 @@
 What's new?
 ==========
-Now it is possible by simply editing the config.yml file to select the program we want to use to record your favorite models' shows on myfreecams.com.
+Now we have a special program for MFC HD models only. It should be noted that these HD models can't be recorded with the basic MFC Recorder. Handling with this new MFC HD Recorder is entirely the same as with the basic MFC Recorder, but the new MFC HD Recorder program uses a separate `config-hd.yml` and `index-hd.html`.
+Now it is possible by simply editing the `config-hd.yml` and `index-hd.html` file to select the program we want to use to record your favorite models' shows on myfreecams.com.
 There are six choices available. I would recommend using three methods that do not freeze MFC recorded videos:
 
-1. rtmp
+1. rtmpdump
 2. streamlink
 3. livestreamer
 
@@ -30,15 +31,17 @@ Credits:
 * [mfc-node](https://github.com/sstativa/mfc-node)
 * [MFCAuto](https://github.com/ZombieAlex/MFCAuto)
 * [MFCD.exe](https://github.com/ruzzy/)
+* [rtmpdump.exe](2009 Andrej Stepanchuk & 2010-2011 Howard Chu and many others)
 
 Requirements
 ============
-1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v11.6.0)
+1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v11.9.0)
 2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 It's best to be in C:/Livestreamer
 3. [Streamlink](https://github.com/streamlink/streamlink) (tested with version 0.9.0) - better to install it independently (not in python)
 4. [ffmpeg](https://ffmpeg.zeranoe.com/builds/) must be a last version somewere in the path.
 5. [MFCD.exe](http://www.mediafire.com/file/aim84bicrsbbvci/MFCD.rar) MFC Dump by @RuzzyRullez (little modified)
 6. [hlsdl.exe](https://github.com/samsamsam-iptvplayer/hlsdl) or (https://www.mediafire.com/file/d9obqdq71cqeehr/hlsdl.exe/file) for windows.
+7. [rtmpdump.exe](https://rtmpdump.mplayerhq.hu/) I've tested a lot of version 2.4 and they are all good.
 
 Setup
 =====
@@ -47,7 +50,7 @@ Setup
 3. Open Terminal (macOS) or Command Prompt (Windows) and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users have to install [Git](https://git-scm.com/download/win)).
 5. Edit `config.yml` file and set desirable values for `captureDirectory`, `completeDirectory`, `modelScanInterval`.
-6. Install `ffmpeg.exe`, `MFCD.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
+6. Install `ffmpeg.exe`, `MFCD.exe`, `rtmpdump.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
 
 Running
 =======
