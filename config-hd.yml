@@ -1,0 +1,16 @@
+captureDirectory: 'C:/Videos/MFC' # Choose a directory for the recorded files
+completeDirectory: 'C:/Videos/MFC' # Choose a directory for the complete recorded files
+modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models
+createModelDirectory: false # If you want all the files from same model be recorded in the separate subdirectory with model name.
+dateFormat: DDMMYYYY-HHmmss # Choose date format for the filename, for example: YYYY-MM-DD_HH-mm-ss
+downloadProgram: rtmp # Choose program for download stream (rtmp, sl, ls, ff-ts, ff-flv and hls)
+minFileSizeMb: 5 # If you do not want to save a file smaller than 5 MB enter number 5
+port: 8888 # number of port for your browser url for example: http://localhost:8888/
+proxyServer: null # If you want to bypass region block use some good proxy server - replace null with proxy IP Address like 'xx.xx.xx.xxx:xx'
+rtmpDebug: false # If you want a more detailed rtmpdump data put 'true' or 'false' to skip this option
+debug: true # If you want a more detailed view put 'true' or 'false' to skip this option
+models: # This is only example - all your models will be added with your browser with spinner
+  - uid: 25130842
+    mode: 1
+    nm: AngelikaRouge
+queue: []
