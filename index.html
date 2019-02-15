@@ -124,7 +124,7 @@
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900" target="_blank" ng-click="vm.viewModel(model)" ng-bind="model.nm"></a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{ model.camserv < 840 ? 'Yes' : 'No' }}</a></td>
-              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900">{{ model.camserv > 1544 ? 'HD' : 'SD' }}</a></td>
+              <td class="mdl-data-table__cell--non-numeric">{{ model.camserv > 1544 ? 'HD' : 'SD' }}</a></td>
               <td ng-bind="::model.camscore.toFixed(0)"></td>
               <td ng-bind="::model.rank"></td>
               <td ng-bind="::model.age"></td>
@@ -336,19 +336,22 @@
         if ((model.camserv) > 840) {
           var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
           open (url1);
-        } else if ((model.camserv) < 840) {
+        } if ((model.camserv) < 840) {
           var url2 = ('http://img.mfcimg.com/livesnap320/?user=' + (100000000 + model.uid) + '#cs=' + model.camserv + '#' + model.nm);
-          open(url2)}};
+          open(url2);
+        } else if ((model.camserv) > 1544) {
+          alert("\n\nThis is HD model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")}};
 
       vm.video_preview = function(model) {
         if ((model.camserv) > 840) {
           var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
           open (url3);
+        } if ((model.camserv) > 1544) {
+          alert("\n\nThis is HD model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.");
         } else if ((model.camserv) < 840) {
-          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview with this version.\n\nClick 'Online' for enter in model room.")}};
+          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")}};
 
-      vm.prev = function () {
-        var i = vm.models.indexOf(vm.model) - 1;
+      vm.prev = function () {var i = vm.models.indexOf(vm.model) - 1;
 
         vm.model = (i >= 0) ? vm.models[i] : vm.models[vm.models.length - 1]};
 
@@ -356,9 +359,7 @@
 
         vm.model = (i < vm.models.length) ? vm.models[i] : vm.models[0]};
 
-      vm.setSnapshot = function () {
-        if (!vm.model) {vm.snapshot = null;
-        } else {vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
+      vm.setSnapshot = function () {if (!vm.model) {vm.snapshot = null} else {vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
 
           $timeout(vm.setSnapshot, 500)}};
 
@@ -367,8 +368,8 @@
 
         vm.setSnapshot()};
 
-      vm.refresh = function () {
-        vm.ready = false;
+      vm.refresh = function () {vm.ready = false;
+
         var camserv;
 
         $http
@@ -406,8 +407,7 @@
                 : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid)];
               else [m.snapshot = ('https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid))];
 
-              return m;
-            });
+              return m});
 
             vm.filterAndSort(true)})};
 
