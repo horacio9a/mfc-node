@@ -1,7 +1,7 @@
 What's new?
 ==========
-Now we have a special program for MFC HD models only. It should be noted that these HD models can't be recorded with the basic MFC Recorder. Handling with this new MFC HD Recorder is entirely the same as with the basic MFC Recorder, but the new MFC HD Recorder program uses a separate `config-hd.yml` and `index-hd.html`.
-Now it is possible by simply editing the `config-hd.yml` and `index-hd.html` file to select the program we want to use to record your favorite models' shows on myfreecams.com.
+In v.3.0.2 Basic and HD version merged into one. It should be noted that HD models can be recorded like other SD models now. HD and SD models now using unique `config.yml` and `index-hd.html`.
+Now it is possible by simply editing the `config-hd.yml` and `index-hd.html` file to select the program we want to use to record your favorite models show's on myfreecams.com.
 There are six choices available. I would recommend using three methods that do not freeze MFC recorded videos:
 
 1. rtmpdump
@@ -12,14 +12,9 @@ The program ffmpeg still has a problem with freeze MFC videos:
 
 4. ffmpeg - ts
 5. ffmpeg - flv
-
 6. hsldl
 
-It is possible that hsldl works well on Linux so I added it. The hsldl version for windows has two major mistakes:
-1. Record in only 960p resolution
-2. Records 12 segments and then interrupts recording and starts a new file.
-Look here https://github.com/samsamsam-iptvplayer/hlsdl for more info.
-Someone claim that `hlsdl` can record HLS streams under Linux without significant drop of segments (in comparison with ffmpeg)!?
+File mfcd.exe using rtmp for download but should not mention more than 8 models at the same time.
 
 mfc-node
 ========
@@ -31,7 +26,7 @@ Credits:
 * [mfc-node](https://github.com/sstativa/mfc-node)
 * [MFCAuto](https://github.com/ZombieAlex/MFCAuto)
 * [MFCD.exe](https://github.com/ruzzy/)
-* [rtmpdump.exe](2009 Andrej Stepanchuk & 2010-2011 Howard Chu and many others)
+* [rtmpdump.exe](https://github.com/K-S-V/Scripts/releases)
 
 Requirements
 ============
@@ -41,7 +36,7 @@ Requirements
 4. [ffmpeg](https://ffmpeg.zeranoe.com/builds/) must be a last version somewere in the path.
 5. [MFCD.exe](http://www.mediafire.com/file/aim84bicrsbbvci/MFCD.rar) MFC Dump by @RuzzyRullez (little modified)
 6. [hlsdl.exe](https://github.com/samsamsam-iptvplayer/hlsdl) or (https://www.mediafire.com/file/d9obqdq71cqeehr/hlsdl.exe/file) for windows.
-7. [rtmpdump.exe](https://rtmpdump.mplayerhq.hu/) I've tested a lot of version 2.4 and they are all good.
+7. [rtmp.exe](http://www.mediafire.com/file/2rpqt3dl3ed8k9z/rtmpdump2.4patch.rar/file) I've tested a lot of version 2.4 and they are all good but file must be renamed to `rtmp.exe`
 
 Setup
 =====
@@ -50,7 +45,7 @@ Setup
 3. Open Terminal (macOS) or Command Prompt (Windows) and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users have to install [Git](https://git-scm.com/download/win)).
 5. Edit `config.yml` file and set desirable values for `captureDirectory`, `completeDirectory`, `modelScanInterval`.
-6. Install `ffmpeg.exe`, `MFCD.exe`, `rtmpdump.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
+6. Install `ffmpeg.exe`, `MFCD.exe`, `rtmp.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
 
 Running
 =======
@@ -68,6 +63,7 @@ Running
 - By pressing 'State/Online' you can enter in the model room with your browser.
 - By pressing the model 'Mob./true' you get a video preview of the current model in separate window of your browser. For this feature in My recommendation is to use the Chrome browser with the installed add-on [Play HLS M3u8](https://chrome.google.com/webstore/detail/play-hls-m3u8/ckblfoghkjhaclegefojbgllenffajdc/related) but if you want firefox then need to install [Native HLS Playback](https://addons.mozilla.org/en-US/firefox/addon/native_hls_playback/)
 - If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. This can be of help with other downloadings that we do with livestreamer and streamlink. In your instalation you must found:
+- A new 'quality' column has been added so it is easy to find HD models. It is also possible to sort by the quality criteria that can further facilitate finding the HD models.
 
    ... /livestreamer_cli/utils/progress.pyc
    or
