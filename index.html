@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <title>MFC Recorder v.3.0.1</title>
+  <title>MFC Recorder v.3.0.2</title>
   <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.green-red.min.css" />
@@ -81,7 +81,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.1 by horacio9a</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.2 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -105,6 +105,7 @@
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('nm')" ng-class="vm.sortType == 'nm' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Name</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('vs')" ng-class="vm.sortType == 'vs' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">State</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Mob.</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('camserv')" ng-class="vm.sortType == 'camserv' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Qual.</th>
               <th ng-click="vm.sort('camscore')" ng-class="vm.sortType == 'camscore' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Score</th>
               <th ng-click="vm.sort('rank')" ng-class="vm.sortType == 'rank' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Rank</th>
               <th ng-click="vm.sort('age')" ng-class="vm.sortType == 'age' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Age</th>
@@ -122,7 +123,8 @@
               <td background="{{ snapimg }}" ng-mouseover="count = count + 1; snapimg = vm.snapimg_url(model, count);" ng-init="count = 0; snapimg = vm.snapimg_url(model, count);" class="backimage" ng-click="vm.preview(model)"></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900" target="_blank" ng-click="vm.viewModel(model)" ng-bind="model.nm"></a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
-              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{( model.camserv > 840 )}}</a></td>
+              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{ model.camserv < 840 ? 'Yes' : 'No' }}</a></td>
+              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900">{{ model.camserv > 1544 ? 'HD' : 'SD' }}</a></td>
               <td ng-bind="::model.camscore.toFixed(0)"></td>
               <td ng-bind="::model.rank"></td>
               <td ng-bind="::model.age"></td>
@@ -163,6 +165,7 @@
           <tr><td>.</td></tr>
           <tr><td style="width:120px">State:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.state }}</a></td></tr>
           <tr><td>No Mob.Feed:</td><td><a class="mdl-color-text--red-900">{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported' : 'No' }}</a></td></tr>
+          <tr><td>Stream Quality:</td><td><a class="mdl-color-text--green-900">{{ vm.model.camserv > 1544 ? 'High' : 'Standard' }}</a></td></tr>
           <tr><td>Age:</td><td>{{ vm.model.age || '-' }}</td></tr>
           <tr><td>Ethnic:</td><td>{{ vm.model.ethnic || '-' }}</td></tr>
           <tr><td>Continent:</td><td>{{ vm.model.continent || '-' }}</td></tr>
@@ -212,10 +215,10 @@
 
       vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
-      var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      if (model.camserv < 1544) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
-      if (model.camscore > 350 || x > 0){return snapshot_url;
-      } else {return ''}};
+      if (model.camscore > 350 || x > 0){return snapshot_url} 
+      else {return ''}};
 
       vm.model = null;
       vm.keyword = null;
@@ -398,9 +401,10 @@
 
               m.rc = m.rc || 0;
 
-              m.snapshot = !vm.ngvideo_servers[m.camserv]
-                ? 'https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid)
-                : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid);
+              if (m.phase === 'a') [m.snapshot = !vm.ngvideo_servers[m.camserv]
+                ? 'https://snap.mfcimg.com/snapimg/' + (m.camserv - 1000) + '/320x240/mfc_a_' + (100000000 + m.uid)
+                : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid)];
+              else [m.snapshot = ('https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid))];
 
               return m;
             });
