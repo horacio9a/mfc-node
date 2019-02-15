@@ -205,7 +205,7 @@ function createMainCaptureProcess(model) {
 
       let captureProcess;
          if (config.downloadProgram == 'ls') {
-           if (model.phase === 'a') {captureProcess = childProcess.spawn(dlProgram, ['-Q',hlsUrla,'best','-o',path.join(captureDirectory, filename)])} 
+           if (model.phase === 'a') {captureProcess = childProcess.spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o',path.join(captureDirectory, filename)])} 
            else {captureProcess = childProcess.spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',path.join(captureDirectory, filename)])}};
          if (config.downloadProgram == 'sl') {
            if (model.phase === 'a') {captureProcess = childProcess.spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o',path.join(captureDirectory, filename)])} 
