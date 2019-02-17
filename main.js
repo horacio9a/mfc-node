@@ -78,36 +78,36 @@ function getOnlineModels(proxyModels) {
 
   mfc.Model.knownModels.forEach(m => {
    if (m.bestSession.vs !== mfc.STATE.Offline && m.bestSession.camserv > 0 && !!m.bestSession.nm) {
-       models.push({
-         nm: m.bestSession.nm,
-         sid: m.bestSession.sid,
-         uid: m.bestSession.uid,
-         vs: m.bestSession.vs,
-         camserv: m.bestSession.camserv,
-         topic: m.bestSession.topic,
-         missmfc: m.bestSession.missmfc,
-         new_model: m.bestSession.new_model,
-         camscore: m.bestSession.camscore,
-         continent: m.bestSession.continent,
-         age: m.bestSession.age,
-         city: m.bestSession.city,
-         country: m.bestSession.country,
-         blurb: m.bestSession.blurb,
-         occupation: m.bestSession.occupation,
-         ethnic: m.bestSession.ethnic,
-         phase: m.bestSession.phase,
-         rank: m.bestSession.rank,
-         rc: m.bestSession.rc,
-         tags: m.bestSession.tags})}});
+      models.push({
+        nm: m.bestSession.nm,
+        sid: m.bestSession.sid,
+        uid: m.bestSession.uid,
+        vs: m.bestSession.vs,
+        camserv: m.bestSession.camserv,
+        topic: m.bestSession.topic,
+        missmfc: m.bestSession.missmfc,
+        new_model: m.bestSession.new_model,
+        camscore: m.bestSession.camscore,
+        continent: m.bestSession.continent,
+        age: m.bestSession.age,
+        city: m.bestSession.city,
+        country: m.bestSession.country,
+        blurb: m.bestSession.blurb,
+        occupation: m.bestSession.occupation,
+        ethnic: m.bestSession.ethnic,
+        phase: m.bestSession.phase,
+        rank: m.bestSession.rank,
+        rc: m.bestSession.rc,
+        tags: m.bestSession.tags})}});
 
   if (proxyModels.length > 0) {
     // remove models that available in the current region from proxyModels (foreign region)
-    let newModels = proxyModels.filter(pm => (pm.phase !== 'a' && !models.find(m => (m.uid === pm.uid))));
+    let newModels = proxyModels.filter(pm => !models.find(m => (m.uid === pm.uid)));
 
     printDebugMsg(`${newModels.length} new model(s) from proxy ${colors.green(config.proxyServer)}`);
 
     // merge newModels with "local" models
-    onlineModels = newModels.concat(models)} else {onlineModels = models};
+    onlineModels = models.concat(newModels)} else {onlineModels = models}
 
   printMsg(`${onlineModels.length} model(s) online.`)};
 
