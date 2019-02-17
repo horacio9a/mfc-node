@@ -161,12 +161,12 @@
       </div>
         <table>
           <tr><td>.</td></tr>
-          <tr><td style="width:70px">State:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.state }}</a></td></tr>
+          <tr><td style="width:80px">State:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.state }}</a></td></tr>
           <tr><td>NMF:</td><td><a class="mdl-color-text--red-900">{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported !!!' : 'No' }}</a></td></tr>
           <tr><td>Quality:</td><td><a class="mdl-color-text--green-900">{{ vm.model.camserv < 840 ? 'Low' : '' || vm.model.camserv > 1544 ? 'High' : 'Standard' }}</a></td></tr>
           <tr><td>Age:</td><td>{{ vm.model.age || '-' }}</td></tr>
           <tr><td>Ethnic:</td><td>{{ vm.model.ethnic || '-' }}</td></tr>
-          <tr><td>Contin.:</td><td>{{ vm.model.continent || '-' }}</td></tr>
+          <tr><td>Continent:</td><td>{{ vm.model.continent || '-' }}</td></tr>
           <tr><td>Country:</td><td>{{ vm.model.country || '-' }}</td></tr>
           <tr><td>City:</td><td>{{ vm.model.city || '-' }}</td></tr>
           <tr><td>Job:</td><td>{{ vm.model.occupation || '-' }}</td></tr>
@@ -188,9 +188,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
   <script>
-    function stopPropogate(event) {
-      event.stopPropagation();
-    }
+    function stopPropogate(event) {event.stopPropagation()}
 
     var app = angular.module('app', []);
 
@@ -198,22 +196,11 @@
 
       vm.serverModels = [];
       vm.models = [];
-      vm.ngvideo_servers = {
-        "1545":"545",
-        "1546":"546",
-        "1547":"547",
-        "1548":"548",
-        "1549":"549",
-        "1550":"550",
-        "1551":"551",
-        "1552":"552",
-        "1553":"553",
-        "1554":"554"
-      };
+      vm.ngvideo_servers = {"1545":"545","1546":"546","1547":"547","1548":"548","1549":"549","1550":"550","1551":"551","1552":"552","1553":"553","1554":"554"};
 
       vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
-      if (model.camserv < 1544) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      if (model.camserv > 840) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
       if (model.camscore > 350 || x > 0){return snapshot_url} 
       else {return ''}};
@@ -227,8 +214,7 @@
       $scope.$watch(function () { return vm.keyword }, function (newVal, oldVal) {
         vm.filter = !newVal ? {} : { keywords: newVal };
 
-        vm.filterAndSort();
-      }, true);
+        vm.filterAndSort()}, true);
 
       vm.clearFilter = function () {
         vm.keyword = '';
@@ -236,12 +222,7 @@
 
         vm.filterAndSort()};
 
-      vm.sort = function (field) {
-        if (vm.sortFields[0] === field) {
-          vm.sortReverse = !vm.sortReverse;
-        } else {
-          vm.sortFields = [field, vm.sortFields[0]];
-        }
+      vm.sort = function (field) {if (vm.sortFields[0] === field) {vm.sortReverse = !vm.sortReverse} else {vm.sortFields = [field, vm.sortFields[0]]};
 
         vm.filterAndSort()};
 
@@ -251,8 +232,7 @@
         $timeout(function () {
           componentHandler.upgradeAllRegistered();
 
-          vm.ready = vm.ready || ready;
-        })};
+          vm.ready = vm.ready || ready})};
 
       vm.setVs = function (model) {
         var state = {
@@ -283,71 +263,42 @@
         model.state = state[model.vs] || 'Unknown';
 
         // "mark" the model if she has "expiration time"
-        if (model.mode > 1 || model.nextMode > 1) {
-          model.state += '*';
-        }
+        if (model.mode > 1 || model.nextMode > 1) {model.state += '*'}
 
-        if (model.vs === -1) {
-          model.color = 'mdl-color-text--red-300 mdl-color--red-50';
-        } else if (model.vs === -2 || model.vs > 0) {
-          model.color = 'mdl-color-text--grey-400 mdl-color--grey-100';
-        } else if (model.vs === -3) {
-          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
-        } else if (model.vs === -4) {
-          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
-        } else {
-          model.color = '';
-        }
+        if (model.vs === -1) {model.color = 'mdl-color-text--red-300 mdl-color--red-50'} 
+        else if (model.vs === -2 || model.vs > 0) {model.color = 'mdl-color-text--grey-400 mdl-color--grey-100'} 
+        else if (model.vs === -3) {model.color = 'mdl-color-text--blue-300 mdl-color--blue-50'} 
+        else if (model.vs === -4) {model.color = 'mdl-color-text--green-400 mdl-color--green-50'} 
+        else {model.color = ''};
 
         model.incDisabled = model.nextMode >= 1 || (model.nextMode == void(0) && model.mode >= 1);
         model.excDisabled = model.nextMode == 0 || (model.nextMode == void(0) && (model.mode == void(0) || model.mode == 0));
-        model.delDisabled = model.nextMode == -1;
-      };
+        model.delDisabled = model.nextMode == -1};
 
-      vm.getSortClass = function (field) {
-        return (vm.sortFields[0] === field)
-          ? (vm.sortReverse ? 'mdl-data-table__header--sorted-ascending' : 'mdl-data-table__header--sorted-descending')
-          : ''};
+      vm.getSortClass = function (field) {return (vm.sortFields[0] === field) ? (vm.sortReverse ? 'mdl-data-table__header--sorted-ascending' : 'mdl-data-table__header--sorted-descending') : ''};
 
-      vm.includeUid = function (model, expireAfter) {
-        $http.get('/models/include', { params: { uid: model.uid, expire_after: expireAfter } }).then(function (response) {
-          model.nextMode = response.data.mode;
-          vm.setVs(model)})};
+      vm.includeUid = function (model, expireAfter) {$http.get('/models/include', { params: { uid: model.uid, expire_after: expireAfter } }).then(function (response) {model.nextMode = response.data.mode;vm.setVs(model)})};
 
-      vm.excludeUid = function (model) {
-        $http.get('/models/exclude', { params: { uid: model.uid } }).then(function (response) {
-          model.nextMode = response.data.mode;
-          vm.setVs(model)})};
+      vm.excludeUid = function (model) {$http.get('/models/exclude', { params: { uid: model.uid } }).then(function (response) {model.nextMode = response.data.mode;vm.setVs(model)})};
 
-      vm.deleteUid = function (model) {
-        $http.get('/models/delete', { params: { uid: model.uid } }).then(function (response) {
-          model.nextMode = response.data.mode;
-          console.log(model);
-          vm.setVs(model)})};
+      vm.deleteUid = function (model) {$http.get('/models/delete', { params: { uid: model.uid } }).then(function (response) {model.nextMode = response.data.mode;console.log(model);vm.setVs(model)})};
 
-      vm.enter_room = function(model) {
-        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
-        var url = 'https://www.myfreecams.com/#' + model.nm;
-        open(url)};
+      vm.enter_room = function(model) {console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
+        var url = 'https://www.myfreecams.com/#' + model.nm;open(url)};
 
       vm.preview = function(model) {
-        if ((model.camserv) > 840) {
-          var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
-          open (url1);
-        } if ((model.camserv) < 840) {
-          var url2 = ('http://img.mfcimg.com/livesnap320/?user=' + (100000000 + model.uid) + '#cs=' + model.camserv + '#' + model.nm);
-          open(url2);
-        } else if ((model.camserv) > 1544) {
-          alert("\n\nThis is HD model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")}};
+        if (model.camserv > 840) {var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);open (url1)};
+        if (model.camserv > 1544) {var url2 = ('http://img.mfcimg.com/images/previewunavailable320.png');open (url2)};
+        if (model.camserv < 840) {alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")};
+        if (model.camserv > 1544) {alert("\n\nThis is HD model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")};
+          return model};
 
       vm.video_preview = function(model) {
-        if ((model.camserv) > 840) {
-          var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
-          open (url3);
-        } if ((model.camserv) > 1544) {
-          alert("\n\nThis is HD model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.");
-        } else if ((model.camserv) < 840) {
-          alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")}};
+        if (model.camserv > 840) {var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);open (url3);
+        if (model.camserv > 1544) var url4 = ('http://img.mfcimg.com/images/previewunavailable320.png');open (url4)};
+        if (model.camserv < 840) {alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")};
+        if (model.camserv > 1544) {alert("\n\nThis is HD model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")};
+          return model};
 
       vm.prev = function () {var i = vm.models.indexOf(vm.model) - 1;
 
@@ -361,8 +312,7 @@
 
           $timeout(vm.setSnapshot, 500)}};
 
-      vm.viewModel = function (model) {
-        vm.model = model;
+      vm.viewModel = function (model) {vm.model = model;
 
         vm.setSnapshot()};
 
@@ -379,18 +329,18 @@
 
               m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic + (m.phase === 'a' ? '\nHD' : '');
 
-              if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20);}
+              if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20)};
               if (m.ethnic == 'No Answer'){m.ethnic = '-';}
 
-              if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20);}
+              if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20)};
 
-              if (m.country && m.country.length > 3) {m.country = m.country.substr(0,20);}
+              if (m.country && m.country.length > 3) {m.country = m.country.substr(0,20)};
 
-              if (m.city && m.city.length > 3) {m.city = m.city.substr(0,20);}
+              if (m.city && m.city.length > 3) {m.city = m.city.substr(0,20)};
 
-              if (m.blurb && m.blurb.length > 3) {try {m.blurb = m.blurb.substr(0,100);} catch (err) {console.log(err);}}
+              if (m.blurb && m.blurb.length > 3) {try {m.blurb = m.blurb.substr(0,100);} catch (err) {console.log(err)}};
 
-              if (m.topic && m.topic.length > 3) {try {m.topic = decodeURIComponent(m.topic).substr(0,160);} catch (err) {console.log(err);}}
+              if (m.topic && m.topic.length > 3) {try {m.topic = decodeURIComponent(m.topic).substr(0,160);} catch (err) {console.log(err)}};
 
               if (m.rank == 0){m.rank = '-';}
 
