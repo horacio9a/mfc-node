@@ -287,18 +287,18 @@
         var url = 'https://www.myfreecams.com/#' + model.nm;open(url)};
 
       vm.preview = function(model) {
-        if (model.camserv > 840) {var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);open (url1)};
-        if (model.camserv > 1544) {var url2 = ('http://img.mfcimg.com/images/previewunavailable320.png');open (url2)};
-        if (model.camserv < 840) {alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")};
-        if (model.camserv > 1544) {alert("\n\nThis is HD model!\n\nSorry no image preview in this version.\n\nClick 'Online' for enter in model room.")};
-          return model};
+        var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
+        var url2 = 'http://img.mfcimg.com/images/previewunavailable320.png';
+        if (model.camserv < 840) {open (url2)}
+        if (model.camserv > 1544) {open (url2)}
+        else {open (url1)}};
 
       vm.video_preview = function(model) {
-        if (model.camserv > 840) {var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);open (url3);
-        if (model.camserv > 1544) var url4 = ('http://img.mfcimg.com/images/previewunavailable320.png');open (url4)};
-        if (model.camserv < 840) {alert("\n\nThis is 'No Mobile Feed' model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")};
-        if (model.camserv > 1544) {alert("\n\nThis is HD model!\n\nSorry no video preview in this version.\n\nClick 'Online' for enter in model room.")};
-          return model};
+        var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
+        var url4 = 'http://img.mfcimg.com/images/previewunavailable320.png';
+        if (model.camserv < 840) {open (url4)}
+        if (model.camserv > 1544) {open (url4)}
+        else {open (url3)}};
 
       vm.prev = function () {var i = vm.models.indexOf(vm.model) - 1;
 
@@ -322,10 +322,7 @@
 
         $http
           .get('/models')
-          .then(function (response) {
-            vm.serverModels = response.data.map(function (m) {
-
-              vm.setVs(m);
+          .then(function (response) {vm.serverModels = response.data.map(function (m) {vm.setVs(m);
 
               m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic + (m.phase === 'a' ? '\nHD' : '');
 
@@ -342,7 +339,7 @@
 
               if (m.topic && m.topic.length > 3) {try {m.topic = decodeURIComponent(m.topic).substr(0,160);} catch (err) {console.log(err)}};
 
-              if (m.rank == 0){m.rank = '-';}
+              if (m.rank == 0){m.rank = '-'};
 
               m.new_model = m.new_model ? 'new_releases' : '';
 
