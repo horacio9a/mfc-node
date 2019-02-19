@@ -169,7 +169,7 @@
           <tr><td>Continent:</td><td>{{ vm.model.continent || '-' }}</td></tr>
           <tr><td>Country:</td><td>{{ vm.model.country || '-' }}</td></tr>
           <tr><td>City:</td><td>{{ vm.model.city || '-' }}</td></tr>
-          <tr><td>Job:</td><td>{{ vm.model.occupation || '-' }}</td></tr>
+          <tr><td>Job:</td><td>{{ vm.model.job || '-' }}</td></tr>
           <tr><td>Blurb:</td><td>{{ vm.model.blurb || '-' }}</td></tr>
           <tr><td>Topic:</td><td>{{ vm.model.topic || '-' }}</td></tr>
           <tr><td>Viewers:</td><td>{{ vm.model.rc }}</td></tr>
@@ -288,17 +288,13 @@
 
       vm.preview = function(model) {
         var url1 = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/960x720/mfc_' + (100000000 + model.uid) + '#' + model.nm);
-        var url2 = 'http://img.mfcimg.com/images/previewunavailable320.png';
-        if (model.camserv < 840) {open (url2)}
-        if (model.camserv > 1544) {open (url2)}
+        if ((model.camserv < 840) || (model.camserv > 1544)){alert("\nNo image preview for LD & HD models.\n" + "'" + model.nm + "' from camserv -> " + model.camserv + "\nClick 'Online' for enter in model room.")}
         else {open (url1)}};
 
       vm.video_preview = function(model) {
-        var url3 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
-        var url4 = 'http://img.mfcimg.com/images/previewunavailable320.png';
-        if (model.camserv < 840) {open (url4)}
-        if (model.camserv > 1544) {open (url4)}
-        else {open (url3)}};
+        var url2 = ('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8?' + model.nm);
+        if ((model.camserv < 840) || (model.camserv > 1544)){alert("\nNo video preview for LD & HD models.\n" + "'" + model.nm + "' from camserv -> " + model.camserv + "\nClick 'Online' for enter in model room.")}
+        else {open (url2)}};
 
       vm.prev = function () {var i = vm.models.indexOf(vm.model) - 1;
 
@@ -324,12 +320,21 @@
           .get('/models')
           .then(function (response) {vm.serverModels = response.data.map(function (m) {vm.setVs(m);
 
-              m.keywords = m.nm + '\n' + m.ethnic + '\n' + m.country + '\n' + m.city + '\n' + m.occupation + '\n' + m.blurb + '\n' + m.topic + (m.phase === 'a' ? '\nHD' : '');
+              m.keywords = 
+              m.nm + 
+              m.ethnic + 
+              m.country + 
+              m.city + 
+              m.job + 
+              m.blurb + 
+              m.topic + 
+              ((m.camserv < 840) ? 'LDV' : '') + 
+              ((m.camserv > 1544) ? 'HDV' : '');
 
               if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20)};
               if (m.ethnic == 'No Answer'){m.ethnic = '-';}
 
-              if (m.occupation && m.occupation.length > 3) {m.occupation = m.occupation.substr(0,20)};
+              if (m.job && m.job.length > 3) {m.job = m.job.substr(0,20)};
 
               if (m.country && m.country.length > 3) {m.country = m.country.substr(0,20)};
 
