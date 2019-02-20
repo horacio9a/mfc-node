@@ -200,9 +200,9 @@
 
       vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
-      if (model.camserv > 840) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      if ((model.camserv > 840) && (model.camserv < 1544) || x > 0) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
-      if (model.camscore > 350 || x > 0){return snapshot_url} 
+      if (model.camscore > 1 || x > 0){return snapshot_url} 
       else {return ''}};
 
       vm.model = null;
@@ -329,6 +329,7 @@
               m.blurb + 
               m.topic + 
               ((m.camserv < 840) ? 'LDV' : '') + 
+              ((m.camserv > 840) && (m.camserv < 1544) ? 'SDV' : '') + 
               ((m.camserv > 1544) ? 'HDV' : '');
 
               if (m.ethnic && m.ethnic.length > 3) {m.ethnic = m.ethnic.substr(0,20)};
@@ -352,7 +353,7 @@
 
               m.rc = m.rc || 0;
 
-              if (m.phase === 'a') [m.snapshot = !vm.ngvideo_servers[m.camserv]
+              if (m.camserv > 1544) [m.snapshot = !vm.ngvideo_servers[m.camserv]
                 ? 'https://snap.mfcimg.com/snapimg/' + (m.camserv - 1000) + '/320x240/mfc_a_' + (100000000 + m.uid)
                 : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid)];
               else [m.snapshot = ('https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid))];
