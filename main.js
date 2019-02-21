@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.2
+// MyFreeCams Recorder v.3.0.3
 
 'use strict';
 
@@ -136,7 +136,7 @@ function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in
 
     return false})};
 
-function selectModelsToCapture() {printDebugMsg(`${config.models.length} models in 'config.yml'`);
+function selectModelsToCapture() {printDebugMsg(`${config.models.length} models in >>> [${colors.yellow('config.yml')}] <<<`);
 
   let modelsToCapture = [];
   let now = moment().unix();
@@ -242,6 +242,13 @@ function createMainCaptureProcess(model) {
           .then(stats => (stats.size <= minFileSize) ? fs.unlinkAsync(src) : mvAsync(src, dst, { mkdirp: true }))
           .catch(err => {if (err.code !== 'ENOENT') {printErrorMsg(`[` + colors.green(model.nm) + `] ` + err.toString())}})});
 
+      let writeHdUrl;
+        if (model.camserv > 1544) {
+          fs.appendFile('hd_url.txt','\n' + filename + '\n' + hlsUrla + '\n', function (err) {
+            if (err) 
+              return console.log(err);
+            printMsg(colors.gray(`>>> Append * [${colors.yellow('HD URL')}] * for ${colors.green(model.nm)} in [${colors.yellow('hd_url.txt')}] <<<`))})};
+
       captureModels.push({
         nm: model.nm,
         uid: model.uid,
@@ -255,11 +262,11 @@ function createCaptureProcess(model) {if (model.camserv < 840) {return}; // skip
 
   let captureModel = captureModels.find(m => (m.uid === model.uid));
 
-  if (captureModel !== undefined) {printMsg(colors.yellow(`>>> ` + captureModel.filename + ` ${colors.gray(`* ` + dlProgram + (model.camserv > 1544 ? ' HD recording *' : ' SD recording *'))}`));
+  if (captureModel !== undefined) {printMsg(colors.yellow(`>>> ` + captureModel.filename + ` ${colors.gray(`* ` + dlProgram + (model.camserv > 1544 ? ' HD recording <<<' : ' SD recording <<<'))}`));
 
     return};
 
-  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD recording' : 'SD recording'))} from camserv -> ${colors.yellow(model.camserv)}`);
+  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD recording' : 'SD recording'))} from CS -> ${colors.yellow(model.camserv)} <<<`);
 
   return createMainCaptureProcess(model)};
 
@@ -306,7 +313,7 @@ function saveConfig() {if (!isDirty) {return};
   // we should not have them, but just in case...
   config.models = config.models.filter((m, index, self) => (index === self.indexOf(m)));
 
-  printDebugMsg(`Save changes in 'config.yml'`);
+  printDebugMsg(`Save changes in >>> [${colors.yellow('config.yml')}] <<<`);
 
   return fs
     .writeFileAsync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8')
@@ -326,7 +333,7 @@ function mainLoop() {printDebugMsg(`Start new cycle.`);
     .then(saveConfig)
     .then(cacheModels)
     .catch(printErrorMsg)
-    .finally(() => {printMsg(`Done >>> will search for new models in ${config.modelScanInterval} seconds.`);
+    .finally(() => {printMsg(`Done >>> will search for new models in ${config.modelScanInterval} seconds <<<`);
 
      setTimeout(mainLoop, config.modelScanInterval * 1000)})};
 
