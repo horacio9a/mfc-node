@@ -1,5 +1,5 @@
 srcDirectory: 'C:/Videos/MFC' # directory where you store your .ts or .flv files
-dstDirectory: 'C:/Videos/MFC/Converted' # directory where do you want to store your .mp4 files
+dstDirectory: 'C:/Videos/MFC_Converted' # directory where do you want to store your converted .flv files
 dirScanInterval: 300 # in seconds, min: 5 seconds
 deleteAfter: false # if you want to keep the original files then set to false
 maxConcur: 1 # how many files to convert simultaneously
