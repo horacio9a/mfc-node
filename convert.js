@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.3
+// MyFreeCams File Converter for ffmpeg v.3.4.1
 
 'use strict';
 
@@ -53,19 +53,11 @@ function getFiles() {let files = [];
 function getAudioCodec(srcFile) {
   return new Promise((resolve, reject) => {
     let audioCodec = '';
-    let spawnArguments = [
-      '-v', 'error',
-      '-select_streams', 'a:0',
-      '-show_streams',
-      '-print_format', 'json',
-      srcFile
-    ];
+    let spawnArguments = ['-v', 'error','-select_streams', 'a:0','-show_streams','-print_format', 'json',srcFile];
 
     let ffprobeProcess = childProcess.spawn('ffprobe', spawnArguments);
 
-    ffprobeProcess.stdout.pipe(JSONStream.parse('streams.0')).on('data', data => {
-      audioCodec = data.codec_name;
-    });
+    ffprobeProcess.stdout.pipe(JSONStream.parse('streams.0')).on('data', data => {audioCodec = data.codec_name});
 
     ffprobeProcess.on('close', code => {
       if (code !== 0) {
@@ -80,32 +72,8 @@ function getAudioCodec(srcFile) {
 function getSpawnArguments(srcFile, dstFile) {
   return getAudioCodec(srcFile)
     .then(audioCodec => (audioCodec === 'aac')
-      ? [ // aac
-        '-i', srcFile,
-        '-y',
-        '-hide_banner',
-        '-loglevel', 'panic',
-        '-movflags', '+faststart',
-        '-c:v', 'copy',
-        '-c:a', 'copy',
-        '-bsf:a', 'aac_adtstoasc',
-        '-copyts',
-        '-start_at_zero',
-        dstFile
-      ]
-      : [ // speex or something else
-        '-i', srcFile,
-        '-y',
-        '-hide_banner',
-        '-loglevel', 'panic',
-        '-movflags', '+faststart',
-        '-c:v', 'copy',
-        '-c:a', 'aac',
-        '-b:a', '64k',
-        dstFile
-      ]
-    );
-}
+      ? ['-i', srcFile,'-y','-hide_banner','-loglevel', 'panic','-movflags', '+faststart','-c:v', 'copy','-c:a', 'aac','-b:a', '128k',dstFile]
+      : ['-i', srcFile,'-y','-hide_banner','-loglevel', 'panic','-movflags', '+faststart','-c:v', 'copy','-c:a', 'copy','-bsf:a', 'aac_adtstoasc','-copyts','-start_at_zero',dstFile])};
 
 function convertFile(srcFile) {
   let startTs = moment();
@@ -142,7 +110,7 @@ function convertFile(srcFile) {
             .then(() => {
               let duration = moment.duration(moment().diff(startTs)).asSeconds().toString();
 
-              printMsg(`Finished ${colors.green(srcFile)} after ${colors.magenta(duration)} s`);
+              printMsg(`Finished ${colors.green(dstFile)} after ${colors.magenta(duration)} s`);
 
               resolve();
             })
