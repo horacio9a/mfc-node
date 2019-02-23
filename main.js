@@ -136,7 +136,7 @@ function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in
 
     return false})};
 
-function selectModelsToCapture() {printDebugMsg(`${config.models.length} models in >>> [${colors.yellow('config.yml')}] <<<`);
+function selectModelsToCapture() {printDebugMsg(`${config.models.length} models in ${colors.gray('config.')}`);
 
   let modelsToCapture = [];
   let now = moment().unix();
@@ -198,7 +198,7 @@ function createMainCaptureProcess(model) {
       let pwd = mfcClient.stream_password;
       let roomId = 100000000 + model.uid;
       let cxid = mfcClient.stream_cxid;
-      let ctx = decodeURIComponent(mfcClient.stream_vidctx);
+      let ctx = mfcClient.stream_vidctx;
       let hlsUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
       let hlsUrla = `https://video${model.camserv - 1000}.myfreecams.com:8444/x-hls/${cxid}/${roomId}/${pwd}/${ctx}/mfc_a_${roomId}.m3u8`;
 
@@ -220,7 +220,7 @@ function createMainCaptureProcess(model) {
            else {captureProcess = childProcess.spawn(dlProgram, [hlsUrl,'-b','-q','-o',path.join(captureDirectory, filename)])}};
          if (config.downloadProgram == 'rtmp') {
            if (model.camserv > 1544) {captureProcess = childProcess.spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 1000}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
-           '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-m',60,'-o',path.join(captureDirectory, filename)])} 
+           '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-o',path.join(captureDirectory, filename)])} 
            else {captureProcess = childProcess.spawn('mfcd', [model.nm,path.join(captureDirectory, filename),path.join(captureDirectory, filename)])}};
 
       if (!captureProcess.pid) {return};
@@ -247,7 +247,7 @@ function createMainCaptureProcess(model) {
           fs.appendFile('hd_url.txt','\n' + filename + '\n' + hlsUrla + '\n', function (err) {
             if (err) 
               return console.log(err);
-            printMsg(colors.gray(`>>> Append * [${colors.yellow('HD URL')}] * for ${colors.green(model.nm)} in [${colors.yellow('hd_url.txt')}] <<<`))})};
+            printMsg(`>>> Append ${colors.yellow('HD URL')} for ${colors.green(model.nm)} in file ${colors.gray('hd_url.txt')} <<<`)})};
 
       captureModels.push({
         nm: model.nm,
@@ -262,11 +262,11 @@ function createCaptureProcess(model) {if (model.camserv < 840) {return}; // skip
 
   let captureModel = captureModels.find(m => (m.uid === model.uid));
 
-  if (captureModel !== undefined) {printMsg(colors.yellow(`>>> ` + captureModel.filename + ` ${colors.gray(`* ` + dlProgram + (model.camserv > 1544 ? ' HD recording <<<' : ' SD recording <<<'))}`));
+  if (captureModel !== undefined) {printMsg(colors.gray(`>>> ` + captureModel.filename + ` @` + ` ${colors.yellow(dlProgram + (model.camserv > 1544 ? ' HD' : ' SD'))} ${colors.gray('recording <<<')}`));
 
     return};
 
-  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD recording' : 'SD recording'))} from CS -> ${colors.yellow(model.camserv)} <<<`);
+  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD' : 'SD'))} recording from CS ${colors.yellow(model.camserv)} <<<`);
 
   return createMainCaptureProcess(model)};
 
@@ -313,7 +313,7 @@ function saveConfig() {if (!isDirty) {return};
   // we should not have them, but just in case...
   config.models = config.models.filter((m, index, self) => (index === self.indexOf(m)));
 
-  printDebugMsg(`Save changes in >>> [${colors.yellow('config.yml')}] <<<`);
+  printDebugMsg(`Save changes in ${colors.gray('config.')}`);
 
   return fs
     .writeFileAsync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8')
