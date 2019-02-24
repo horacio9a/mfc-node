@@ -1,7 +1,8 @@
 What's new?
 ==========
-In v.3.0.2 Basic and HD version merged into one. It should be noted that HD models can be recorded like other SD models now. HD and SD models now using unique `config.yml` and `index-hd.html`.
-Now it is possible by simply editing the `config-hd.yml` and `index-hd.html` file to select the program we want to use to record your favorite models show's on myfreecams.com.
+In v.3.0.3 version is added an auto-save URL's of HD models because I've noticed that sometimes it's possible to watch or record some HD models while in AWAY mode if we have a fresh URL meaning it's enough to briefly capture your favorite model while in PUBLIC because the URL which may occur on that occasion may later be of benefit. Also is added keyword search capability for 'hdv', 'sdv' and 'ldv' words which can be easier than sorting by quality.
+In v.3.0.2 Basic and HD version merged into one. It should be noted that HD models can be recorded like other SD models now. HD and SD models now using unique `config.yml` and `index.html`.
+Now it is possible by simply editing the `config.yml` and `index.html` file to select the program we want to use to record your favorite models show's on myfreecams.com.
 There are six choices available. I would recommend using three methods that do not freeze MFC recorded videos:
 
 1. rtmpdump
@@ -45,7 +46,7 @@ Setup
 3. Open Terminal (macOS) or Command Prompt (Windows) and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users have to install [Git](https://git-scm.com/download/win)).
 5. Edit `config.yml` file and set desirable values for `captureDirectory`, `completeDirectory`, `modelScanInterval`.
-6. Install `ffmpeg.exe`, `MFCD.exe`, `rtmp.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
+6. Put `ffmpeg.exe`, `MFCD.exe`, `rtmp.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
 
 Running
 =======
@@ -82,7 +83,7 @@ Be mindful when capturing many streams at once to have plenty of space on disk a
 
 Converting
 ===========
-There is a simple script to convert `.ts` files. Just edit `convert.yml` file and set proper values for `srcDirectory` (should be the same with `completeDirectory`) and `dstDirectory`, then run `node convert.js` in a separate console window.
+There is a two scripts to convert all three types of formats in the final `flv` format, which can be easily edited afterwards. I've also made a special script for ffmpeg v.2.8.4 because it contains some codecs that not exist in recent versions of `ffmpeg` (cause of copyright). One of these codecs is `aacenc` who is in some cases better than the `aac` that is found in newer versions of ffmpeg. Renamed ffmpeg v.2.8.4 files is here: [ffmpeg284](https://www.mediafire.com/file/o9wifql28cx2qqh/ffmpeg-2.8.4-win32.rar/file). Don't think it's a stupid `.flv` convert to `.flv` because that's how we fix the file and just become good for viewing or editing. Just edit `convert.yml` file and set proper values for `srcDirectory` (should be the same with `completeDirectory`) and `dstDirectory`, then run `node convert.js` or `node convert284.js` in a separate console window. I suggest you use both scripts, because if the converted file is not good you can always try it with another script.
 
 For advanced users
 ==================
