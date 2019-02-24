@@ -1,4 +1,4 @@
-// MyFreeCams File Converter for ffmpeg v.3.4.1
+// MyFreeCams File Converter for ffmpeg v.3.4.1 and higher
 
 'use strict';
 
@@ -15,10 +15,10 @@ var Queue = require('promise-queue');
 var filewalker = require('filewalker');
 var JSONStream = require('JSONStream');
 
-var config = yaml.safeLoad(fs.readFileSync('convert.yml', 'utf8'));
+var config = yaml.safeLoad(fs.readFileSync('convert.yml','utf8'));
 
-var srcDirectory = path.resolve(config.srcDirectory || './complete');
-var dstDirectory = path.resolve(config.dstDirectory || './converted');
+var srcDirectory = path.resolve(config.srcDirectory || 'C:/Videos/MFC');
+var dstDirectory = path.resolve(config.dstDirectory || 'C:/Videos/MFC_converted');
 var dirScanInterval = config.dirScanInterval || 300;
 var maxConcur = config.maxConcur || 1;
 
@@ -53,7 +53,7 @@ function getFiles() {let files = [];
 function getAudioCodec(srcFile) {
   return new Promise((resolve, reject) => {
     let audioCodec = '';
-    let spawnArguments = ['-v', 'error','-select_streams', 'a:0','-show_streams','-print_format', 'json',srcFile];
+    let spawnArguments = ['-v','error','-select_streams','a:0','-show_streams','-print_format','json',srcFile];
 
     let ffprobeProcess = childProcess.spawn('ffprobe', spawnArguments);
 
@@ -72,8 +72,8 @@ function getAudioCodec(srcFile) {
 function getSpawnArguments(srcFile, dstFile) {
   return getAudioCodec(srcFile)
     .then(audioCodec => (audioCodec === 'aac')
-      ? ['-i', srcFile,'-y','-hide_banner','-loglevel', 'panic','-movflags', '+faststart','-c:v', 'copy','-c:a', 'aac','-b:a', '128k',dstFile]
-      : ['-i', srcFile,'-y','-hide_banner','-loglevel', 'panic','-movflags', '+faststart','-c:v', 'copy','-c:a', 'copy','-bsf:a', 'aac_adtstoasc','-copyts','-start_at_zero',dstFile])};
+      ? ['-i', srcFile,'-y','-hide_banner','-loglevel','panic','-movflags','+faststart','-c:v','copy','-c:a','copy','-bsf:a','aac_adtstoasc','-copyts','-start_at_zero',dstFile]
+      : ['-i', srcFile,'-y','-hide_banner','-loglevel','panic','-movflags','+faststart','-c:v','copy','-c:a','aac','-b:a','128k',dstFile])};
 
 function convertFile(srcFile) {
   let startTs = moment();
@@ -88,7 +88,7 @@ function convertFile(srcFile) {
   return mkdirpAsync(dstPath)
     .then(() => getSpawnArguments(src, tempDst))
     .then(spawnArguments => new Promise((resolve, reject) => {
-      printMsg(`Starting ${colors.green(srcFile)}...`);
+      printMsg(`Starting ${colors.green(srcFile)} ...`);
       // printMsg('ffmpeg ' + spawnArguments.join(' '));
 
       let ffmpegProcess = childProcess.spawn('ffmpeg', spawnArguments);
@@ -110,7 +110,7 @@ function convertFile(srcFile) {
             .then(() => {
               let duration = moment.duration(moment().diff(startTs)).asSeconds().toString();
 
-              printMsg(`Finished ${colors.green(dstFile)} after ${colors.magenta(duration)} s`);
+              printMsg(`Finished ${colors.green(dstFile)} after ${colors.magenta(duration)} sec.`);
 
               resolve();
             })
