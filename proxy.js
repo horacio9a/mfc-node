@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.1
+// MyFreeCams Recorder v.3.0.3
 
 'use strict';
 
@@ -21,19 +21,29 @@ var onlineModels = []; // the list of online models from myfreecams.com
 
 var config = yaml.safeLoad(fs.readFileSync('proxy.yml', 'utf8'));
 
-config.proxyPort = config.proxyPort || 8888;
+config.proxyPort = config.proxyPort || 8889;
 config.modelScanInterval = config.modelScanInterval || 30;
 config.debug = !!config.debug;
 
 var mfcClient = new mfc.Client();
 
-function getCurrentTime() {return moment().format('HH:mm:ss')}
+function getCurrentTime() {
+  return moment().format(`HH:mm:ss`);
+}
 
-function printMsg(msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), msg)}
+function printMsg(msg) {
+  console.log(colors.gray(`[` + getCurrentTime() + `]`), msg);
+}
 
-function printErrorMsg(msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), colors.red('[ERROR]'), msg)}
+function printErrorMsg(msg) {
+  console.log(colors.gray('[' + getCurrentTime() + ']'), colors.red(`[ERROR]`), msg);
+}
 
-function printDebugMsg(msg) {if (config.debug && msg) {console.log(colors.gray('[' + getCurrentTime() + ']'), colors.magenta('[DEBUG]'), msg)}}
+function printDebugMsg(msg) {
+  if (config.debug && msg) {
+    console.log(colors.gray('[' + getCurrentTime() + ']'), colors.magenta(`[DEBUG]`), msg);
+  }
+}
 
 function getOnlineModels() {
   let models = [];
@@ -67,17 +77,17 @@ function getOnlineModels() {
 
   onlineModels = models;
 
-  printMsg(`${onlineModels.length} model(s) online`);
+  printMsg(`${onlineModels.length} model(s) online.`);
 }
 
 function mainLoop() {
-  printDebugMsg('Start new cycle.');
+  printDebugMsg(`Start new cycle.`);
 
   Promise
     .try(getOnlineModels)
     .catch(printErrorMsg)
     .finally(() => {
-      printMsg(`Done, will search for new models in ${config.modelScanInterval} second(s).`);
+      printMsg(`Done >>> will search for new models in ${config.modelScanInterval} seconds <<<`);
 
       setTimeout(mainLoop, config.modelScanInterval * 1000);
     });
@@ -102,5 +112,5 @@ dispatcher.onGet('/models', (req, res) => {
 http.createServer((req, res) => {
   dispatcher.dispatch(req, res);
 }).listen(config.port, () => {
-  printMsg('Server listening on: ' + colors.green('0.0.0.0:' + config.port));
+  printMsg(`Server listening on: ` + colors.green(`0.0.0.0:` + config.port));
 });
