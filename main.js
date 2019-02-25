@@ -50,7 +50,7 @@ var minFileSize = config.minFileSizeMb * 1048576;
 var mfcClient = new mfc.Client();
 
 function getCurrentTime() {
-  return moment().format('HH:mm:ss');
+  return moment().format(`HH:mm:ss`);
 }
 
 function printMsg(msg) {
@@ -58,12 +58,12 @@ function printMsg(msg) {
 }
 
 function printErrorMsg(msg) {
-  console.log(colors.gray(`[` + getCurrentTime() + `]`), colors.red('[ERROR]'), msg);
+  console.log(colors.gray(`[` + getCurrentTime() + `]`), colors.red(`[ERROR]`), msg);
 }
 
 function printDebugMsg(msg) {
   if (config.debug && msg) {
-    console.log(colors.gray(`[` + getCurrentTime() + `]`), colors.magenta('[DEBUG]'), msg);
+    console.log(colors.gray(`[` + getCurrentTime() + `]`), colors.magenta(`[DEBUG]`), msg);
   }
 }
 
@@ -138,15 +138,17 @@ function getOnlineModels(proxyModels) {
     printDebugMsg(`${newModels.length} new model(s) from proxy ${colors.green(config.proxyServer)}`);
 
     // merge newModels with "local" models
-    onlineModels = newModels.concat(models);
+    onlineModels = onlineModels.concat(models, newModels);
   } else {
     onlineModels = models;
   }
 
-  printMsg(`${onlineModels.length} model(s) online.`)};
+  printMsg(`${onlineModels.length} model(s) online.`);
+}
 
     // goes through the models in the queue and updates their settings in config
-function updateConfigModels() {printDebugMsg(`${config.queue.length} model(s) in the queue.`);
+function updateConfigModels() {
+  printDebugMsg(`${config.queue.length} model(s) in the queue.`);
 
   config.queue = config.queue.filter(queueModel => {
     // if uid is not set then search uid of the model in the list of online models
