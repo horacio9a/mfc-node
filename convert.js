@@ -68,21 +68,17 @@ function convertFile(srcFile) {
   let dst = path.join(dstDirectory, `~${dstFile}`);
   let tempDst = path.join(dstPath, dstFile);
 
-  mkdirp(dstPath);
-
-  if (!dstFile) {
-    printErrorMsg(`Failed to Convert ${colors.red(srcFile)}`);
-
-    return ;
-  }
+  mkdirp.sync(dstPath);
 
   printMsg(`Starting ${colors.gray(srcFile)}`);
 
   let convertProcess;
-    if (convertProgram == 'ffmpeg') {
-      convertProcess = childProcess.spawnSync(convertProgram,['-i',src,'-y','-hide_banner','-loglevel','panic','-c:v','copy','-c:a','aac','-b:a','128k','-copyts','-start_at_zero',dst])};
-    if (convertProgram == 'ffmpeg284') {
-      convertProcess = childProcess.spawnSync(convertProgram,['-i',src,'-y','-hide_banner','-loglevel','panic','-c:v','copy','-c:a','libvo_aacenc','-b:a','128k','-copyts','-start_at_zero',dst])};
+
+  if (convertProgram == 'ffmpeg') {
+    convertProcess = childProcess.spawnSync(convertProgram,['-i',src,'-y','-hide_banner','-loglevel','panic','-c:v','copy','-c:a','aac','-b:a','128k','-copyts','-start_at_zero',dst])};
+
+  if (convertProgram == 'ffmpeg284') {
+    convertProcess = childProcess.spawnSync(convertProgram,['-i',src,'-y','-hide_banner','-loglevel','panic','-c:v','copy','-c:a','libvo_aacenc','-b:a','128k','-copyts','-start_at_zero',dst])};
 
   let duration = moment.duration(moment().diff(startTs)).asSeconds().toString();
   printMsg(`Finished ${colors.green(dstFile)} after ${colors.cyan(duration)} sec.`);
@@ -90,26 +86,26 @@ function convertFile(srcFile) {
   if (convertProcess.status != 0) {
     printErrorMsg(`Failed to convert ${colors.red(srcFile)}`);
 
-    if (convertProcess.error) {
-      printErrorMsg(convertProcess.error.toString());
-    }
-
-    return;
+  if (convertProcess.error) {
+    printErrorMsg(convertProcess.error.toString());
   }
+
+  return;
+}
 
   if (config.deleteAfter) {
     fs.unlink(src, function(err) {
       // do nothing, shit happens
     });
   } else {
-    fs.rename(src, `${src}.bak`, function(err) {
+    fs.renameAsync(src, `${src}.bak`, function(err) {
       if (err) {
         printErrorMsg(err.toString());
       }
     });
   }
 
-  fs.rename(dst, tempDst, function(err) {
+  fs.renameAsync(dst, tempDst, function(err) {
     if (err) {
       printErrorMsg(err.toString());
     }
@@ -159,7 +155,7 @@ function mainLoop() {
     });
 }
 
-mkdirp(srcDirectory);
-mkdirp(dstDirectory);
+mkdirp.sync(srcDirectory);
+mkdirp.sync(dstDirectory);
 
 mainLoop();
