@@ -70,7 +70,9 @@ function convertFile(srcFile) {
 
   mkdirp.sync(dstPath);
 
-  printMsg(`Starting ${colors.gray(srcFile)}`);
+  let stats = fs.statSync(src);
+
+  printMsg(`Starting ${colors.gray(srcFile)} @ size ${colors.yellow((stats.size/1048576).toFixed(2))} MB`);
 
   let convertProcess;
 
