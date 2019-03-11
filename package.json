@@ -23,6 +23,7 @@
 		"underscore": "^1.9.1",
 		"websocket": "^1.0.28",
 		"colors": "^1.3.3",
-		"httpdispatcher": "^2.1.2"
+		"httpdispatcher": "^2.1.2",
+		"filewalker": "^0.1.3"
 	}
 }
