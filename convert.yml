@@ -1,0 +1,6 @@
+srcDirectory: 'C:/Videos/MFC' # directory where you store your '.ts', '.mp4' and '.flv' files.
+dstDirectory: 'C:/Videos/MFC_Convert' # directory where do you want to store your converted '.flv' files.
+convertProgram: 'ffmpeg284' # choose version of ffmpeg ('ffmpeg' or 'ffmpeg284')
+dirScanInterval: 300 # in seconds, min: 5 seconds.
+deleteAfter: false # if you want to keep the original files then set to 'false'.
+maxConcur: 1 # how many files to convert simultaneously.
