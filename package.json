@@ -12,7 +12,10 @@
 	},
 	"author": "horacio9a",
 	"license": "WTFPL",
-	"homepage": "https://github.com/horacio9a/mfc-node",
+    "bugs": {
+        "url": "https://github.com/horacio9a/myfreecams-anonymous/issues/"
+    },
+    "homepage": "https://github.com/horacio9a/mfc-node",
 	"dependencies": {
 		"bluebird": "^2.11.0",
 		"js-yaml": "^3.12.2",
