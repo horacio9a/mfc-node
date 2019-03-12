@@ -317,7 +317,7 @@
       // The random number in the url is to force the browser to reload the image and not to use its cache
       if ((model.camserv > 840) && (model.camserv < 1544) || x > 0) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
-      if (model.camscore > 350 || x > 0){return snapshot_url} 
+      if (model.camscore > 1 || x > 0){return snapshot_url} 
       else {return ''}};
 
       vm.model = null;
@@ -362,43 +362,43 @@
 
       vm.setVs = function (model) {
         var state = {
-          vs9996: 'Recording',  // 10000 + -4 = 9996
-          vs9997: 'Include', // 10000 + -3 = 9997
-          vs9998: 'Exclude', // 10000 + -2 = 9998
-          vs9999: 'Delete',  // 10000 + -1 = 9999
-          vs10000: 'Online',
-          vs10002: 'Away',
-          vs10012: 'Private',
-          vs10013: 'Group Show',
-          vs10014: 'Club Show',
-          vs10090: 'Cam Off',
-          vs10127: 'Offline'
+          '-4': 'Recording',
+          '-3': 'Include',
+          '-2': 'Exclude',
+          '-1': 'Delete',
+          '0': 'Online',
+          '2': 'Away',
+          '12': 'Private',
+          '13': 'Group Show',
+          '14': 'Club Show',
+          '90': 'Cam Off',
+          '127': 'Offline'
         };
 
         // set our own virtual value for vs field
         if (model.nextMode === -1) {
-          model.vs = -1; // to delete
+          model.vs = -1; // Delete
         } else if (model.nextMode === 0) {
-          model.vs = -2; // to exclude
-        } else if (model.nextMode === 1) {
-          model.vs = -3; // to include
+          model.vs = -2; // Exclude
+        } else if (model.nextMode >= 1) {
+          model.vs = -3; // Include
         } else if (model.capturing) {
-          model.vs = -4; // capturing
-        }
+          model.vs = -4; // Recording
+        };
 
-        model.state = state['vs' + (10000 + model.vs)] || 'Unknown';
+        model.state = state[model.vs] || 'Unknown';
 
-        if (model.vs === -4) {
-          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
-        } else if (model.vs === -3) {
-          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
-        } else if (model.vs === -1) {
+        if (model.vs === -1) {
           model.color = 'mdl-color-text--red-300 mdl-color--red-50';
         } else if (model.vs === -2 || model.vs > 0) {
           model.color = 'mdl-color-text--grey-400 mdl-color--grey-100';
+        } else if (model.vs === -3) {
+          model.color = 'mdl-color-text--blue-300 mdl-color--blue-50';
+        } else if (model.vs === -4) {
+          model.color = 'mdl-color-text--green-400 mdl-color--green-50';
         } else {
           model.color = '';
-        }
+        };
 
         model.incDisabled = model.vs === -4 || model.vs === -3;
         model.excDisabled = model.vs !== -4 && model.vs !== -3;
@@ -479,14 +479,18 @@
           vm.snapshot = vm.model.snapshot + '?no-cache=' + Date.now();
 
           $timeout(vm.setSnapshot, 500);
-        }
+        };
       };
 
-      vm.viewModel = function (model) {vm.model = model;
+      vm.viewModel = function (model) {
+        vm.model = model;
 
-        vm.setSnapshot()};
+        vm.setSnapshot();
+      };
 
-      vm.refresh = function () {vm.ready = false;
+      vm.refresh = function () {
+        vm.ready = false;
+        var camserv;
 
         $http
           .get('/models')
@@ -503,23 +507,25 @@
 
               if (m.blurb && m.blurb.length > 3) {
                 try {
-                  m.blurb = m.blurb.substr(0,80);
+                  m.blurb = m.blurb.substr(0,140);
                    } catch (err) {
                     console.log(err);
               }};
 
               if (m.topic && m.topic.length > 3) {
                 try {
-                  m.topic = decodeURIComponent(m.topic).substr(0,160);
+                  m.topic = decodeURIComponent(m.topic).substr(0,140);
                    } catch (err) {
                     console.log(err);
               }};
 
-              if (m.rank == 0){m.rank = '-';}
+              if (m.rank == 0){
+                m.rank = '-';
+              };
 
               m.new_model = m.new_model ? 'new_releases' : '';
 
-              m.missmfc = m.missmfc ? 'new_releases' : '';
+              m.missmfc = m.missmfc ? 'star' : '';
 
               m.rc = m.rc || 0;
 
@@ -528,11 +534,16 @@
                 : 'https://snap.mfcimg.com/snapimg/' + vm.ngvideo_servers[m.camserv] + '/320x240/mfc_a_' + (100000000 + m.uid)];
               else [m.snapshot = ('https://snap.mfcimg.com/snapimg/' + (m.camserv - 500) + '/320x240/mfc_' + (100000000 + m.uid))];
 
-              return m});
+              return m;
+            });
 
-            vm.filterAndSort(true)})};
+            vm.filterAndSort(true);
+          });
+      };
 
-      vm.refresh()}]);
+      vm.refresh();
+    }]);
+
   </script>
 </body>
 </html>
