@@ -273,10 +273,10 @@
           <tr><td>NMF:</td><td><a class="mdl-color-text--red-900">{{ vm.model.camserv < 840 ? 'Yes - Recording is not supported !!!' : 'No' }}</a></td></tr>
           <tr><td>Quality:</td><td><a class="mdl-color-text--green-900">{{ vm.model.camserv < 840 ? 'Low' : '' || vm.model.camserv > 1544 ? 'High - Recording is not supported !!!' : 'Standard' }}</a></td></tr>
           <tr><td>Continent:</td><td>{{ vm.model.continent || '-' }}</td></tr>
-          <tr><td>Blurb:</td><td>{{ vm.model.blurb || '-' }}</td></tr>
-          <tr><td>Topic:</td><td>{{ vm.model.topic || '-' }}</td></tr>
-          <tr><td>UID:</td><td>{{ vm.model.uid || '-' }}</td></tr>
-          <tr><td>Server:</td><td>{{ vm.model.camserv }}</td></tr>
+          <tr><td>Blurb:</td><td><a class="mdl-color-text--cyan-900">{{ vm.model.blurb || '-' }}</td></tr>
+          <tr><td>Topic:</td><td><a class="mdl-color-text--magenta-900">{{ vm.model.topic || '-' }}</td></tr>
+          <tr><td>UID:</td><td><a class="mdl-color-text--green-900">{{ vm.model.uid || '-' }}</td></tr>
+          <tr><td>Server:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.camserv }}</td></tr>
           <tr><td>Viewers:</td><td>{{ vm.model.rc }}</td></tr>
         </table>
       </div>
@@ -436,7 +436,6 @@
       };
 
       vm.enter_room = function(model) {
-        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
         var url = 'https://www.myfreecams.com/#' + model.nm;open(url);
         };
 
