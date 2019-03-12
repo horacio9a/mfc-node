@@ -128,12 +128,13 @@ function getFileno() {
       connection.sendUTF("1 0 0 20071025 0 guest:guest\n\0");
     });
 
-    var servers = ["xchat108","xchat61","xchat94","xchat109","xchat22","xchat47","xchat48","xchat49","xchat26","ychat30","ychat31","xchat95","xchat20","xchat111","xchat112",
-               "xchat113","xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat44","ychat32","xchat58","xchat27","xchat45","xchat46","xchat39","ychat33",
-               "xchat59","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat66","xchat62","xchat63","xchat64","xchat65","xchat23",
-               "xchat24","xchat25","xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28","xchat29","xchat30",
-               "xchat31","xchat32","xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat84","xchat85","xchat86",
-               "xchat87","xchat88","xchat89","xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105","xchat106","xchat127"];
+    var servers = ["xchat108","xchat61","xchat94","xchat109","xchat22","xchat47","xchat48","xchat49","xchat26","ychat30","ychat31","xchat95","xchat20","xchat111",
+                   "xchat112","xchat113","xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat44","ychat32","xchat58","xchat27","xchat39","ychat33",
+                   "xchat59","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat66","xchat62","xchat63","xchat64","xchat65",
+                   "xchat23","xchat24","xchat25","xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28",
+                   "xchat30","xchat31","xchat32","xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat84",
+                   "xchat85","xchat86","xchat87","xchat88","xchat89","xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104",
+                   "xchat105","xchat106","xchat127"];
 
     var server = _.sample(servers); // pick a random chat server
 
