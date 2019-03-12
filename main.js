@@ -132,9 +132,9 @@ function getFileno() {
                    "xchat112","xchat113","xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat44","ychat32","xchat58","xchat27","xchat39","ychat33",
                    "xchat59","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat66","xchat62","xchat63","xchat64","xchat65",
                    "xchat23","xchat24","xchat25","xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28",
-                   "xchat30","xchat31","xchat32","xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat84",
-                   "xchat85","xchat86","xchat87","xchat88","xchat89","xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104",
-                   "xchat105","xchat106","xchat127"];
+                   "xchat30","xchat31","xchat32","xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat85",
+                   "xchat86","xchat87","xchat88","xchat89","xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105",
+                   "xchat106","xchat127"];
 
     var server = _.sample(servers); // pick a random chat server
 
@@ -299,7 +299,7 @@ function createCaptureProcess(model) {
   var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {uid: model.uid});
 
   if (!_.isUndefined(modelCurrentlyCapturing)) {
-    printDebugMsg(colors.green(model.nm) + ` recording in progress.`);
+    printDebugMsg(colors.green(model.nm) + ` >>> recording in progress.`);
     return; // resolve immediately
   }
 
@@ -335,7 +335,7 @@ var dlProgram;
    if (config.downloadProgram == 'rtmp') {
      dlProgram = 'rtmp'}
 
-printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram)} recording from CS ${colors.yellow(model.camserv)} <<<`);
+printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram)} recording <<<`);
 
   return Promise
     .try(function() {
@@ -450,7 +450,7 @@ function checkCaptureProcess(model) {
       onlineModel.capturing = true;
     } else if (!!model.captureProcess) {
       // if the model has been excluded or deleted we stop capturing process and resolve immediately
-      printDebugMsg(colors.green(model.nm) + ` has to be stopped.`);
+      printDebugMsg(colors.green(model.nm) + ` <<< has to be stopped.`);
       model.captureProcess.kill();
       return;
     }
