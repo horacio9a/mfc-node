@@ -64,7 +64,7 @@ function getTimestamp() {
 
 function dumpModelsCurrentlyCapturing() {
   _.each(modelsCurrentlyCapturing, function(m) {
-    printMsg(colors.gray(`>>> ` + m.filename + ` @ recording <<<`));
+    printMsg(colors.gray(`>>> ${m.filename} @ ${colors.yellow(config.downloadProgram)} ${colors.gray(`recording <<<`)}`));
   });
 };
 
@@ -128,12 +128,12 @@ function getFileno() {
       connection.sendUTF("1 0 0 20071025 0 guest:guest\n\0");
     });
 
-    var servers = ["xchat108","xchat61","xchat94","xchat109","xchat22","xchat47","xchat48","xchat49","xchat26","ychat30","ychat31","xchat95","xchat20","xchat111","xchat112","xchat113",
-               "xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat43","xchat44","ychat32","xchat58","xchat27","xchat45","xchat46","xchat39","ychat33",
-               "xchat59","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat66","xchat62","xchat63","xchat64","xchat65","xchat23","xchat24",
-               "xchat25","xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28","xchat29","xchat30","xchat31","xchat32",
-               "xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat84","xchat85","xchat86","xchat87","xchat88","xchat89",
-               "xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105","xchat106","xchat127"];
+    var servers = ["xchat108","xchat61","xchat94","xchat109","xchat22","xchat47","xchat48","xchat49","xchat26","ychat30","ychat31","xchat95","xchat20","xchat111","xchat112",
+               "xchat113","xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat44","ychat32","xchat58","xchat27","xchat45","xchat46","xchat39","ychat33",
+               "xchat59","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat66","xchat62","xchat63","xchat64","xchat65","xchat23",
+               "xchat24","xchat25","xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28","xchat29","xchat30",
+               "xchat31","xchat32","xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat84","xchat85","xchat86",
+               "xchat87","xchat88","xchat89","xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105","xchat106","xchat127"];
 
     var server = _.sample(servers); // pick a random chat server
 
@@ -270,11 +270,11 @@ function selectMyModels() {
           if (onlineModel.mode == 1) {
             if (onlineModel.vs === 0) {
               myModels.push(onlineModel);
-            } else if (onlineModel.vs === 2) {printMsg(colors.green(onlineModel.nm) + ` is Away.`);
-            } else if (onlineModel.vs === 12) {printMsg(colors.green(onlineModel.nm) + ` is in Private.`);
-            } else if (onlineModel.vs === 13) {printMsg(colors.green(onlineModel.nm) + ` is in Group Show.`);
-            } else if (onlineModel.vs === 14) {printMsg(colors.green(onlineModel.nm) + ` is in Club Show.`);
-            } else if (onlineModel.vs === 90) {printMsg(colors.green(onlineModel.nm) + ` is Cam Off.`);
+            } else if (onlineModel.vs === 2) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Away.`)}`));
+            } else if (onlineModel.vs === 12) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Private.`)}`));
+            } else if (onlineModel.vs === 13) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Group Show.`)}`));
+            } else if (onlineModel.vs === 14) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Club Show.`)}`));
+            } else if (onlineModel.vs === 90) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Cam Off.`)}`));
             }
           }
         }
@@ -298,7 +298,7 @@ function createCaptureProcess(model) {
   var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {uid: model.uid});
 
   if (!_.isUndefined(modelCurrentlyCapturing)) {
-    printDebugMsg(colors.green(model.nm) + ` is already recording.`);
+    printDebugMsg(colors.green(model.nm) + ` recording in progress.`);
     return; // resolve immediately
   }
 
@@ -570,7 +570,7 @@ dispatcher.onGet('/', (req, res) => {
 dispatcher.onGet('/favicon.ico', (req, res) => {
   fs.readFile(path.join(__dirname, 'favicon.ico'), (err, data) => {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
+      res.writeHead(404, { 'Content-Type': 'image/x-icon' });
       res.end('Not Found');
     } else {
       res.writeHead(200, { 'Content-Type': 'image/x-icon' });
