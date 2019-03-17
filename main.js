@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.3
+// MyFreeCams Recorder v.3.0.4
 
 'use strict';
 
@@ -19,6 +19,7 @@ var EOL = require('os').EOL;
 var compression = require('compression');
 var bhttp = require('bhttp');
 var session = bhttp.session();
+var sleep = require('system-sleep');
 
 var useDefaultOptions = {};
 var compress = compression(useDefaultOptions);
@@ -30,8 +31,8 @@ var captureModels = []; // the list of currently capturing models
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
-config.completeDirectory = config.completeDirectory || 'C:/Videos/MFC';
+config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
+config.completeDirectory = config.completeDirectory || 'C:\Videos\MFC';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.createModelDirectory = config.createModelDirectory || false;
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
@@ -143,7 +144,8 @@ function getOnlineModels(proxyModels) {
     onlineModels = models;
   }
 
-  printMsg(`${onlineModels.length} model(s) online.`);
+  printMsg(`${colors.green(onlineModels.length)} models online.`);
+
 }
 
     // goes through the models in the queue and updates their settings in config
@@ -185,7 +187,7 @@ function updateConfigModels() {
 }
 
 function selectModelsToCapture() {
-  printDebugMsg(`${config.models.length} models in ${colors.gray('config.')}`);
+  printDebugMsg(`${config.models.length} models in ${colors.yellow('config.')}`);
 
   var modelsToCapture = [];
   var now = moment().unix();
@@ -271,8 +273,7 @@ let dlProgram;
 
 function createMainCaptureProcess(model) {
   return Promise
-    .try(() => mfcClient.joinRoom(model.uid))
-    .then(packet => {
+    .try(() => {
       let filename = model.nm + '_MFC_' + moment().format(config.dateFormat) + '.' + fileFormat;
 
       let pwd = mfcClient.stream_password;
@@ -329,7 +330,7 @@ function createMainCaptureProcess(model) {
       });
 
       captureProcess.on('close', code => {
-        printMsg(`${colors.green(model.nm)} <<< stopped streaming.`);
+        printMsg(`${colors.green(model.nm)} <<< stopped recording.`);
 
         var stoppedModel = captureModels.find(m => m.captureProcess === captureProcess);
 
@@ -381,12 +382,12 @@ function createCaptureProcess(model) {
   let captureModel = captureModels.find(m => (m.uid === model.uid));
 
   if (captureModel !== undefined) {
-    printMsg(colors.gray(`>>> ${captureModel.filename} @ ${colors.yellow(dlProgram + (model.camserv > 1544 ? ' HD' : ' SD'))} ${colors.gray('recording <<<')}`));
+    printMsg(`>>> ${colors.cyan(captureModel.filename)} @ ${colors.yellow(dlProgram + (model.camserv > 1544 ? ' HD' : ' SD'))} recording <<<`);
 
     return;
   }
 
-  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD' : 'SD'))} recording from CS ${colors.yellow(model.camserv)} <<<`);
+  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? 'HD' : 'SD'))} recording <<<`);
 
   return createMainCaptureProcess(model);
 }
@@ -448,7 +449,7 @@ function saveConfig() {if (!isDirty) {return};
   // we should not have them, but just in case...
   config.models = config.models.filter((m, index, self) => (index === self.indexOf(m)));
 
-  printDebugMsg(`Save changes in ${colors.gray('config.')}`);
+  printDebugMsg(`Save changes in ${colors.yellow('config.')}`);
 
   return fs
     .writeFileAsync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8')
@@ -462,7 +463,9 @@ function cacheModels() {
 }
 
 function mainLoop() {
-  printDebugMsg(`Start new cycle.`);
+  sleep(5*1000); // sleep for 5 seconds
+//  printDebugMsg(`Start new cycle.`);
+  printDebugMsg(`>>> ${colors.gray(`Start new cycle`)} <<<`);
 
   Promise
     .try(getProxyModels)
@@ -475,7 +478,7 @@ function mainLoop() {
     .then(cacheModels)
     .catch(printErrorMsg)
     .finally(() => {
-      printMsg(`Done >>> will search for new models in ${config.modelScanInterval} seconds <<<`);
+      printDebugMsg(`>>> ${colors.gray(`Will search for new models in ${config.modelScanInterval} seconds ...`)} <<<`);
 
       setTimeout(mainLoop, config.modelScanInterval * 1000);
     });
@@ -485,8 +488,8 @@ mkdir(captureDirectory);
 mkdir(completeDirectory);
 
 Promise
-  .try(() => mfcClient.connectAndWaitForModels())
-  .timeout(120000) // if we could not get a list of online models in 2 minutes then exit
+  .try(() => mfcClient.connect())
+  .timeout(60000) // if we could not get a list of online models in 1 minute then exit
   .then(() => mainLoop())
   .catch(err => {
     printErrorMsg(err.toString());
@@ -525,7 +528,7 @@ function addInQueue(req, res) {
     res.writeHead(422, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Invalid request' }));
   } else {
-    printDebugMsg(colors.green(model.uid || model.nm) + (mode >= 1 ? ` >>> include >>>` : (mode === 0 ? ` <<< exclude <<<` : ` <<< delete <<<`)));
+    printDebugMsg(colors.green(model.uid || model.nm) + (mode >= 1 ? ` >>> include >>>` : (mode === 0 ? ` <<< exclude <<<` : ` >>> delete <<<`)));
 
     config.queue.push(model);
 
@@ -557,7 +560,7 @@ dispatcher.onGet('/', (req, res) => {
 dispatcher.onGet('/favicon.ico', (req, res) => {
   fs.readFile(path.join(__dirname, 'favicon.ico'), (err, data) => {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
+      res.writeHead(404, { 'Content-Type': 'image/x-icon' });
       res.end('Not Found');
     } else {
       res.writeHead(200, { 'Content-Type': 'image/x-icon' });
