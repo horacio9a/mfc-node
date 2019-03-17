@@ -64,7 +64,7 @@ function getTimestamp() {
 
 function dumpModelsCurrentlyCapturing() {
   _.each(modelsCurrentlyCapturing, function(m) {
-    printMsg(` >>> ${colors.cyan(m.filename)} @ ${colors.yellow(config.downloadProgram)} recording <<<`);
+    printMsg(`>>> ${colors.cyan(m.filename)} @ ${colors.yellow(config.downloadProgram)} recording <<<`);
   });
 };
 
@@ -128,19 +128,21 @@ function getFileno() {
       connection.sendUTF("1 0 0 20071025 0 guest:guest\n\0");
     });
 
-    var servers = ["xchat61","xchat94","xchat109","xchat22","xchat47","xchat48","xchat49","xchat26","ychat30","ychat31","xchat95","xchat20","xchat111","xchat112",
-                   "xchat113","xchat114","xchat115","xchat116","xchat118","xchat119","xchat42","xchat44","ychat32","xchat58","xchat27","xchat39","ychat33","xchat59",
-                   "xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat67","xchat62","xchat63","xchat64","xchat65","xchat24","xchat25",
-                   "xchat69","xchat70","xchat71","xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat40","xchat80","xchat28","xchat30","xchat31","xchat32",
-                   "xchat33","xchat34","xchat35","xchat36","xchat90","xchat92","xchat93","xchat81","xchat83","xchat79","xchat78","xchat85","xchat86","xchat87","xchat88",
-                   "xchat89","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105","xchat106","xchat127"];
+    var servers = ["xchat20","xchat22","xchat23","xchat24","xchat25","xchat26","xchat27","xchat28","xchat29","xchat39",
+                   "xchat62","xchat63","xchat64","xchat65","xchat66","xchat67","xchat68","xchat69","xchat70","xchat71",
+                   "xchat72","xchat73","xchat74","xchat75","xchat76","xchat77","xchat78","xchat79","xchat80","xchat81",
+                   "xchat83","xchat84","xchat85","xchat86","xchat87","xchat88","xchat89","xchat91","xchat94","xchat95",
+                   "xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105",
+                   "xchat106","xchat108","xchat109","xchat111","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105",
+                   "xchat106","xchat108","xchat109","xchat111","xchat112","xchat113","xchat114","xchat115","xchat116","xchat118",
+                   "xchat119","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat127"];
 
     var server = _.sample(servers); // pick a random chat server
 
       printDebugMsg(`>>> ${colors.gray(`Start searching new models on server`)} ${colors.green(server)} <<<`);
 
     client.connect('ws://' + server + '.myfreecams.com:8080/fcsl','','http://' + server + '.myfreecams.com:8080',{Cookie: 'company_id=3149; guest_welcome=1; history=7411522,5375294'})
-  }).timeout(30000); // 30 secs
+  }).timeout(20000); // 20 secs
 }
 
 function getOnlineModels(fileno) {
@@ -186,7 +188,7 @@ function getOnlineModels(fileno) {
         throw new Error(`Failed to parse data.`);
       }
 
-printMsg(`${onlineModels.length} models online.`);
+printMsg(`${colors.green(onlineModels.length)} models online.`);
     })
     .timeout(20000); // 20 secs
 };
@@ -523,7 +525,7 @@ function mainLoop() {
     .finally(function() {
       dumpModelsCurrentlyCapturing();
 
-printMsg(`Done >>> will search for new models in ${config.modelScanInterval} seconds <<<`);
+printDebugMsg(`>>> ${colors.gray(`Will search for new models in ${config.modelScanInterval} seconds ...`)} <<<`);
 
       setTimeout(mainLoop, config.modelScanInterval * 1000);
     });
@@ -599,7 +601,7 @@ dispatcher.onGet('/models/include', function(req, res) {
     var uid = parseInt(req.params.uid, 10);
 
     if (!isNaN(uid)) {
-      printDebugMsg(`${colors.green(uid)} >>> ${colors.cyan(`include`)} >>>`);
+      printDebugMsg(`${colors.green(uid)}${colors.cyan(` >>> include >>>`)}`);
 
       // before we include the model we check that the model is not in our "to exclude" or "to delete" lists
       remove(req.params.nm, config.excludeUids);
@@ -619,7 +621,7 @@ dispatcher.onGet('/models/include', function(req, res) {
       return;
     }
   } else if (req.params && req.params.nm) {
-    printDebugMsg(`${colors.green(req.params.nm)} >>> ${colors.cyan(`include`)} >>>`);
+    printDebugMsg(`${colors.green(req.params.nm)}${colors.cyan(` >>> include >>>`)}`);
 
     // before we include the model we check that the model is not in our "to exclude" or "to delete" lists
     remove(req.params.nm, config.excludeModels);
@@ -652,7 +654,7 @@ dispatcher.onGet('/models/exclude', function(req, res) {
     var uid = parseInt(req.params.uid, 10);
 
     if (!isNaN(uid)) {
-      printDebugMsg(`${colors.green(uid)} <<< ${colors.cyan(`exclude`)} <<<`);
+      printDebugMsg(`${colors.green(uid)}${colors.magenta(` <<< exclude <<<`)}`);
 
       // before we exclude the model we check that the model is not in our "to include" or "to delete" lists
       remove(req.params.nm, config.includeUids);
@@ -672,7 +674,7 @@ dispatcher.onGet('/models/exclude', function(req, res) {
       return;
     }
   } else if (req.params && req.params.nm) {
-    printDebugMsg(`${colors.green(req.params.nm)} <<< ${colors.cyan(`exclude`)} <<<`);
+    printDebugMsg(`${colors.green(req.params.nm)}${colors.magenta(` <<< exclude <<<`)}`);
 
     // before we exclude the model we check that the model is not in our "to include" or "to delete" lists
     remove(req.params.nm, config.includeModels);
@@ -705,7 +707,7 @@ dispatcher.onGet('/models/delete', function(req, res) {
     var uid = parseInt(req.params.uid, 10);
 
    if (!isNaN(uid)) {
-     printDebugMsg(`${colors.green(uid)} >>> ${colors.red(`delete`)} <<<`);
+     printDebugMsg(`${colors.green(uid)}${colors.red(` >>> delete <<<`)}`);
 
       // before we exclude the model we check that the model is not in our "to include" or "to exclude" lists
       remove(req.params.nm, config.includeUids);
@@ -725,7 +727,7 @@ dispatcher.onGet('/models/delete', function(req, res) {
       return;
     }
   } else if (req.params && req.params.nm) {
-    printDebugMsg(`${colors.green(req.params.nm)} >>> ${colors.red(`delete`)} <<<`);
+    printDebugMsg(`${colors.green(req.params.nm)}${colors.red(` >>> delete <<<`)}`);
 
     // before we exclude the model we check that the model is not in our "include" or "exclude" lists
     remove(req.params.nm, config.includeModels);
