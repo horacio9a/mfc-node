@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <title>MFC Recorder v.3.0.3</title>
+  <title>MFC Recorder v.3.0.4</title>
   <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.green-red.min.css" />
@@ -194,7 +194,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.3 by horacio9a</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.4 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -226,7 +226,7 @@
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('country')" ng-class="vm.sortType == 'country' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Country</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('city')" ng-class="vm.sortType == 'city' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">City</th>
               <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('new_model')" ng-class="vm.sortType == 'new_model' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">New</th>
-              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('missmfc')" ng-class="vm.sortType == 'missmfc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Miss MFC</th>
+              <th class="mdl-data-table__cell--non-numeric" ng-click="vm.sort('missmfc')" ng-class="vm.sortType == 'missmfc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Miss</th>
               <th ng-click="vm.sort('rc')" ng-class="vm.sortType == 'rc' ? ('mdl-data-table__header--sorted-' + (vm.sortReverse ? 'ascending' : 'descending') ) : ''">Viewers</th>
             </tr>
           </thead>
@@ -285,8 +285,9 @@
           <tr><td>Country:</td><td>{{ vm.model.country || '-' }}</td></tr>
           <tr><td>City:</td><td>{{ vm.model.city || '-' }}</td></tr>
           <tr><td>Job:</td><td>{{ vm.model.job || '-' }}</td></tr>
-          <tr><td>Blurb:</td><td>{{ vm.model.blurb || '-' }}</td></tr>
-          <tr><td>Topic:</td><td>{{ vm.model.topic || '-' }}</td></tr>
+          <tr><td>Blurb:</td><td><a class="mdl-color-text--cyan-900">{{ vm.model.blurb || '-' }}</td></tr>
+          <tr><td>Topic:</td><td><a class="mdl-color-text--magenta-900">{{ vm.model.topic || '-' }}</td></tr>
+          <tr><td>Server:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.camserv }}</td></tr>
           <tr><td>Viewers:</td><td>{{ vm.model.rc }}</td></tr>
         </table>
       </div>
@@ -327,15 +328,10 @@
 
       vm.snapimg_url = function(model, x) {
       // The random number in the url is to force the browser to reload the image and not to use its cache
-      if ((model.camserv > 840) && (model.camserv < 1544) || x > 0);
-      var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
+      if ((model.camserv > 840) && (model.camserv < 1544) || x > 0) var snapshot_url = ('https://snap.mfcimg.com/snapimg/' + (model.camserv - 500) + '/64x48/mfc_' + (100000000 + model.uid) + '?no-cache=12345' + (Math.floor(Math.random() * (999 - 10)) + 10 + x));
       // Only auto-load snapshots for models with 350 or higher camscore, this prevents a higher load on MFC servers and saves bandwidth since only ~50% of the models will get sanpshots
-      if (model.camscore > 1 || x > 0){
-        return snapshot_url} 
-      else {
-        return '';
-        };
-      };
+      if (model.camscore > 1 || x > 0){return snapshot_url} 
+      else {return ''}};
 
       vm.model = null;
 
@@ -456,7 +452,6 @@
       };
 
       vm.enter_room = function(model) {
-        console.log('http://video' + (model.camserv - 500) + '.myfreecams.com:1935/NxServer/ngrp:mfc_' + (100000000 + model.uid) + '.f4v_mobile/playlist.m3u8');
         var url = 'https://www.myfreecams.com/#' + model.nm;open(url);
         };
 
@@ -519,6 +514,9 @@
               m.job + 
               m.blurb + 
               m.topic + 
+              m.camserv + 
+              m.uid + 
+              m.flags + 
               ((m.camserv < 840) ? 'LDV' : '') + 
               ((m.camserv > 840) && (m.camserv < 1544) ? 'SDV' : '') + 
               ((m.camserv > 1544) ? 'HDV' : '');
@@ -544,14 +542,14 @@
 
               if (m.blurb && m.blurb.length > 3) {
                 try {
-                  m.blurb = m.blurb.substr(0,100);
+                  m.blurb = m.blurb.substr(0,140);
                    } catch (err) {
                     console.log(err);
               }};
 
               if (m.topic && m.topic.length > 3) {
                 try {
-                  m.topic = decodeURIComponent(m.topic).substr(0,160);
+                  m.topic = decodeURIComponent(m.topic).substr(0,140);
                    } catch (err) {
                     console.log(err);
               }};
