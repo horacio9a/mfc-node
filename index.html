@@ -244,7 +244,7 @@
               <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.country"></td>
               <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.city"></td>
               <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="::model.new_model"></i></td>
-              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--amber-500" ng-bind="::model.missmfc"></i></td>
+              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--green-500" ng-bind="::model.missmfc"></i></td>
               <td ng-bind="::model.rc"></td>
             </tr>
           </tbody>
@@ -284,10 +284,10 @@
           <tr><td>Continent:</td><td>{{ vm.model.continent || '-' }}</td></tr>
           <tr><td>Country:</td><td>{{ vm.model.country || '-' }}</td></tr>
           <tr><td>City:</td><td>{{ vm.model.city || '-' }}</td></tr>
-          <tr><td>Job:</td><td>{{ vm.model.job || '-' }}</td></tr>
+          <tr><td>Job:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.job || '-' }}</td></tr>
           <tr><td>Blurb:</td><td><a class="mdl-color-text--cyan-900">{{ vm.model.blurb || '-' }}</td></tr>
           <tr><td>Topic:</td><td><a class="mdl-color-text--magenta-900">{{ vm.model.topic || '-' }}</td></tr>
-          <tr><td>Server:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.camserv }}</td></tr>
+          <tr><td>Server:</td><td><a class="mdl-color-text--amber-900">{{ vm.model.camserv }}</td></tr>
           <tr><td>Viewers:</td><td>{{ vm.model.rc }}</td></tr>
         </table>
       </div>
