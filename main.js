@@ -105,8 +105,8 @@ function getOnlineModels(proxyModels) {
   var models = [];
 
   mfc.Model.knownModels.forEach(m => {
-    if (m.bestSession.vs !== mfc.STATE.Offline && m.bestSession.camserv > 0 && !!m.bestSession.nm) {
-
+    if (m.bestSession.vs !== 127 && m.bestSession.camserv > 0 && !!m.bestSession.nm) {
+//    if (m.bestSession.vs !== 127 && m.bestSession.camserv > 0) { // there are also models with undefined names for testing
       models.push({
         nm: m.bestSession.nm,
         sid: m.bestSession.sid,
@@ -463,7 +463,7 @@ function cacheModels() {
 }
 
 function mainLoop() {
-  sleep(5*1000); // sleep for 5 seconds
+  sleep(2*1000); // sleep for 2 seconds
 //  printDebugMsg(`Start new cycle.`);
   printDebugMsg(`>>> ${colors.gray(`Start new cycle`)} <<<`);
 
