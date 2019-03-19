@@ -226,15 +226,15 @@ function selectModelsToCapture() {
     if (onlineModel.vs === 0) {
       modelsToCapture.push(onlineModel);
     } else if (onlineModel.vs === 2) {
-      printMsg(`${colors.green(onlineModel.nm)} is Away.`);
+      printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Away.`)}`));
     } else if (onlineModel.vs === 12) {
-      printMsg(`${colors.green(onlineModel.nm)} is in Private.`);
+      printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Private.`)}`));
     } else if (onlineModel.vs === 13) {
-      printMsg(`${colors.green(onlineModel.nm)} is in Group Show.`);
+      printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Group Show.`)}`));
     } else if (onlineModel.vs === 14) {
-      printMsg(`${colors.green(onlineModel.nm)} is in Club Show.`);
+      printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Club Show.`)}`));
     } else if (onlineModel.vs === 90) {
-      printMsg(`${colors.green(onlineModel.nm)} is Cam Off.`);
+      printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Cam Off.`)}`));
     }
   });
 
