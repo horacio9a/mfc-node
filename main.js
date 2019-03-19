@@ -574,20 +574,20 @@ dirty = false}
 
 mainLoop();
 
-dispatcher.onGet('/', (req, res) => {
-  fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+dispatcher.onGet('/', function(req, res) {
+  fs.readFile('./index.html', function(err, data) {
     if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
+      res.writeHead(404, {'Content-Type': 'text/html'});
       res.end('Not Found');
     } else {
-      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(data, 'utf-8');
     }
   });
 });
 
-dispatcher.onGet('/favicon.ico', (req, res) => {
-  fs.readFile(path.join(__dirname, 'favicon.ico'), (err, data) => {
+dispatcher.onGet('/favicon.ico', function(req, res) {
+  fs.readFile('./favicon.ico', function(err, data) {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'image/x-icon' });
       res.end('Not Found');
