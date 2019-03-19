@@ -19,7 +19,7 @@ var dispatcher = new HttpDispatcher();
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = path.resolve(config.captureDirectory) || 'C:\Videos\MFC';
+config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
 config.createModelDirectory = config.createModelDirectory || false;
 config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
@@ -35,6 +35,8 @@ config.deleteModels = Array.isArray(config.deleteModels) ? config.deleteModels :
 config.includeUids = Array.isArray(config.includeUids) ? config.includeUids : [];
 config.excludeUids = Array.isArray(config.excludeUids) ? config.excludeUids : [];
 config.deleteUids = Array.isArray(config.deleteUids) ? config.deleteUids : [];
+
+var captureDirectory = path.resolve(config.captureDirectory);
 
 function getCurrentDateTime() {
   return moment().format(config.dateFormat);
@@ -135,7 +137,8 @@ function getFileno() {
                    "xchat96","xchat97","xchat98","xchat99","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105",
                    "xchat106","xchat108","xchat109","xchat111","xchat100","xchat101","xchat102","xchat103","xchat104","xchat105",
                    "xchat106","xchat108","xchat109","xchat111","xchat112","xchat113","xchat114","xchat115","xchat116","xchat118",
-                   "xchat119","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat127"];
+                   "xchat119","xchat120","xchat121","xchat122","xchat123","xchat124","xchat125","xchat126","xchat127",
+                   "ychat30","ychat31","ychat32","ychat33"];
 
     var server = _.sample(servers); // pick a random chat server
 
@@ -275,11 +278,16 @@ function selectMyModels() {
           if (onlineModel.mode == 1) {
             if (onlineModel.vs === 0) {
               myModels.push(onlineModel);
-            } else if (onlineModel.vs === 2) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Away.`)}`));
-            } else if (onlineModel.vs === 12) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Private.`)}`));
-            } else if (onlineModel.vs === 13) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Group Show.`)}`));
-            } else if (onlineModel.vs === 14) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Club Show.`)}`));
-            } else if (onlineModel.vs === 90) {printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Cam Off.`)}`));
+            } else if (onlineModel.vs === 2) {
+              printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Away.`)}`));
+            } else if (onlineModel.vs === 12) {
+              printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Private.`)}`));
+            } else if (onlineModel.vs === 13) {
+              printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Group Show.`)}`));
+            } else if (onlineModel.vs === 14) {
+              printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is in Club Show.`)}`));
+            } else if (onlineModel.vs === 90) {
+              printMsg(colors.green(`${onlineModel.nm} ${colors.cyan(`is Cam Off.`)}`));
             }
           }
         }
@@ -361,15 +369,17 @@ var directoryFormat;
 
 var path;
    if (config.createModelDirectory == false) {
-     path = config.captureDirectory}
+     path = captureDirectory}
    if (config.createModelDirectory == true) {
-     path = config.captureDirectory + '/' + directoryFormat}
+     path = captureDirectory + '/' + directoryFormat}
 
 mkdirp(path, function (err) {
    if (err) console.error(err)
    else { // do nothing
   }
 });
+
+var fpath = path + '/' + filename;
 
 var roomId = 100000000 + model.uid;
 
@@ -380,27 +390,27 @@ var captureProcess;
 
    if (config.downloadProgram == 'ls') {
      if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o', path + '/' + filename])}
+       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o', fpath])}
      else {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', path + '/' + filename])}};
+       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', fpath])}};
 
    if (config.downloadProgram == 'sl') {
      if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o', path + '/' + filename])}
+       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o', fpath])}
      else {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', path + '/' + filename])}};
+       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', fpath])}};
 
    if (config.downloadProgram == 'ff-ts') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', path + '/' + filename])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', fpath])};
 
    if (config.downloadProgram == 'ff-flv') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', path + '/' + filename])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', fpath])};
 
    if (config.downloadProgram == 'hls') {
-     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',path + '/' + filename])};
+     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',fpath])};
 
    if (config.downloadProgram == 'rtmp') {
-     captureProcess = spawn('mfcd', [model.nm, path + '/' + filename])};
+     captureProcess = spawn('mfcd', [model.nm, fpath])};
 
 captureProcess.stdout.on('data', function(data) {
   printMsg(data.toString());
@@ -423,7 +433,7 @@ var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {
      modelsCurrentlyCapturing.splice(modelIndex, 1);
    }};
 
-        fs.stat(config.captureDirectory + '/' + filename, function(err, stats) {
+        fs.stat((fpath), function(err, stats) {
           if (err) {
             if (err.code == 'ENOENT') {
               // do nothing, file does not exists
@@ -431,7 +441,7 @@ var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {
               printErrorMsg('[' + colors.green(model.nm) + '] ' + err.toString());
             }
           } else if (stats.size == 0 || stats.size < (config.minFileSizeMb * 1048576)) {
-            fs.unlink(config.captureDirectory + '/' + filename, function(err) {})}})}); // do nothing, shit happens
+            fs.unlink(fpath), function(err) {}}})}); // do nothing, shit happens
 
       if (!!captureProcess.pid) {
         modelsCurrentlyCapturing.push({
@@ -470,7 +480,7 @@ function checkCaptureProcess(model) {
   }
 
   return fs
-    .statAsync(config.captureDirectory + '/' + model.filename)
+    .statAsync(path + '/' + model.filename)
     .then(function(stats) {
       // we check the process every 10 minutes since its start,
       // if the size of the file has not changed for the last 10 min, we kill the process
@@ -654,7 +664,7 @@ dispatcher.onGet('/models/exclude', function(req, res) {
     var uid = parseInt(req.params.uid, 10);
 
     if (!isNaN(uid)) {
-      printDebugMsg(`${colors.green(uid)}${colors.magenta(` <<< exclude <<<`)}`);
+      printDebugMsg(`${colors.green(uid)}${colors.cyan(` <<< exclude <<<`)}`);
 
       // before we exclude the model we check that the model is not in our "to include" or "to delete" lists
       remove(req.params.nm, config.includeUids);
@@ -674,7 +684,7 @@ dispatcher.onGet('/models/exclude', function(req, res) {
       return;
     }
   } else if (req.params && req.params.nm) {
-    printDebugMsg(`${colors.green(req.params.nm)}${colors.magenta(` <<< exclude <<<`)}`);
+    printDebugMsg(`${colors.green(req.params.nm)}${colors.cyan(` <<< exclude <<<`)}`);
 
     // before we exclude the model we check that the model is not in our "to include" or "to delete" lists
     remove(req.params.nm, config.includeModels);
