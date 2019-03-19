@@ -276,7 +276,7 @@
           <tr><td>Blurb:</td><td><a class="mdl-color-text--cyan-900">{{ vm.model.blurb || '-' }}</td></tr>
           <tr><td>Topic:</td><td><a class="mdl-color-text--magenta-900">{{ vm.model.topic || '-' }}</td></tr>
           <tr><td>UID:</td><td><a class="mdl-color-text--green-900">{{ vm.model.uid || '-' }}</td></tr>
-          <tr><td>Server:</td><td><a class="mdl-color-text--blue-900">{{ vm.model.camserv }}</td></tr>
+          <tr><td>Server:</td><td><a class="mdl-color-text--amber-900">{{ vm.model.camserv }}</td></tr>
           <tr><td>Viewers:</td><td>{{ vm.model.rc }}</td></tr>
         </table>
       </div>
@@ -502,6 +502,9 @@
               m.nm + 
               m.blurb + 
               m.topic + 
+              m.camserv + 
+              m.uid + 
+              m.flags + 
               ((m.camserv < 840) ? 'LDV' : '') + 
               ((m.camserv > 840) && (m.camserv < 1544) ? 'SDV' : '') + 
               ((m.camserv > 1544) ? 'HDV' : '');
