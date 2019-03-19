@@ -1,5 +1,5 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -284,7 +284,7 @@ class Client extends events_1.EventEmitter {
                     const msg = packet.sMessage;
                     const lv = msg.lv;
                     const sid = msg.sid;
-                    var uid = msg.uid;
+                    let uid = msg.uid;
                     if (uid === 0 && sid > 0) {
                         uid = sid;
                     }
@@ -432,7 +432,7 @@ class Client extends events_1.EventEmitter {
                 if (packet.nArg1 === 0 && packet.nArg2 === 0) {
                     if (Array.isArray(packet.sMessage)) {
                         const sizeOfModelSegment = 2;
-                        for (var i = 0; i < packet.sMessage.length; i = i + sizeOfModelSegment) {
+                        for (let i = 0; i < packet.sMessage.length; i = i + sizeOfModelSegment) {
                             const possibleModel = Model_1.Model.getModel(packet.sMessage[i]);
                             if (possibleModel !== undefined) {
                                 possibleModel.merge({ "sid": possibleModel.bestSessionId, "m": { "rc": packet.sMessage[i + 1] } });
@@ -484,9 +484,9 @@ class Client extends events_1.EventEmitter {
      * @access private
      */
     _readPacket() {
-        var pos = this._streamPosition;
+        let pos = this._streamPosition;
         const intParams = [];
-        var strParam;
+        let strParam;
         try {
             // Each incoming packet is initially tagged with 7 int32 values, they look like this:
             //  0 = "Magic" value that is *always* -2027771214
@@ -503,7 +503,7 @@ class Client extends events_1.EventEmitter {
             // Parse out the first 7 integer parameters (Magic, FCType, nFrom, nTo, nArg1, nArg2, sPayload)
             const countOfIntParams = 7;
             const sizeOfInt32 = 4;
-            for (var i = 0; i < countOfIntParams; i++) {
+            for (let i = 0; i < countOfIntParams; i++) {
                 intParams.push(this._streamBuffer.readInt32BE(pos));
                 pos += sizeOfInt32;
             }
@@ -530,7 +530,7 @@ class Client extends events_1.EventEmitter {
             // At this point we have the full packet in the intParams and strParam values, but intParams is an unstructured array
             // Let's clean it up before we delegate to this.packetReceived.  (Leaving off the magic int, because it MUST be there always
             // and doesn't add anything to the understanding)
-            var sMessage;
+            let sMessage;
             if (strParam !== undefined && strParam !== "") {
                 try {
                     sMessage = JSON.parse(strParam);
@@ -603,7 +603,7 @@ class Client extends events_1.EventEmitter {
                 return;
             }
             this._streamWebSocketBuffer = this._streamWebSocketBuffer.slice(sizeTagLength);
-            var currentMessage = this._streamWebSocketBuffer.slice(0, messageLength);
+            let currentMessage = this._streamWebSocketBuffer.slice(0, messageLength);
             this._streamWebSocketBuffer = this._streamWebSocketBuffer.slice(messageLength);
             const countOfIntParams = 5;
             const intParamsLength = currentMessage.split(" ", countOfIntParams).reduce((p, c) => p + c.length, 0) + countOfIntParams;
@@ -611,7 +611,7 @@ class Client extends events_1.EventEmitter {
             const intParams = currentMessage.split(" ", countOfIntParams).map(s => parseInt(s, 10));
             const [FCType, nFrom, nTo, nArg1, nArg2] = intParams;
             currentMessage = currentMessage.slice(intParamsLength);
-            var sMessage;
+            let sMessage;
             if (currentMessage.length > 0) {
                 try {
                     sMessage = JSON.parse(decodeURIComponent(currentMessage));
@@ -641,7 +641,7 @@ class Client extends events_1.EventEmitter {
                 const url = `http://www.${this._baseUrl}/php/FcwExtResp.php?respkey=${extData.respkey}&type=${extData.type}&opts=${extData.opts}&serv=${extData.serv}`;
                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.TRACE, () => `[CLIENT] _handleExtData: ${JSON.stringify(extData)} - '${url}'`);
                 const contentLogLimit = 0;
-                var contents = "";
+                let contents = "";
                 try {
                     contents = (yield request(url).promise());
                     Utils_1.logWithLevelInternal(Utils_1.LogLevel.TRACE, () => `[CLIENT] _handleExtData response: ${JSON.stringify(extData)} - '${url}'\n\t${contents.slice(0, contentLogLimit)}...`);
@@ -707,7 +707,7 @@ class Client extends events_1.EventEmitter {
                     if (Array.isArray(record)) {
                         // Now apply the schema
                         const msg = {};
-                        for (var i = 0; i < record.length; i++) {
+                        for (let i = 0; i < record.length; i++) {
                             if (schemaMap.length > i) {
                                 const schemaPath = schemaMap[i];
                                 if (typeof schemaPath === "string") {
@@ -790,7 +790,7 @@ class Client extends events_1.EventEmitter {
      */
     _loadFromMFC(url, massager) {
         return __awaiter(this, void 0, void 0, function* () {
-            var contents = yield request(url).promise();
+            let contents = yield request(url).promise();
             if (massager !== undefined) {
                 contents = massager(contents);
             }
@@ -825,8 +825,8 @@ class Client extends events_1.EventEmitter {
                     assert.ok(startIndex !== -1 && endIndex !== -1 && startIndex < endIndex, "mfccore.js layout has changed, don't know what to do now");
                     content = content.substr(startIndex, endIndex - startIndex);
                     // Then massage the function somewhat and prepend some prerequisites
-                    content = `var document = {cookie: '', domain: '${this._baseUrl}', location: { protocol: 'https:' }};
-                            var g_hPlatform = {
+                    content = `let document = {cookie: '', domain: '${this._baseUrl}', location: { protocol: 'https:' }};
+                            let g_hPlatform = {
                                 "id": 01,
                                 "domain": "${this._baseUrl}",
                                 "name": "MyFreeCams",
@@ -836,7 +836,7 @@ class Client extends events_1.EventEmitter {
                                 "Performer": "Model",
                                 "avatar_prefix": "avatar",
                             };
-                            var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+                            let XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
                             function bind(that,f){return f.bind(that);}` + content;
                     content = content.replace(/this.createRequestObject\(\)/g, "new XMLHttpRequest()");
                     content = content.replace(/new MfcImageHost\(\)/g, "{host: function(){return '';}}");
@@ -1057,7 +1057,7 @@ class Client extends events_1.EventEmitter {
             const finalTipOptions = Object.assign({}, defaultTipOptions, options);
             const tipUrl = `https://www.${this._baseUrl}/php/tip.php`;
             const rawResult = yield request({ method: "POST", url: tipUrl, form: finalTipOptions, headers: this.httpHeaders }).promise();
-            var result;
+            let result;
             try {
                 result = JSON.parse(rawResult);
             }
@@ -1090,7 +1090,7 @@ class Client extends events_1.EventEmitter {
                     // Date, Type, Name, Amount, (plus a mysterious blank td)
                     const textParts = values.map((_index2, ele) => cheerio(ele).text().trim()).get().slice(0, -1);
                     // tslint:disable-next-line:prefer-const
-                    var [time, type, recipient, tokens] = textParts;
+                    let [time, type, recipient, tokens] = textParts;
                     // Fix up MFC's ridiculous date formatting so that we can parse it
                     time = time.replace("st", "").replace("nd", "").replace("rd", "").replace("th", "");
                     tokenSessions.push({
@@ -1154,7 +1154,7 @@ class Client extends events_1.EventEmitter {
             const startMoment = moment(startDate).startOf("month");
             const endMoment = moment(endDate).startOf("month");
             assert(endMoment.diff(startMoment) >= 0, "Invalid arguments. startDate should be before endDate (and also not in the future)");
-            var tokenSessions = [];
+            let tokenSessions = [];
             while (endMoment.diff(startMoment) >= 0) {
                 const newTokenSessions = yield this._getTokenUsageForMonth(startMoment.toDate());
                 tokenSessions = (newTokenSessions.filter((sess) => sess.date >= startDate && sess.date <= endDate)).concat(tokenSessions);
@@ -1170,7 +1170,7 @@ class Client extends events_1.EventEmitter {
      * style emotes included wherever possible.
      */
     _chatElementToString(element) {
-        var text;
+        let text;
         if (this._options.preserveHtml) {
             text = cheerio(element).html();
         }
@@ -1225,7 +1225,7 @@ class Client extends events_1.EventEmitter {
     /** Retrieves a single chat log segment from MFC */
     _getChatLog(params, page = 1) {
         return __awaiter(this, void 0, void 0, function* () {
-            var fullChatLog = [];
+            let fullChatLog = [];
             const options = {
                 log_date: params.log_date,
                 from_id: 0,
@@ -1360,6 +1360,7 @@ class Client extends events_1.EventEmitter {
             return new Promise((resolve, reject) => {
                 const roomId = Client.toRoomId(id, this._options.camYou);
                 const modelId = Client.toUserId(id);
+                const modelId = Client(id);
                 const resultHandler = (p) => {
                     if (p.aboutModel !== undefined && p.aboutModel.uid === modelId) {
                         this.removeListener("JOINCHAN", resultHandler);
@@ -1455,7 +1456,7 @@ class Client extends events_1.EventEmitter {
      *         console.log("AspenRae probably temporarily changed her name");
      *     } else {
      *         //Get the full Model instance for her
-     *         var AspenRae = mfc.Model.getModel(msg.uid);
+     *         let AspenRae = mfc.Model.getModel(msg.uid);
      *         //Do stuff here...
      *     }
      * });
@@ -1715,9 +1716,9 @@ class Client extends events_1.EventEmitter {
     _disconnectIfNo(fctype, after, msg) {
         assert.notStrictEqual(this._state, exports.ClientState.IDLE);
         const typeName = constants.FCTYPE[fctype];
-        var stopper, timer;
+        let stopper, timer;
         timer = setTimeout(() => {
-            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, msg);
+//            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, msg);
             stopper();
             this._disconnected(msg);
         }, after);
@@ -1775,8 +1776,8 @@ class Client extends events_1.EventEmitter {
                 else {
                     // Doesn't look like we're connected, set up all the listeners
                     // required to wait for reconnection or timeout
-                    var timer;
-                    var resolver, rejecter;
+                    let timer;
+                    let resolver, rejecter;
                     if (timeout) {
                         timer = setTimeout(() => {
                             this.removeListener("CLIENT_MANUAL_DISCONNECT", rejecter);
@@ -1989,7 +1990,7 @@ class Client extends events_1.EventEmitter {
                 const phantomLocation = Utils_1.findDependentExe("phantomjs");
                 Utils_1.spawnOutput(phantomLocation, ["--web-security=no", path.join(__dirname, "challenge.js"), this._options.camYou ? "2" : "1"])
                     .then((output) => {
-                    var obj;
+                    let obj;
                     try {
                         // tslint:disable-next-line:no-unsafe-any
                         obj = JSON.parse(output);
@@ -2094,11 +2095,16 @@ class Client extends events_1.EventEmitter {
         }
         const roomId = Client.toRoomId(model.uid);
         const roomprefix = this._options.camYou ? "cam" : "mfc";
-        var videoserv;
+        let videoserv;
         if (this.serverConfig.ngvideo_servers && this.serverConfig.ngvideo_servers.hasOwnProperty(camserv)) {
             // high-def nginx
             videoserv = this.serverConfig.ngvideo_servers[camserv];
             return `https://${videoserv}.${this._baseUrl}:8444/x-hls/${this.stream_cxid}/${roomId}/${this.stream_password}/${this.stream_vidctx}/${roomprefix}_${model.bestSession.phase}_${roomId}.m3u8`;
+        }
+        else if (this.serverConfig.wzobs_servers && this.serverConfig.wzobs_servers.hasOwnProperty(camserv)) {
+            // high-def wowza
+            videoserv = this.serverConfig.wzobs_servers[camserv];
+            return `https://${videoserv}.${this._baseUrl}:443/NxServer/ngrp:${roomprefix}_${model.bestSession.phase}_${roomId}.f4v_mobile/playlist.m3u8?nc=${Math.random().toString().replace("0.", "")}`;
         }
         else {
             // standard-def wowza
@@ -2108,10 +2114,10 @@ class Client extends events_1.EventEmitter {
     }
 }
 Client._connectedClientCount = 0;
-Client._initialReconnectSeconds = 5;
-Client._reconnectBackOffMultiplier = 1.5;
-Client._maximumReconnectSeconds = 2400; // 40 Minutes
-Client._currentReconnectSeconds = 5;
+Client._initialReconnectSeconds = 6;
+Client._reconnectBackOffMultiplier = 2;
+Client._maximumReconnectSeconds = 120; // 2 Minutes
+Client._currentReconnectSeconds = 10;
 Client.webSocketNoiseFilter = /^\d{4}\d+ \d+ \d+ \d+ \d+/;
 exports.Client = Client;
 //# sourceMappingURL=Client.js.map
