@@ -73,12 +73,14 @@ class Client extends events_1.EventEmitter {
         super();
         this._tokens = 0;
         this._choseToLogIn = false;
-        this._completedModels = false;
+//        this._completedModels = false;
+        this._completedModels = true;
         this._completedTags = false;
         const defaultOptions = {
             useWebSockets: true,
             camYou: false,
-            useCachedServerConfig: false,
+//            useCachedServerConfig: false,
+            useCachedServerConfig: true,
             silenceTimeout: 90000,
             stateSilenceTimeout: 120000,
             loginTimeout: 30000,
@@ -1815,7 +1817,7 @@ class Client extends events_1.EventEmitter {
      */
     _disconnected(reason) {
         if (this._state !== exports.ClientState.IDLE) {
-            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, `>>> Disconnected from ${this._baseUrl}${this._manualDisconnect ? "" : ` - ${reason}`}`);
+            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, `>>> Disconnected from ${this._baseUrl}${this._manualDisconnect ? "" : `\n                        >>> ${reason}`}`);
             this._completedModels = false;
             this._completedTags = false;
             this._webApiToken = undefined;
