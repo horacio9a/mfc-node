@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <title>MFC Recorder v.3.0.4</title>
+  <title>MFC Recorder v.3.0.5</title>
   <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.green-red.min.css" />
@@ -194,7 +194,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.4 by horacio9a</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.3.0.5 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -233,7 +233,7 @@
           <tbody>
             <tr ng-repeat="model in vm.models" ng-class="model.color">
               <td background="{{ snapimg }}" ng-mouseover="count = count + 1; snapimg = vm.snapimg_url(model, count);" ng-init="count = 0; snapimg = vm.snapimg_url(model, count);" class="backimage" ng-click="vm.preview(model)"></td>
-              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900" target="_blank" ng-click="vm.viewModel(model)" ng-bind="model.nm"></a></td>
+              <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-900" target="_blank" ng-click="vm.viewModel(model)">{{ model.camscore > 1 ? model.nm : model.uid }}</a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{ model.camserv < 840 ? 'LD' : '' || model.camserv > 1544 ? 'HD' : 'SD' }}</a></td>
               <td ng-bind="::model.camscore.toFixed(0)"></td>
@@ -257,7 +257,7 @@
     <div class="mdl-card mdl-shadow--8dp" onclick="stopPropogate(event)">
       <img class="snapshot" ng-src="{{ vm.snapshot }}" alt=""/>
       <div class="mdl-shadow--2dp through mdl-shadow--16dp">
-        <h2 class="mdl-color-text--green-900">{{ vm.model.nm }}</h2>
+        <h2 class="mdl-color-text--green-900">{{ vm.model.camscore > 1 ? vm.model.nm : vm.model.uid }}</h2>
       <div class="mdl-shadow--2dp through mdl-shadow--16dp">
         <a id="prev" class="mdl-button mdl-js-button mdl-button--raised" ng-click="vm.prev()"><i class="material-icons">chevron_left</i></a>
         <a id="inc" class="mdl-button mdl-js-button mdl-button--icon record" ng-click="vm.includeUid(vm.model, 0)" ng-disabled="vm.model.incDisabled"><i class="material-icons">fiber_manual_record</i></a>
