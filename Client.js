@@ -1,5 +1,5 @@
 "use strict";
-let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -8,20 +8,20 @@ let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = require("events");
-const net = require("net");
 const Utils_1 = require("./Utils");
-const constants = require("./Constants");
 const Model_1 = require("./Model");
 const Packet_1 = require("./Packet");
+const RefinedEventEmitter_1 = require("./RefinedEventEmitter");
+const _ = require("lodash");
 const assert = require("assert");
+const cheerio = require("cheerio");
+const constants = require("./Constants");
+const moment = require("moment");
+const net = require("net");
 const path = require("path");
-const WebSocket = require("ws");
 const request = require("request-promise-native");
 const colors = require('colors');
-const cheerio = require("cheerio");
-const moment = require("moment");
-const load = require("load");
+const WebSocket = require("ws");
 /**
  * Connection state of the client
  * @access private
@@ -46,18 +46,26 @@ exports.ClientState = {
  * knowledge of MFC's chat server protocol, which will not be documented here.
  * Where possible, listen for events on [Model](#Model) instead.
  */
-class Client extends events_1.EventEmitter {
+class Client extends RefinedEventEmitter_1.RefinedEventEmitter {
     /**
      * Client constructor
      * @param [username] Either "guest" or a real MFC member account name, default is "guest"
-     * @param [password] Either "guest" or, to log in with a real account the password
-     * should be a hash of your real password and NOT your actual plain text
-     * password. You can discover the appropriate string to use by checking your browser
+     * @param [password] Either "guest" or the account's password.
+     *
+     * This can be either the real password or the password hash as MFCAuto has always taken
+     * historically. Client will attempt to auto-detect which type of password you have specified.
+     *
+     * If your real password looks like a hashed password (exactly 32 alphanumeric characters
+     * with no spaces or special characters), it will be incorrectly detected as a hashed
+     * password. In which case, you can override the auto-detection of password type and
+     * force Client to treat it as the real password by specifying `{ forceUnhashedPassword: true }`
+     * as part of the constructor options.
+     *
+     * If you wish to use the hashed password, you can discover it by checking your browser
      * cookies after logging in via your browser.  In Firefox, go to Options->Privacy
      * and then "Show Cookies..." and search for "myfreecams".  You will see one
      * cookie named "passcode". Select it and copy the value listed as "Content".
      * It will be a long string of lower case letters that looks like gibberish.
-     * *That* is the password to use here.
      * @param [options] A ClientOptions object detailing several optional Client settings
      * like whether to use WebSockets or traditional TCP sockets and whether to connect
      * to MyFreeCams.com or CamYou.com
@@ -73,19 +81,21 @@ class Client extends events_1.EventEmitter {
         super();
         this._tokens = 0;
         this._choseToLogIn = false;
-//        this._completedModels = false;
-        this._completedModels = true;
+        this._completedModels = false;
         this._completedTags = false;
+        this._shareHasLoggedIn = false;
+        this._roomHelperStatus = new Map();
+        this._availableClubShows = new Set();
         const defaultOptions = {
             useWebSockets: true,
             camYou: false,
-//            useCachedServerConfig: false,
-            useCachedServerConfig: true,
+            useCachedServerConfig: false,
             silenceTimeout: 90000,
             stateSilenceTimeout: 120000,
             loginTimeout: 30000,
             modernLogin: false,
             preserveHtml: false,
+            forceUnhashedPassword: false,
         };
         // v4.1.0 supported a third constructor parameter that was a boolean controlling whether to use
         // WebSockets (true) or not (false, the default). For backward compat reasons, we'll still handle
@@ -96,8 +106,9 @@ class Client extends events_1.EventEmitter {
         }
         this._options = Object.assign({}, defaultOptions, options);
         this._baseUrl = this._options.camYou ? "camyou.com" : "myfreecams.com";
-        this.username = 'guest';
-        this.password = 'guest';
+        this._shareUrl = constants.SHARE_URL;
+        this.username = username;
+        this.password = password;
         this.sessionId = 0;
         this._streamBuffer = Buffer.alloc(0);
         this._streamWebSocketBuffer = "";
@@ -106,66 +117,6 @@ class Client extends events_1.EventEmitter {
         this._state = exports.ClientState.IDLE;
         Utils_1.logWithLevelInternal(Utils_1.LogLevel.DEBUG, () => `[CLIENT] Constructed, State: ${this._state}`);
     }
-    // #region Instance EventEmitter methods
-    // These only need to be defined here because we are
-    // refining the type signatures of each method for better
-    // TypeScript error checking and intellisense
-    addListener(event, listener) {
-        return super.addListener(event, listener);
-    }
-    /**
-     * [EventEmitter](https://nodejs.org/api/all.html#events_class_eventemitter) method
-     * See FCTYPE in ./src/main/Constants.ts for all possible event names
-     */
-    on(event, listener) {
-        return super.on(event, listener);
-    }
-    /**
-     * [EventEmitter](https://nodejs.org/api/all.html#events_class_eventemitter) method
-     * See FCTYPE in ./src/main/Constants.ts for all possible event names
-     */
-    once(event, listener) {
-        return super.once(event, listener);
-    }
-    prependListener(event, listener) {
-        return super.prependListener(event, listener);
-    }
-    prependOnceListener(event, listener) {
-        return super.prependOnceListener(event, listener);
-    }
-    /**
-     * [EventEmitter](https://nodejs.org/api/all.html#events_class_eventemitter) method
-     * See FCTYPE in ./src/main/Constants.ts for all possible event names
-     */
-    removeListener(event, listener) {
-        return super.removeListener(event, listener);
-    }
-    removeAllListeners(event) {
-        Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, `WARNING: Using Client.removeAllListeners may break MFCAuto, which internally adds its own listeners at times`);
-        return super.removeAllListeners(event);
-    }
-    getMaxListeners() {
-        return super.getMaxListeners();
-    }
-    setMaxListeners(n) {
-        return super.setMaxListeners(n);
-    }
-    listeners(event) {
-        return super.listeners(event);
-    }
-    emit(event, ...args) {
-        return super.emit(event, ...args);
-    }
-    eventNames() {
-        return super.eventNames();
-    }
-    listenerCount(type) {
-        return super.listenerCount(type);
-    }
-    rawListeners(event) {
-        return super.rawListeners(event);
-    }
-    // #endregion
     /**
      * Current server connection state:
      * - IDLE: Not currently connected to MFC and not trying to connect
@@ -194,13 +145,28 @@ class Client extends events_1.EventEmitter {
     /**
      * Returns headers required to authenticate an HTTP request to
      * MFC's web servers.
+     * @deprecated
      */
     get httpHeaders() {
+        Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, `WARNING: Client.httpHeaders has been deprecated. Please switch to Client.getHttpHeaders(), an asynchronous method that supports usage of raw/unhashed password.`);
         return {
             Cookie: `passcode=${this.password}; username=${this.username}`,
             Origin: `https://www.${this._baseUrl}`,
             Referer: `https://www.${this._baseUrl}/`,
         };
+    }
+    /**
+     * Returns headers required to authenticate an HTTP request to
+     * MFC's web servers.
+     */
+    getHttpHeaders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {
+                Cookie: `passcode=${yield this.getPassCode()}; username=${this.username}`,
+                Origin: `https://www.${this._baseUrl}`,
+                Referer: `https://www.${this._baseUrl}/`,
+            };
+        });
     }
     /**
      * Tokens available on this account
@@ -267,7 +233,6 @@ class Client extends events_1.EventEmitter {
                 this._lastStatePacketTime = this._lastPacketTime;
                 // This case updates our available tokens (yes the logic is insane, but it's lifted right from MFC code...)
                 if (packet.FCType === constants.FCTYPE.DETAILS && packet.nTo === this.sessionId) {
-                    // tslint:disable-next-line:no-magic-numbers
                     this._tokens = (packet.nArg1 > 2147483647) ? ((4294967297 - packet.nArg1) * -1) : packet.nArg1;
                 }
                 // And these specific cases don't update state...
@@ -276,10 +241,17 @@ class Client extends events_1.EventEmitter {
                     // explanation. My best guess is that it is intended to reference the
                     // constant: USER.ID_START. But since I'm not certain, I'll leave this
                     // "magic" number here.
-                    // tslint:disable-next-line:no-magic-numbers
                     (packet.FCType === constants.FCTYPE.ROOMHELPER && packet.nArg2 < 100) ||
                     (packet.FCType === constants.FCTYPE.JOINCHAN && packet.nArg2 === constants.FCCHAN.PART)) {
                     break;
+                }
+                if (packet.FCType === constants.FCTYPE.ROOMHELPER) {
+                    if (packet.nArg2 >= 100 || packet.nArg2 === constants.FCRESPONSE.SUCCESS) {
+                        this._roomHelperStatus.set(packet.nArg1, true);
+                    }
+                    if (packet.nArg2 === constants.FCRESPONSE.SUSPEND) {
+                        this._roomHelperStatus.set(packet.nArg1, false);
+                    }
                 }
                 // Ok, we're good, merge if there's anything to merge
                 if (packet.sMessage !== undefined) {
@@ -299,7 +271,7 @@ class Client extends events_1.EventEmitter {
                     if (uid !== undefined && uid !== -1 && (lv === undefined || lv === constants.FCLEVEL.MODEL)) {
                         // If we know this is a model, get her instance and create it
                         // if it does not exist.  Otherwise, don't create an instance
-                        // for someone that might not be a mdoel.
+                        // for someone that might not be a model.
                         const possibleModel = Model_1.Model.getModel(uid, lv === constants.FCLEVEL.MODEL);
                         if (possibleModel !== undefined) {
                             possibleModel.merge(msg);
@@ -425,6 +397,21 @@ class Client extends events_1.EventEmitter {
                                 }
                             }
                             break;
+                        case constants.FCL.SHARE_CLUBS:
+                            // @TODO
+                            break;
+                        case constants.FCL.SHARE_CLUBMEMBERSHIPS:
+                            // @TODO
+                            break;
+                        case constants.FCL.SHARE_CLUBSHOWS:
+                            if (Array.isArray(rdata)) {
+                                rdata.forEach((message) => {
+                                    this._packetReceived(new Packet_1.Packet(constants.FCTYPE.CLUBSHOW, 
+                                    // tslint:disable-next-line:no-any
+                                    message.model, packet.nTo, packet.nArg1, packet.nArg2, 0, message));
+                                });
+                            }
+                            break;
                         default:
                             Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _packetReceived unhandled list type on MANAGELIST packet: ${nType}`);
                     }
@@ -466,6 +453,15 @@ class Client extends events_1.EventEmitter {
             case constants.FCTYPE.TOKENINC:
                 if (packet.sMessage === undefined) {
                     this._tokens = packet.nArg1;
+                }
+                break;
+            case constants.FCTYPE.CLUBSHOW:
+                const showDetails = packet.sMessage;
+                if (showDetails.op === constants.FCCHAN.WELCOME && showDetails.tksid !== undefined) {
+                    this._availableClubShows.add(showDetails.model);
+                }
+                else {
+                    this._availableClubShows.delete(showDetails.model);
                 }
                 break;
             default:
@@ -573,7 +569,6 @@ class Client extends events_1.EventEmitter {
      */
     _readWebSocketPacket() {
         const sizeTagLength = 6;
-        // tslint:disable-next-line:no-magic-numbers
         const minimumPacketLength = sizeTagLength + 9; // tag chars + 5 possibly single digit numbers + 4 spaces
         while (this._streamWebSocketBuffer.length >= minimumPacketLength) {
             // Occasionally there is noise in the WebSocket buffer
@@ -585,14 +580,12 @@ class Client extends events_1.EventEmitter {
             // find that pattern
             while (!Client.webSocketNoiseFilter.test(this._streamWebSocketBuffer) && this._streamWebSocketBuffer.length > (minimumPacketLength * 10)) {
                 // If this happens too often it likely represents a bug
-                // tslint:disable-next-line:no-magic-numbers
                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _readWebSocketPacket handling noise: '${this._streamWebSocketBuffer.slice(0, 30)}...'`);
                 this._streamWebSocketBuffer = this._streamWebSocketBuffer.slice(1);
             }
             if (this._streamWebSocketBuffer.length < minimumPacketLength) {
                 return;
             }
-            // tslint:disable-next-line:no-magic-numbers
             const messageLength = parseInt(this._streamWebSocketBuffer.slice(0, sizeTagLength), 10);
             if (isNaN(messageLength)) {
                 // If this packet is invalid we can possibly recover by continuing to shift
@@ -609,7 +602,6 @@ class Client extends events_1.EventEmitter {
             this._streamWebSocketBuffer = this._streamWebSocketBuffer.slice(messageLength);
             const countOfIntParams = 5;
             const intParamsLength = currentMessage.split(" ", countOfIntParams).reduce((p, c) => p + c.length, 0) + countOfIntParams;
-            // tslint:disable-next-line:no-magic-numbers
             const intParams = currentMessage.split(" ", countOfIntParams).map(s => parseInt(s, 10));
             const [FCType, nFrom, nTo, nArg1, nArg2] = intParams;
             currentMessage = currentMessage.slice(intParamsLength);
@@ -642,7 +634,7 @@ class Client extends events_1.EventEmitter {
             if (extData !== undefined && extData.respkey !== undefined) {
                 const url = `http://www.${this._baseUrl}/php/FcwExtResp.php?respkey=${extData.respkey}&type=${extData.type}&opts=${extData.opts}&serv=${extData.serv}`;
                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.TRACE, () => `[CLIENT] _handleExtData: ${JSON.stringify(extData)} - '${url}'`);
-                const contentLogLimit = 0;
+                const contentLogLimit = 80;
                 let contents = "";
                 try {
                     contents = (yield request(url).promise());
@@ -652,7 +644,7 @@ class Client extends events_1.EventEmitter {
                     this._packetReceived(p);
                 }
                 catch (e) {
-//                    Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _handleExtData error: ${e} - ${JSON.stringify(extData)} - '${url}'\n\t${contents.slice(0, contentLogLimit)}...`);
+                    Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _handleExtData error: ${e} - ${JSON.stringify(extData)} - '${url}'\n\t${contents.slice(0, contentLogLimit)}...`);
                 }
             }
         });
@@ -681,7 +673,6 @@ class Client extends events_1.EventEmitter {
         // Really MFC?  Really??  Ok, commence the insanity...
         if (Array.isArray(rdata) && rdata.length > 0) {
             const result = [];
-            const expectedSchemaDepth = 2;
             const schema = rdata[0];
             const schemaMap = [];
             Utils_1.logWithLevelInternal(Utils_1.LogLevel.DEBUG, () => `[CLIENT] _processListData, processing schema: ${JSON.stringify(schema)}`);
@@ -711,19 +702,11 @@ class Client extends events_1.EventEmitter {
                         const msg = {};
                         for (let i = 0; i < record.length; i++) {
                             if (schemaMap.length > i) {
-                                const schemaPath = schemaMap[i];
-                                if (typeof schemaPath === "string") {
-                                    msg[schemaPath] = record[i];
+                                let schemaPath = schemaMap[i];
+                                if (Array.isArray(schemaPath)) {
+                                    schemaPath = schemaPath.join(".");
                                 }
-                                else if (schemaPath.length === expectedSchemaDepth) {
-                                    if (msg[schemaPath[0]] === undefined) {
-                                        msg[schemaPath[0]] = {};
-                                    }
-                                    msg[schemaPath[0]][schemaPath[1]] = record[i];
-                                }
-                                else {
-                                    Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _processListData. N-level deep schemas? ${JSON.stringify(schema)}`);
-                                }
+                                _.set(msg, schemaPath, record[i]);
                             }
                             else {
                                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _processListData. Not enough elements in schema\n\tSchema: ${JSON.stringify(schema)}\n\tSchemaMap: ${JSON.stringify(schemaMap)}\n\tData: ${JSON.stringify(record)}`);
@@ -737,7 +720,8 @@ class Client extends events_1.EventEmitter {
                 });
             }
             else {
-                Utils_1.logWithLevelInternal(Utils_1.LogLevel.WARNING, () => `WARNING: _processListData. Malformed list data? ${JSON.stringify(schema)} - ${JSON.stringify(rdata)}`);
+                // tslint:disable-next-line:no-any
+                return rdata;
             }
             return result;
         }
@@ -773,34 +757,6 @@ class Client extends events_1.EventEmitter {
             });
         });
     }
-    // tslint:disable:no-any
-    /**
-     * Internal MFCAuto use only
-     *
-     * Dynamically loads script code from MFC, massaging it with the given massager
-     * function first, and then passes the resulting instantiated object to the
-     * given callback.
-     *
-     * We try to use this sparingly as it opens us up to breaks from site changes.
-     * But it is still useful for the more complex or frequently updated parts
-     * of MFC.
-     * @param url URL from which to load the site script
-     * @param massager Post-processor function that takes the raw site script and
-     * converts/massages it to a usable form.
-     * @returns A promise that resolves with the object loaded from site code
-     * @access private
-     */
-    _loadFromMFC(url, massager) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let contents = yield request(url).promise();
-            if (massager !== undefined) {
-                contents = massager(contents);
-            }
-            // tslint:disable-next-line:no-unsafe-any
-            return (load.compiler(contents));
-        });
-    }
-    // tslint:enable:no-any
     /**
      * Internal MFCAuto use only
      *
@@ -818,7 +774,7 @@ class Client extends events_1.EventEmitter {
     _ensureEmoteParserIsLoaded() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this._emoteParser === undefined) {
-                const obj = yield this._loadFromMFC(`https://www.${this._baseUrl}/_js/mfccore.js`, (content) => {
+                const obj = yield Utils_1.loadFromWeb(`https://www.${this._baseUrl}/_js/mfccore.js`, (content) => {
                     // Massager....Yes this is vulnerable to site breaks, but then
                     // so is this entire module.
                     // First, pull out only the ParseEmoteInput function
@@ -827,8 +783,8 @@ class Client extends events_1.EventEmitter {
                     assert.ok(startIndex !== -1 && endIndex !== -1 && startIndex < endIndex, "mfccore.js layout has changed, don't know what to do now");
                     content = content.substr(startIndex, endIndex - startIndex);
                     // Then massage the function somewhat and prepend some prerequisites
-                    content = `let document = {cookie: '', domain: '${this._baseUrl}', location: { protocol: 'https:' }};
-                            let g_hPlatform = {
+                    content = `var document = {cookie: '', domain: '${this._baseUrl}', location: { protocol: 'https:' }};
+                            var g_hPlatform = {
                                 "id": 01,
                                 "domain": "${this._baseUrl}",
                                 "name": "MyFreeCams",
@@ -838,7 +794,7 @@ class Client extends events_1.EventEmitter {
                                 "Performer": "Model",
                                 "avatar_prefix": "avatar",
                             };
-                            let XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+                            var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
                             function bind(that,f){return f.bind(that);}` + content;
                     content = content.replace(/this.createRequestObject\(\)/g, "new XMLHttpRequest()");
                     content = content.replace(/new MfcImageHost\(\)/g, "{host: function(){return '';}}");
@@ -855,7 +811,7 @@ class Client extends events_1.EventEmitter {
     /**
      * Internal MFCAuto use only
      *
-     * Loads the lastest server information from MFC, if it's not already loaded
+     * Loads the latest server information from MFC, if it's not already loaded
      * @returns A promise that resolves when this.serverConfig has been initialized
      * @access private
      */
@@ -906,7 +862,6 @@ class Client extends events_1.EventEmitter {
             throw new Error("Client is not ready to process commands, undefined _client");
         }
         if (this._client instanceof net.Socket) {
-            // tslint:disable:no-magic-numbers
             const msgLength = (sMsg ? sMsg.length : 0);
             const buf = Buffer.alloc((7 * 4) + msgLength);
             buf.writeInt32BE(constants.MAGIC, 0);
@@ -919,7 +874,6 @@ class Client extends events_1.EventEmitter {
             if (sMsg) {
                 buf.write(sMsg, 28);
             }
-            // tslint:enable:no-magic-numbers
             this._client.write(buf);
         }
         else {
@@ -945,31 +899,109 @@ class Client extends events_1.EventEmitter {
         this.TxCmd(packet.FCType, packet.nTo, packet.nArg1, packet.nArg2, JSON.stringify(packet.sMessage));
     }
     /**
-     * Takes a number that might be a user id or a room id and converts
-     * it to a user id (if necessary). The functionality here maps to
-     * MFC's GetRoomOwnerId() within top.js
+     * Takes a number that might be a user id or a room/channel id and converts
+     * it to a user id (if necessary)
+     * @param id A number that is either a model ID or room/channel ID
+     * @returns The model ID corresponding to the given id
+     */
+    toUserId(id) {
+        return id % constants.CHANNEL.ID_START;
+    }
+    /**
+     * Takes a number that might be a user id or a room/channel id and converts
+     * it to a user id (if necessary)
      * @param id A number that is either a model ID or room/channel ID
      * @returns The model ID corresponding to the given id
      */
     static toUserId(id) {
-        // tslint:disable:no-magic-numbers
-        if (id >= 1000000000) { // ?? Unexplained magic value
-            id = id - 1000000000;
+        return id % constants.CHANNEL.ID_START;
+    }
+    /**
+     * Takes a number that might be a room/channel id or a user id and
+     * converts it to a channel id of the given type, FreeChat by default,
+     * if necessary
+     * @param id A number that is either a room/channel ID or a model ID
+     * @param type The type of channel ID to return (FreeChat/Private/Group/Club). Default is FreeChat.
+     */
+    toChannelId(id, type = constants.ChannelType.FreeChat) {
+        id = this.toUserId(id);
+        switch (type) {
+            case constants.ChannelType.FreeChat:
+                id = id + (this._options.camYou ? constants.CAMCHAN.ID_START : constants.CHANNEL.ID_START);
+                break;
+            case constants.ChannelType.NonFreeChat:
+                id = id + constants.SESSCHAN.ID_START;
+                break;
+            default:
+                throw new Error(`toChannelId doesn't understand this channel type: ${type}`);
         }
-        else if (id >= constants.CAMCHAN.ID_START) { // CamYou public room ID
-            id = id - constants.CAMCHAN.ID_START;
-        }
-        else if (id >= 300000000) { // ?? Unexplained magic value
-            id = id - 300000000;
-        }
-        else if (id >= constants.SESSCHAN.ID_START) { // Group room IDs
-            id = id - constants.SESSCHAN.ID_START;
-        }
-        else if (id >= constants.CHANNEL.ID_START) { // MFC Public room IDs
-            id = id - constants.CHANNEL.ID_START;
-        }
-        // tslint:enable:no-magic-numbers
         return id;
+    }
+    /**
+     * Takes a room/channel id and returns its type, or "undefined"
+     * if the given id was a user id and not a channel id
+     * @param channelId A chat channel id
+     */
+    getChannelType(channelId) {
+        if (this.toUserId(channelId) === channelId) {
+            return undefined;
+        }
+        if (this._options.camYou) {
+            if (channelId > constants.CAMCHAN.ID_START && channelId < constants.CAMCHAN.ID_END) {
+                return constants.ChannelType.FreeChat;
+            }
+        }
+        else {
+            if (channelId > constants.CHANNEL.ID_START && channelId < constants.SESSCHAN.ID_START) {
+                return constants.ChannelType.FreeChat;
+            }
+        }
+        if (channelId > constants.SESSCHAN.ID_START && channelId < constants.SESSCHAN.ID_END) {
+            return constants.ChannelType.NonFreeChat;
+        }
+        throw new Error(`getChannelType doesn't know how to convert ${channelId} into a valid channel type`);
+    }
+    /**
+     * Internal helper function that checks if the given
+     * id is a model id or channel id. If it's a channel
+     * id, that channel id is returned unchanged. If it's
+     * a model id, her corresponding FreeChat channel id
+     * is returned instead.
+     * @param id A model or channel id
+     */
+    _toFreeIfModel(id) {
+        if (this.getChannelType(id) === undefined) {
+            return this.toChannelId(id, constants.ChannelType.FreeChat);
+        }
+        else {
+            return id;
+        }
+    }
+    /**
+     * Internal helper function
+     * Finds the right channel to join for a given model
+     */
+    _negotiateChannelForJoining(cid, mid) {
+        const channelType = this.getChannelType(cid);
+        if (channelType === undefined) {
+            throw new Error(`Invalid channel id`);
+        }
+        else if (channelType === constants.ChannelType.FreeChat) {
+            return cid;
+        }
+        else {
+            const m = Model_1.Model.getModel(mid);
+            if (m !== undefined
+                && m.bestSession.vs === constants.STATE.Club) {
+                if (this._availableClubShows.has(mid)) {
+                    return cid;
+                }
+                else {
+                    throw new Error(`No valid memberships for model ${mid}'s club show`);
+                }
+            }
+        }
+        return this.toChannelId(mid, constants.ChannelType.FreeChat);
     }
     /**
      * Takes a number that might be a user id or a room id and converts
@@ -1006,8 +1038,8 @@ class Client extends events_1.EventEmitter {
      */
     sendChat(id, msg) {
         return __awaiter(this, void 0, void 0, function* () {
+            id = this._toFreeIfModel(id);
             const encodedMsg = yield this.encodeRawChat(msg);
-            id = Client.toRoomId(id, this._options.camYou);
             this.TxCmd(constants.FCTYPE.CMESG, id, 0, 0, encodedMsg);
         });
     }
@@ -1028,7 +1060,7 @@ class Client extends events_1.EventEmitter {
     sendPM(id, msg) {
         return __awaiter(this, void 0, void 0, function* () {
             const encodedMsg = yield this.encodeRawChat(msg);
-            id = Client.toUserId(id);
+            id = this.toUserId(id);
             this.TxCmd(constants.FCTYPE.PMESG, id, 0, 0, encodedMsg);
         });
     }
@@ -1037,6 +1069,7 @@ class Client extends events_1.EventEmitter {
      * @param id Model ID to tip
      * @param amount Token value to tip
      * @param options Options bag to specify various options about the tip
+     * @returns A promise that resolves after the tip response is received
      */
     sendTip(id, amount, options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1044,7 +1077,7 @@ class Client extends events_1.EventEmitter {
                 submit_tip: 1,
                 api: 1,
                 json: 1,
-                broadcaster_id: Client.toUserId(id),
+                broadcaster_id: this.toUserId(id),
                 tip_value: amount,
                 anonymous: 0,
                 comment: "",
@@ -1058,7 +1091,7 @@ class Client extends events_1.EventEmitter {
             };
             const finalTipOptions = Object.assign({}, defaultTipOptions, options);
             const tipUrl = `https://www.${this._baseUrl}/php/tip.php`;
-            const rawResult = yield request({ method: "POST", url: tipUrl, form: finalTipOptions, headers: this.httpHeaders }).promise();
+            const rawResult = yield request({ method: "POST", url: tipUrl, form: finalTipOptions, headers: yield this.getHttpHeaders() }).promise();
             let result;
             try {
                 result = JSON.parse(rawResult);
@@ -1075,6 +1108,650 @@ class Client extends events_1.EventEmitter {
         });
     }
     /**
+     * Internal MFCAuto use only
+     *
+     * Logs in to MFCShare with this client's credentials and
+     * populates a CookieJar with a variety of auth tokens returned
+     * by the server's response.
+     */
+    _shareLogin() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(this._shareHasLoggedIn && this._passcode_password === this.password)) {
+                const currentPassCode = yield this.getPassCode();
+                if (currentPassCode === "guest") {
+                    throw new Error("This requires a Client created with valid non-guest credentials");
+                }
+                // Load the front page to initialize the cookie jar
+                this._shareCookieJar = request.jar();
+                yield request({ url: this._shareUrl, jar: this._shareCookieJar }).promise();
+                // Add the our credentials as cookies
+                this._shareCookieJar.setCookie(request.cookie(`username=${this.username}`), this._shareUrl);
+                this._shareCookieJar.setCookie(request.cookie(`passcode=${currentPassCode}`), this._shareUrl);
+                // Get the login url (which will set the authentication tokens as cookies)
+                yield request({ url: `${this._shareUrl}/auth/login`, headers: { Host: `share.myfreecams.com`, Referer: this._shareUrl }, jar: this._shareCookieJar }).promise();
+                this._shareHasLoggedIn = true;
+            }
+        });
+    }
+    /**
+     * Internal MFCAuto use only
+     *
+     * Returns the prefix and slug given an MFC Share voucher url or Share thing url
+     * @param thingUrl MFC Share voucher url or Share thing url
+     * @returns A promise that resolves with an Object with two keys: prefix & slug
+     */
+    _getSharePrefixSlugFromUrl(thingUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const shareRe = /^https:\/\/(share\.myfreecams\.com|mfcsha\.re)\/([a-z])\/(.*)$/;
+            thingUrl = thingUrl.toLowerCase().trim();
+            const match = shareRe.exec(thingUrl);
+            if (match === null) {
+                throw new Error(`Invalid MFC Share thing url`);
+            }
+            yield this._shareLogin();
+            let prefix = match[2];
+            let slug = match[3];
+            if (prefix === "v") {
+                // This is a voucher, we need to do special magic to determine the ShareThing this voucher is for
+                const voucherHtml = yield request({ url: thingUrl, jar: this._shareCookieJar }).promise();
+                const $ = cheerio.load(voucherHtml);
+                for (const type of ["album", "collection", "item", "club", "poll", "story"]) {
+                    const voucherThing = $(`.voucher-link-container div[id^="${type}-"]`);
+                    if (voucherThing.length === 1) {
+                        slug = voucherThing[0].attribs.id.split("-")[1];
+                        if (type === "album") {
+                            prefix = "a";
+                        }
+                        if (type === "collection") {
+                            prefix = "c";
+                        }
+                        if (type === "item") {
+                            prefix = "s";
+                        }
+                        if (type === "club") {
+                            prefix = "m";
+                        }
+                        if (type === "poll") {
+                            prefix = "p";
+                        }
+                        if (type === "story") {
+                            prefix = "t";
+                        }
+                        break;
+                    }
+                }
+                if (prefix === "v") {
+                    throw new Error(`Could not determine ShareThing for voucher url: ${thingUrl}`);
+                }
+            }
+            return { prefix: prefix, slug: slug };
+        });
+    }
+    /**
+     * Internal MFCAuto use only
+     *
+     * Queries for share thing details & purchase status given a prefix & slug
+     * @param prefixSlug An Object with two keys: prefix & slug
+     * @returns A promise that resolves with a ShareThingExtended object
+     */
+    _getShareThingPurchaseStatus(prefixSlug) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const prefix = prefixSlug.prefix;
+            const slug = prefixSlug.slug;
+            let type = "";
+            if (prefix === "a") {
+                type = "Album";
+            }
+            if (prefix === "c") {
+                type = "Collection";
+            }
+            if (prefix === "s") {
+                type = "Item";
+            }
+            if (prefix === "m") {
+                type = "Club";
+            }
+            if (prefix === "t") {
+                type = "Story";
+            }
+            yield this._shareLogin();
+            const options = {
+                uri: `${this._shareUrl}/api/v1/things/${type}/${slug}.json`,
+                jar: this._shareCookieJar,
+                json: true,
+            };
+            const rawResponse = yield request(options).promise();
+            // tslint:disable-next-line:no-unsafe-any
+            return rawResponse;
+        });
+    }
+    /**
+     * Retrieves a model's MFC Share 'things'
+     * @param model
+     * @returns A promise that resolves with an array of ShareThings objects
+     */
+    getShareThings(model) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof model === "number") {
+                model = Model_1.Model.getModel(this.toUserId(model));
+            }
+            const options = {
+                uri: `${this._shareUrl}/api/v1/users/${model.uid}/things.json`,
+                json: true,
+            };
+            const rawResponse = yield request(options).promise();
+            // tslint:disable-next-line:no-unsafe-any
+            return rawResponse.things;
+        });
+    }
+    /**
+     * Given the url to an MFC Share item, this will return all the ShareThings
+     * that can be purchased directly on that page.
+     * @param thingUrl url to a MFC Share thing
+     * @returns A promise that resolves with a ShareThingExtended object
+     */
+    getShareThingsFromUrl(thingUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const thing = yield this._getSharePrefixSlugFromUrl(thingUrl);
+            const prefix = thing.prefix;
+            const slug = thing.slug;
+            thingUrl = `${this._shareUrl}/${prefix}/${slug}`;
+            yield this._shareLogin();
+            // Need to load the page to pull the model id from the source
+            const thingHtml = yield request({ url: thingUrl, jar: this._shareCookieJar }).promise();
+            const $ = cheerio.load(thingHtml);
+            const trackerTag = $(`script[src^="https://www.myfreecams.com/php/tracking.php?model_id="]`);
+            if (trackerTag.length !== 1 || !trackerTag[0].attribs || !trackerTag[0].attribs.src) {
+                throw new Error(`Unable to determine ShareThing from url '${thingUrl}'`);
+            }
+            const modelIdMatch = /model_id=([0-9]+)&/.exec(trackerTag[0].attribs.src);
+            if (modelIdMatch === null) {
+                throw new Error(`Unable to determine ShareThing from url '${thingUrl}'`);
+            }
+            const modelId = parseInt(modelIdMatch[1]);
+            const thingPrefixes = ["a", "c", "s", "m", "t"];
+            let shareThingDetails;
+            const shareThingsDetailsArray = [];
+            if (thingPrefixes.indexOf(prefix) > -1) {
+                shareThingDetails = yield this._getShareThingPurchaseStatus(thing);
+                shareThingsDetailsArray.push(shareThingDetails);
+                return shareThingsDetailsArray;
+            }
+            // With the model id, we can get the proper ShareThings and filter them down
+            // to just those that match this URL's prefix and slug
+            const allThingsForModel = yield this.getShareThings(modelId);
+            return allThingsForModel.filter(t => t.prefix === prefix && t.slug === slug);
+        });
+    }
+    /**
+     * Given a ShareThing, this function will resolve to true if the current account
+     * already owns the thing, or false if not.
+     * @param thing A single ShareThing or a url to the Share page for a single Share thing or Voucher url
+     * @returns A promise resolving true or false
+     */
+    isShareThingOwned(thing) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof thing === "string") {
+                const possibleThings = yield this.getShareThingsFromUrl(thing);
+                if (possibleThings.length === 0) {
+                    throw new Error(`No ShareThings found at url`);
+                }
+                // tslint:disable-next-line:no-unsafe-any
+                if (possibleThings.length > 1) {
+                    throw new Error(`${possibleThings.length} ShareThings found at url. Be specific.`);
+                }
+                thing = possibleThings[0];
+            }
+            if (thing.bought !== undefined) {
+                return thing.bought === false ? false : true;
+            }
+            yield this._shareLogin();
+            const thingUrl = `${this._shareUrl}/${thing.prefix}/${thing.slug}`;
+            const thingHtml = yield request({ url: thingUrl, jar: this._shareCookieJar }).promise();
+            const $ = cheerio.load(thingHtml);
+            switch (thing.type) {
+                case "Album":
+                    // After we own an album there is a Tip button added to
+                    // the page that allows us to tip any amount "toward" the
+                    // item...whatever that means. Anyway it's only there if
+                    // we already own the thing.
+                    if ($("#thing-sharetip-modal").length > 0) {
+                        return true;
+                    }
+                    break;
+                case "Collection":
+                    // If we own a Collection then there will be no purchase
+                    // form on the page. Generally we'd prefer to confirm in
+                    // the positive, but this looks like the best way to verify
+                    // collections at the moment.
+                    if ($("#tip-confirm-modal").length === 0) {
+                        return true;
+                    }
+                    break;
+                case "Item":
+                case "Club":
+                    // Items and Clubs are the most straightforward. If we own
+                    // those things, Share will put a very obvious banner saying
+                    // as such.
+                    if ($(".alert-success").length > 0) {
+                        return true;
+                    }
+                    break;
+                case "Poll":
+                    // For polls, it's possible to vote many times for many
+                    // different options. This logic detects only if our latest
+                    // vote was for the given ShareThing.
+                    let renderScript = $("script:contains(renderPoll)").html();
+                    if (renderScript !== null) {
+                        renderScript = renderScript.trim();
+                        if (renderScript.includes(thing.option)) {
+                            return true;
+                        }
+                    }
+                    break;
+                case "Story":
+                    // If the story is visible to us there will be an actual
+                    // "story" element on the page. Otherwise, in its place
+                    // there will be a div with the class of "story-paywall"
+                    if ($("story").length > 0) {
+                        return true;
+                    }
+                    break;
+                default:
+                    // Goals will fall to here. Seems reasonable as a member can't own a goal.
+                    throw new Error(`Unsupported thing type '${thing.type}'`);
+            }
+            return false;
+        });
+    }
+    /**
+     * buyShareThing will attempt to purchase the given ShareThing
+     * using the account credentials specified on Client construction.
+     * This *will* spend tokens if you have them. The token amount
+     * to be spent can be found on thing.token_amount.
+     * @param thing The ShareThing to buy
+     * @returns A promise that resolves on successful purchase
+     */
+    buyShareThing(thing, options = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.state === exports.ClientState.ACTIVE && thing.token_amount !== null && this.tokens < thing.token_amount) {
+                throw new Error(`'${thing.title}' requires ${thing.token_amount} tokens. We have ${this.tokens}`);
+            }
+            yield this._shareLogin();
+            const thingPart = `/${thing.prefix}/${thing.slug}`;
+            const thingUrl = `${this._shareUrl}${thingPart}`;
+            const response = yield request({ url: thingUrl, jar: this._shareCookieJar }).promise();
+            const forms = cheerio.load(response)(`form[action="${thingPart}"]`);
+            // There might be multiple forms on the page in the
+            // case where a thing has both password access and token
+            // access, for instance. We have to find the one form that
+            // takes tokens
+            let purchaseForm;
+            // tslint:disable-next-line:prefer-for-of
+            for (let i = 0; i < forms.length; i++) {
+                const found = cheerio.load(forms[i])(`input[name="tip"]`);
+                if (found.length === 1) {
+                    if ((thing.token_amount !== null && found[0].attribs.value === thing.token_amount.toString())
+                        || (thing.type === "Poll" && found[0].attribs.value === "0")) {
+                        purchaseForm = forms[i];
+                        break;
+                    }
+                }
+            }
+            if (purchaseForm === undefined) {
+                if (yield this.isShareThingOwned(thing)) {
+                    return; // We already own the thing, no reason to throw
+                }
+                else {
+                    throw new Error(`No purchase form was found on the page. Are we successfully logged in?`);
+                }
+            }
+            const parsedOptions = Utils_1.createFormInput(purchaseForm, options);
+            // Polls will have a tip value of 0 in the static HTML, and will then apply
+            // a real token amount corresponding to your vote in the poll via script.
+            // Fortunately, each poll option is actually returned as a distinct "thing"
+            // via the getShareThings API. So buyShareThing does support voting in polls.
+            parsedOptions.tip = thing.token_amount !== null ? thing.token_amount.toString() : "0";
+            if (thing.type === "Poll") {
+                // Polls also dynamically fill in an "options" value,
+                // which fortunately comes down with getShareThings as well
+                parsedOptions.options = thing.option;
+            }
+            // The auth token is a required Share parameter. If we don't have it, something has gone wrong.
+            if (!("authenticity_token" in parsedOptions)) {
+                throw new Error(`Could not discover authenticity_token for Share purchase. Are we successfully logged in with a real account?`);
+            }
+            try {
+                yield request({ method: "POST", url: thingUrl, form: parsedOptions, jar: this._shareCookieJar, headers: { Host: "share.myfreecams.com", Referer: thingUrl } }).promise();
+                throw new Error(`Unexpected response to Share purchase`);
+            }
+            catch (e) {
+                // We expect a 302 redirect response back to the thingUrl on success.
+                // tslint:disable-next-line:no-unsafe-any
+                if (e.statusCode !== 302) {
+                    throw e;
+                }
+                else {
+                    if (yield this.isShareThingOwned(thing)) {
+                        return; // Success!
+                    }
+                    else {
+                        throw new Error(`Failed to buy thing at '${thingUrl}'`);
+                    }
+                }
+            }
+        });
+    }
+    /**
+     * redeemShareVoucher will attempt to redeem the given MFC Share
+     * voucher url using the account credentials specified on Client
+     * construction.
+     *
+     * The returned promise will reject if you've already redeemed
+     * the voucher, or the url was invalid, or you are not logged in.
+     * @param voucherUrl Full url of the share voucher to redeem
+     * @returns A promise that resolves on successful redemption
+     */
+    redeemShareVoucher(voucherUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Sanity check the url, we don't want to just load any given url
+            const re = /^https:\/\/(share\.myfreecams\.com|mfcsha\.re)(\/v\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+            voucherUrl = voucherUrl.toLowerCase().trim();
+            const match = re.exec(voucherUrl);
+            if (match === null) {
+                throw new Error(`Invalid share voucher url`);
+            }
+            // Can't POST the purchase to the shortened URL, so construct the long form here
+            voucherUrl = this._shareUrl + match[2];
+            yield this._shareLogin();
+            // Further sanity check that we're logged in and the page has a redeem button for this voucher
+            const voucherHtml = yield request({ url: voucherUrl, jar: this._shareCookieJar }).promise();
+            const $ = cheerio.load(voucherHtml);
+            const redeemButton = $(`a[href="${match[2]}"]`);
+            if (redeemButton.length !== 1 || redeemButton.text() !== "Redeem") {
+                if (yield this.isShareThingOwned(voucherUrl)) {
+                    // If the voucher has already been redeemed, there will be no
+                    // redeem button. But if we already own the thing the voucher
+                    // was for, then there's no reason to reject.
+                    return;
+                }
+                else {
+                    throw new Error(`No redeem button found for Share voucher. Are we successfully logged in with a real account?`);
+                }
+            }
+            // Now pull the authenticity_token from the meta headers of the page
+            const authTokenElement = $(`meta[name="csrf-token"]`);
+            if (authTokenElement.length !== 1 || typeof authTokenElement[0].attribs.content !== "string") {
+                throw new Error(`Could not discover authenticity_token for Share voucher redemption. Are we successfully logged in with a real account?`);
+            }
+            const authToken = authTokenElement[0].attribs.content;
+            try {
+                yield request({
+                    method: "POST",
+                    url: voucherUrl,
+                    form: { _method: "post", authenticity_token: authToken },
+                    jar: this._shareCookieJar,
+                    headers: { Host: "share.myfreecams.com", Referer: voucherUrl },
+                }).promise();
+                throw new Error(`Unexpected response to voucher redemption`);
+            }
+            catch (e) {
+                // We expect a 302 redirect response back to the thingUrl on success.
+                // tslint:disable-next-line:no-unsafe-any
+                if (e.statusCode !== 302) {
+                    throw e;
+                }
+                else {
+                    if (yield this.isShareThingOwned(voucherUrl)) {
+                        return; // Success!
+                    }
+                    else {
+                        throw new Error(`Failed to redeem voucher '${voucherUrl}'`);
+                    }
+                }
+            }
+        });
+    }
+    /**
+     * Internal MFCAuto use only
+     *
+     * Ban/Mute/Unban/Umute/Kick a user from a model's room where Client is Room Helper
+     * @param id Model's MFC ID
+     * @param action "ban", "mute", "unban", "unmute", "kick"
+     * @param userIdOrNm User's MFC ID or username
+     * @param clearchat true or false (optional: default is false)
+     * @return {Promise} Promise that resolves if successful, rejects upon failure
+     */
+    _rhModAction(id, action, userIdOrNm, clearchat = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                // tslint:disable:no-unsafe-any
+                const user = yield this.queryUser(userIdOrNm);
+                const options = {
+                    model: id,
+                    op: action,
+                };
+                if (action === "kick") {
+                    options.type = constants.FCTYPE.CHANOP;
+                    options.chan = Client.toRoomId(id);
+                    options.users = [user.sid];
+                }
+                else {
+                    options.type = constants.FCTYPE.ZBAN;
+                    options.username = user.nm;
+                    options.sid = user.sid;
+                }
+                if (action === "mute" || action === "unmute") {
+                    options.ztype = "m";
+                }
+                if (clearchat) {
+                    options.clearchat = 1;
+                }
+                if (this._roomHelperStatus.get(id)) {
+                    this.TxCmd(constants.FCTYPE.ROOMHELPER, 0, options.type, id, JSON.stringify(options));
+                    const handler = (p) => {
+                        if (p !== undefined && p.nArg1 !== undefined && p.nArg1 === id) {
+                            if (p.nArg2 !== undefined) {
+                                this.removeListener("ROOMHELPER", handler);
+                                if (p.nArg2 === constants.FCRESPONSE.SUCCESS) {
+                                    resolve(p);
+                                }
+                                if (p.nArg2 === constants.FCRESPONSE.ERROR) {
+                                    if (typeof p.sMessage !== "undefined") {
+                                        if (p.sMessage._msg === "Model offline, cannot execute room helper cmd") {
+                                            this._roomHelperStatus.set(id, false);
+                                            reject("Error: Client is not Room Helper");
+                                        }
+                                        else if (p.sMessage._msg === "Not authorized") {
+                                            reject("Error: Model is offline");
+                                        }
+                                    }
+                                    reject(p);
+                                }
+                            }
+                        }
+                    };
+                    this.prependListener("ROOMHELPER", handler);
+                }
+                else {
+                    reject("Error: Client is not Room Helper");
+                }
+            }));
+        });
+    }
+    /**
+     * Ban a user from a model's room where Client is Room Helper
+     * @param id Model's MFC ID
+     * @param userIdOrNm User's MFC ID or username
+     * @param clearchat true or false (optional: default is false)
+     * @return {Promise} Promise resolving with success message or rejecting with error message
+     */
+    banUser(id, userIdOrNm, clearchat = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._rhModAction(id, "ban", userIdOrNm, clearchat ? true : false);
+        });
+    }
+    /**
+     * Unban a user from a Model's room where Client is Room Helper
+     * @param id Model"s MFC ID
+     * @param userIdOrNm User"s MFC ID or username
+     * @return {Promise} Promise resolving with success message or rejecting with error message
+     */
+    unBanUser(id, userIdOrNm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._rhModAction(id, "unban", userIdOrNm);
+        });
+    }
+    /**
+     * Mute a user from a Model's room where Client is Room Helper
+     * @param userIdOrNm User's MFC ID or username
+     * @param id Model's MFC ID
+     * @param clearchat true or false (optional: default is false)
+     * @return {Promise} Promise resolving with success message or rejecting with error message
+     */
+    muteUser(id, userIdOrNm, clearchat = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._rhModAction(id, "mute", userIdOrNm, clearchat ? true : false);
+        });
+    }
+    /**
+     * Unmute a user from a Model's room where Client is Room Helper
+     * @param userIdOrNm User's MFC ID or username
+     * @param id Model's MFC ID
+     * @return {Promise} Promise resolving with success message or rejecting with error message
+     */
+    unMuteUser(id, userIdOrNm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._rhModAction(id, "unmute", userIdOrNm);
+        });
+    }
+    /**
+     * Kick a user from a Model's room where Client is Room Helper
+     * @param userIdOrNm User's MFC ID or username
+     * @param id Model's MFC ID
+     * @return {Promise} Promise resolving with success message or rejecting with error message
+     */
+    kickUser(id, userIdOrNm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._rhModAction(id, "kick", userIdOrNm);
+        });
+    }
+    /**
+     * Set room topic for a model where Client is Room Helper
+     * @param id Model's MFC ID
+     * @param topic New topic
+     * @return {Promise} Promise that resolves if successful, rejects upon failure
+     */
+    setTopic(id, topic) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                // tslint:disable:no-unsafe-any
+                const options = {};
+                let sTopic = topic.replace(/<wbr>/g, " %%WBR%% ");
+                sTopic = sTopic.replace(/</g, "&lt;");
+                sTopic = sTopic.replace(/(\S{20})/g, "$1 %%WBR%% ");
+                sTopic = sTopic.replace(/(?:\s%%WBR%%\s)+/g, "<wbr>");
+                options.model = id;
+                options.type = constants.FCTYPE.SETWELCOME;
+                options.topic = sTopic;
+                if (this._roomHelperStatus.get(id)) {
+                    this.TxCmd(constants.FCTYPE.ROOMHELPER, 0, constants.FCTYPE.SETWELCOME, id, JSON.stringify(options));
+                    const handler = (p) => {
+                        if (p !== undefined && p.nArg1 !== undefined && p.nArg1 === id) {
+                            if (p.nArg2 !== undefined) {
+                                this.removeListener("ROOMHELPER", handler);
+                                if (p.nArg2 === constants.FCRESPONSE.SUCCESS) {
+                                    resolve(p);
+                                }
+                                if (p.nArg2 === constants.FCRESPONSE.ERROR) {
+                                    if (typeof p.sMessage !== "undefined") {
+                                        if (p.sMessage._msg === "Model offline, cannot execute room helper cmd") {
+                                            this._roomHelperStatus.set(id, false);
+                                            reject("Error: Client is not Room Helper");
+                                        }
+                                        else if (p.sMessage._msg === "Not authorized") {
+                                            reject("Error: Model is offline");
+                                        }
+                                    }
+                                    reject(p);
+                                }
+                            }
+                        }
+                    };
+                    this.prependListener("ROOMHELPER", handler);
+                }
+                else {
+                    reject("Error: Client is not Room Helper");
+                }
+            });
+        });
+    }
+    /**
+     * Start/adjust/stop a model's countdown where Client is Room Helper
+     * @param id Model's MFC ID
+     * @param total Total number of tokens in countdown
+     * @param countdown true if countdown is active, false to end countdown (optional)
+     * @param sofar Number of tokens tipped so far in countdown (optional)
+     * @return {Promise} Promise that resolves if successful, rejects upon failure
+     */
+    setCountdown(id, total, countdown = true, sofar) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                // tslint:disable:no-unsafe-any
+                const options = {
+                    model: id,
+                    type: constants.FCTYPE.ROOMDATA,
+                    total: total,
+                    sofar: sofar ? sofar : 0,
+                    countdown: countdown,
+                };
+                if (this._roomHelperStatus.get(id)) {
+                    this.TxCmd(constants.FCTYPE.ROOMHELPER, 0, constants.FCTYPE.ROOMDATA, id, JSON.stringify(options));
+                    const handler = (p) => {
+                        switch (p.FCType) {
+                            case constants.FCTYPE.ROOMDATA:
+                                const msg = p.sMessage;
+                                if (msg !== undefined && msg.model !== undefined && msg.model === id) {
+                                    this.removeListener("ROOMDATA", handler);
+                                    this.removeListener("ROOMHELPER", handler);
+                                    resolve(p);
+                                }
+                                break;
+                            case constants.FCTYPE.ROOMHELPER:
+                                if (p.nArg2 !== undefined) {
+                                    this.removeListener("ROOMDATA", handler);
+                                    this.removeListener("ROOMHELPER", handler);
+                                    if (p.nArg2 === constants.FCRESPONSE.SUCCESS) {
+                                        resolve(p);
+                                    }
+                                    if (p.nArg2 === constants.FCRESPONSE.ERROR) {
+                                        if (typeof p.sMessage !== "undefined") {
+                                            if (p.sMessage._msg === "Model offline, cannot execute room helper cmd") {
+                                                this._roomHelperStatus.set(id, false);
+                                                reject("Error: Client is not Room Helper");
+                                            }
+                                            else if (p.sMessage._msg === "Not authorized") {
+                                                reject("Error: Model is offline");
+                                            }
+                                        }
+                                        reject(p);
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    };
+                    this.prependListener("ROOMDATA", handler);
+                    this.prependListener("ROOMHELPER", handler);
+                }
+                else {
+                    reject("Error: Client is not Room Helper");
+                }
+            });
+        });
+    }
+    /**
      * Retrieves all token sessions for the year and month that the given
      * date is from. The specific day or time doesn't matter. It returns
      * the whole month's data.
@@ -1083,7 +1760,7 @@ class Client extends events_1.EventEmitter {
     _getTokenUsageForMonth(date) {
         return __awaiter(this, void 0, void 0, function* () {
             const tokenSessions = [];
-            const rawResponse = yield request({ url: `https://www.${this._baseUrl}/php/account.php?all_token_sessions=1&year=${date.getFullYear()}&month=${date.getMonth() + 1}`, headers: this.httpHeaders }).promise();
+            const rawResponse = yield request({ url: `https://www.${this._baseUrl}/php/account.php?all_token_sessions=1&year=${date.getFullYear()}&month=${date.getMonth() + 1}`, headers: yield this.getHttpHeaders() }).promise();
             const $ = cheerio.load(rawResponse);
             const tableRows = $("tr").slice(1);
             tableRows.each((_index, element) => {
@@ -1211,7 +1888,7 @@ class Client extends events_1.EventEmitter {
                 month: date.getMonth() + 1,
                 year: date.getFullYear(),
             };
-            const rawResponse = yield request({ method: "POST", url: `https://www.${this._baseUrl}/php/chat_logs.php`, form: options, headers: this.httpHeaders }).promise();
+            const rawResponse = yield request({ method: "POST", url: `https://www.${this._baseUrl}/php/chat_logs.php`, form: options, headers: yield this.getHttpHeaders() }).promise();
             const $ = cheerio.load(rawResponse);
             $('div[onClick*="GetLog.Execute"]').each((_index, element) => {
                 // tslint:disable-next-line:no-string-literal
@@ -1240,7 +1917,7 @@ class Client extends events_1.EventEmitter {
                 hide_fonts: 0,
                 use_legacy_player: 0,
             };
-            const rawResponse = yield request({ url: `https://www.${this._baseUrl}/php/chat_logs.php`, qs: options, headers: this.httpHeaders }).promise();
+            const rawResponse = yield request({ url: `https://www.${this._baseUrl}/php/chat_logs.php`, qs: options, headers: yield this.getHttpHeaders() }).promise();
             const $ = cheerio.load(rawResponse);
             const chatLines = $(".dialogue_time, .dialogue_name, .dialogue_content");
             chatLines.each((_index, element) => {
@@ -1351,6 +2028,7 @@ class Client extends events_1.EventEmitter {
     }
     /**
      * Joins the public chat room of the given model
+     * or the given channel ID
      * @param id Model ID or room/channel ID to join
      * @returns A promise that resolves after successfully
      * joining the chat room and rejects if the join fails
@@ -1360,11 +2038,20 @@ class Client extends events_1.EventEmitter {
     joinRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const roomId = Client.toRoomId(id, this._options.camYou);
-                const modelId = Client.toUserId(id);
-                const modelId = Client(id);
-                const resultHandler = (p) => {
-                    if (p.aboutModel !== undefined && p.aboutModel.uid === modelId) {
+                const modelId = this.toUserId(id);
+                const roomId = this._negotiateChannelForJoining(this._toFreeIfModel(id), modelId);
+                let resultHandler, joinTimer;
+                const onTimeout = () => {
+                    this.removeListener("JOINCHAN", resultHandler);
+                    this.removeListener("ZBAN", resultHandler);
+                    this.removeListener("BANCHAN", resultHandler);
+                    this.removeListener("CMESG", resultHandler);
+                    reject(`Failed to join ${roomId}`);
+                };
+                joinTimer = setTimeout(onTimeout, 5000);
+                resultHandler = (p) => {
+                    if (p.nTo === roomId || p.nArg1 === roomId) {
+                        clearTimeout(joinTimer);
                         this.removeListener("JOINCHAN", resultHandler);
                         this.removeListener("ZBAN", resultHandler);
                         this.removeListener("BANCHAN", resultHandler);
@@ -1405,19 +2092,28 @@ class Client extends events_1.EventEmitter {
                 this.addListener("ZBAN", resultHandler);
                 this.addListener("BANCHAN", resultHandler);
                 this.addListener("CMESG", resultHandler);
-                this.TxCmd(constants.FCTYPE.JOINCHAN, 0, roomId, constants.FCCHAN.JOIN);
+                let nArg2 = constants.FCCHAN.JOIN | constants.FCCHAN.HISTORY;
+                const channelType = this.getChannelType(roomId);
+                if (channelType === constants.ChannelType.NonFreeChat) {
+                    const modelState = Model_1.Model.getModel(modelId).bestSession.vs;
+                    if (modelState === constants.STATE.GroupShow) {
+                        nArg2 = constants.FCGROUP.SESSION;
+                    }
+                }
+                this.TxCmd(constants.FCTYPE.JOINCHAN, 0, roomId, nArg2);
             });
         });
     }
     /**
      * Leaves the public chat room of the given model
+     * or the given chat channel
      * @param id Model ID or room/channel ID to leave
      * @returns A promise that resolves immediately
      */
     leaveRoom(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this._state === exports.ClientState.ACTIVE) {
-                id = Client.toRoomId(id, this._options.camYou);
+                id = this._toFreeIfModel(id);
                 this.TxCmd(constants.FCTYPE.JOINCHAN, 0, id, constants.FCCHAN.PART);
             }
             // Else, if we don't have a connection then we weren't really in the
@@ -1496,7 +2192,6 @@ class Client extends events_1.EventEmitter {
             // USERNAMELOOKUP queries simultaneously (which we might be).
             // Starting with 20 simply because that's what MFC's web client
             // code uses. Literally any number would work.
-            // tslint:disable-next-line:no-magic-numbers
             Client._userQueryId = Client._userQueryId !== undefined ? Client._userQueryId : 20;
             const queryId = Client._userQueryId++;
             return new Promise((resolve) => {
@@ -1628,7 +2323,7 @@ class Client extends events_1.EventEmitter {
                             const wsSrvs = Object.getOwnPropertyNames(this.serverConfig.websocket_servers);
                             const chatServer = wsSrvs[Math.floor(Math.random() * wsSrvs.length)];
                             Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, ">>> Connecting to MyFreeCams chat server " + colors.green(chatServer));
-                            this._client = new WebSocket(`ws://${chatServer}.${this._baseUrl}:${constants.WEBSOCKET_PORT}/fcsl`, {
+                            this._client = new WebSocket(`wss://${chatServer}.${this._baseUrl}:${constants.WEBSOCKET_PORT}/fcsl`, {
                                 // protocol: this.serverConfig.websocket_servers[chatServer] as string,
                                 origin: `https://m.${this._baseUrl}`,
                             });
@@ -1663,7 +2358,6 @@ class Client extends events_1.EventEmitter {
                         this._keepAliveTimer = setInterval(() => this._keepAlive(), 
                         // WebSockets need the keepAlive ping every 15 seconds
                         // Flash Sockets need it only once every 2 minutes
-                        // tslint:disable-next-line:no-magic-numbers
                         this._options.useWebSockets !== false ? 15 * 1000 : 120 * 1000);
                     }).catch((reason) => {
                         this._disconnected(`Error while connecting: ${reason}`);
@@ -1720,7 +2414,7 @@ class Client extends events_1.EventEmitter {
         const typeName = constants.FCTYPE[fctype];
         let stopper, timer;
         timer = setTimeout(() => {
-//            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, msg);
+            Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, msg);
             stopper();
             this._disconnected(msg);
         }, after);
@@ -1821,6 +2515,8 @@ class Client extends events_1.EventEmitter {
             this._completedModels = false;
             this._completedTags = false;
             this._webApiToken = undefined;
+            this._roomHelperStatus.clear();
+            this._availableClubShows.clear();
             if (this._client !== undefined) {
                 this._client.removeAllListeners();
                 // tslint:disable-next-line:only-arrow-functions
@@ -1861,7 +2557,7 @@ class Client extends events_1.EventEmitter {
                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.DEBUG, () => `[CLIENT] State: ${this._state}`);
                 Utils_1.logWithLevelInternal(Utils_1.LogLevel.INFO, () => `>>> Reconnecting in ${Client._currentReconnectSeconds} seconds ...`);
                 clearTimeout(this._reconnectTimer);
-                // tslint:disable:align no-magic-numbers
+                // tslint:disable:align
                 this._reconnectTimer = setTimeout(() => {
                     // Set us to IDLE briefly so that .connect
                     // will not ignore the request. It will set
@@ -1873,7 +2569,7 @@ class Client extends events_1.EventEmitter {
                     });
                     this._reconnectTimer = undefined;
                 }, Client._currentReconnectSeconds * 1000);
-                // tslint:enable:align no-magic-numbers
+                // tslint:enable:align
                 // Gradually increase the reconnection time up to Client.maximumReconnectSeconds.
                 // currentReconnectSeconds will be reset to initialReconnectSeconds once we have
                 // successfully logged in.
@@ -1911,11 +2607,11 @@ class Client extends events_1.EventEmitter {
             if (password !== undefined) {
                 this.password = password;
             }
-            const loginCompletePromise = new Promise((resolve, reject) => {
+            const loginCompletePromise = new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 this.prependOnceListener("LOGIN", (packet) => {
                     // Store username and session id returned by the login response packet
                     if (packet.nArg1 !== 0) {
-                        const msg = `>>> Login failed for user '${this.username}' password '${this.password}'`;
+                        const msg = `>>> Login failed for user '${colors.cyan(this.username)}' password '${colors.cyan(this.password)}'`;
                         Utils_1.logWithLevelInternal(Utils_1.LogLevel.ERROR, msg);
                         reject(msg);
                     }
@@ -1925,11 +2621,13 @@ class Client extends events_1.EventEmitter {
                             // retrieve a web api token to extend our capabilities
                             if (this.username !== "guest") {
                                 const supplementalData = {
-                                    // tslint:disable-next-line:no-magic-numbers
                                     r: Math.round(Math.random() * 1000000),
                                     mode: "supplemental_data",
                                 };
-                                request({ method: "POST", url: `https://www.${this._baseUrl}/php/client_info.php`, form: supplementalData, headers: this.httpHeaders })
+                                this.getHttpHeaders()
+                                    .then((result) => {
+                                    return request({ method: "POST", url: `https://www.${this._baseUrl}/php/client_info.php`, form: supplementalData, headers: result });
+                                })
                                     .then((result) => {
                                     try {
                                         const resultObj = JSON.parse(result); // It's an array but not exactly like that. Just want to silence TypeScript...
@@ -1966,15 +2664,17 @@ class Client extends events_1.EventEmitter {
                         }
                     }
                 });
-            });
+            }));
             if (!this._options.modernLogin) {
-                const credentials = `${this._options.camYou ? constants.PLATFORM.CAMYOU : constants.PLATFORM.MFC}/${this.username}:${this.password}`;
+                const credentials = `${this._options.camYou ? constants.PLATFORM.CAMYOU : constants.PLATFORM.MFC}/${this.username}:${yield this.getPassCode()}`;
                 this.TxCmd(constants.FCTYPE.LOGIN, 0, !this._options.useWebSockets ? constants.LOGIN_VERSION.FLASH : constants.LOGIN_VERSION.WEBSOCKET, 0, credentials);
             }
             else {
+                // Ensure we can get the passcode before we hook up the EventEmitter callback
+                const currentPassCode = yield this.getPassCode();
                 const extDataHandler = (packet) => {
                     if (packet.nArg1 === constants.FCTYPE.LOGIN) {
-                        const credentials = `${packet.sMessage}@${this._options.camYou ? constants.PLATFORM.CAMYOU : constants.PLATFORM.MFC}/${this.username}:${this.password}`;
+                        const credentials = `${packet.sMessage}@${this._options.camYou ? constants.PLATFORM.CAMYOU : constants.PLATFORM.MFC}/${this.username}:${currentPassCode}`;
                         this.TxCmd(constants.FCTYPE.LOGIN, 0, !this._options.useWebSockets ? constants.LOGIN_VERSION.FLASH : constants.LOGIN_VERSION.WEBSOCKET, 0, credentials);
                         this.removeListener("EXTDATA", extDataHandler);
                     }
@@ -2081,32 +2781,30 @@ class Client extends events_1.EventEmitter {
         });
     }
     /**
-     * Pretty much what you think it is...
-     * Most everyone already knows this logic, the new thing here is
-     * support the high def (1080p) OBS based streams. A new feature
-     * on MFC as of 2018/03/23.
+     * Retrieves the HLS url for the given model (free chat only)
      * @param model
+     * @returns A string containing the HLS url for model's free chat broadcast
      */
     getHlsUrl(model) {
         if (typeof model === "number") {
-            model = Model_1.Model.getModel(Client.toUserId(model));
+            model = Model_1.Model.getModel(this.toUserId(model));
         }
         const camserv = model.bestSession.camserv;
         if (!camserv || !this.serverConfig || model.bestSession.vs !== constants.STATE.FreeChat) {
             return undefined;
         }
-        const roomId = Client.toRoomId(model.uid);
+        const roomId = this.toChannelId(model.uid);
         const roomprefix = this._options.camYou ? "cam" : "mfc";
         let videoserv;
-        if (this.serverConfig.ngvideo_servers && this.serverConfig.ngvideo_servers.hasOwnProperty(camserv)) {
-            // high-def nginx
-            videoserv = this.serverConfig.ngvideo_servers[camserv];
-            return `https://${videoserv}.${this._baseUrl}:8444/x-hls/${this.stream_cxid}/${roomId}/${this.stream_password}/${this.stream_vidctx}/${roomprefix}_${model.bestSession.phase}_${roomId}.m3u8`;
-        }
-        else if (this.serverConfig.wzobs_servers && this.serverConfig.wzobs_servers.hasOwnProperty(camserv)) {
+        if (this.serverConfig.wzobs_servers && this.serverConfig.wzobs_servers.hasOwnProperty(camserv)) {
             // high-def wowza
             videoserv = this.serverConfig.wzobs_servers[camserv];
             return `https://${videoserv}.${this._baseUrl}:443/NxServer/ngrp:${roomprefix}_${model.bestSession.phase}_${roomId}.f4v_mobile/playlist.m3u8?nc=${Math.random().toString().replace("0.", "")}`;
+        }
+        else if (this.serverConfig.ngvideo_servers && this.serverConfig.ngvideo_servers.hasOwnProperty(camserv)) {
+            // high-def nginx
+            videoserv = this.serverConfig.ngvideo_servers[camserv];
+            return `https://${videoserv}.${this._baseUrl}:8444/x-hls/${this.stream_cxid}/${roomId}/${this.stream_password}/${this.stream_vidctx}/${roomprefix}_${model.bestSession.phase}_${roomId}.m3u8`;
         }
         else {
             // standard-def wowza
@@ -2114,12 +2812,67 @@ class Client extends events_1.EventEmitter {
             return `https://${videoserv}.${this._baseUrl}:443/NxServer/ngrp:${roomprefix}_${roomId}.f4v_mobile/playlist.m3u8?nc=${Math.random().toString().replace("0.", "")}`;
         }
     }
+    /**
+     * Retrieves passcode for client
+     * @returns A promise that resolves with a string containing client's passcode
+     */
+    getPassCode() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.password === "guest" || (this.password !== undefined && this.password.length === 32 && (/^[A-Za-z0-9]{32}$/).test(this.password) && !this._options.forceUnhashedPassword)) {
+                // If password is 'guest' or we were given a pre-hashed passcode, just use that
+                this._passcode_password = this.password;
+                return this.password;
+            }
+            else if (typeof this._passcode === "string" && this.password === this._passcode_password) {
+                // If we previously hashed this.password, and the password hasn't changed,
+                // just re-use that
+                return this._passcode;
+            }
+            else {
+                // Otherwise we need to retrieve the passcode from the site
+                this._passcode = undefined;
+                this._passcode_password = this.password;
+                const payload = {
+                    submit_login: this.username.charCodeAt(0) || 2,
+                    uid: Math.round(Math.random() * 99999999999999),
+                    tz: -(new Date()).getTimezoneOffset() / 60,
+                    ss: "1920x1080",
+                    username: this.username,
+                    password: this.password,
+                };
+                const cookieResponse = yield request({
+                    method: "POST",
+                    url: `https://www.${this._baseUrl}/php/login.php`,
+                    form: payload,
+                    transform: (body, response) => {
+                        return { cookies: response.headers["set-cookie"], body };
+                    },
+                }).promise();
+                if (Array.isArray(cookieResponse.cookies)) {
+                    for (const cookie of cookieResponse.cookies) {
+                        const match = (/^passcode=([A-Za-z0-9]{32});/).exec(cookie);
+                        if (match !== null) {
+                            this._passcode = match[1];
+                            break;
+                        }
+                    }
+                }
+                if (this._passcode === undefined) {
+                    const msg = `Failed to retrieve password hash for user '${this.username}' password '${this.password}'. Bad password?`;
+                    Utils_1.logWithLevelInternal(Utils_1.LogLevel.ERROR, msg);
+                    throw new Error(msg);
+                }
+                return this._passcode;
+            }
+            // Also, should I have a FCTYPE_SETPCODE hook? I'm not sure when they send that event...
+        });
+    }
 }
 Client._connectedClientCount = 0;
 Client._initialReconnectSeconds = 6;
-Client._reconnectBackOffMultiplier = 2;
-Client._maximumReconnectSeconds = 120; // 2 Minutes
-Client._currentReconnectSeconds = 10;
+Client._reconnectBackOffMultiplier = 1.5;
+Client._maximumReconnectSeconds = 1200; // 20 Minutes
+Client._currentReconnectSeconds = 8;
 Client.webSocketNoiseFilter = /^\d{4}\d+ \d+ \d+ \d+ \d+/;
 exports.Client = Client;
 //# sourceMappingURL=Client.js.map
