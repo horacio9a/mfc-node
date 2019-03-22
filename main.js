@@ -31,15 +31,17 @@ var captureModels = []; // the list of currently capturing models
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
-config.completeDirectory = config.completeDirectory || 'C:\Videos\MFC';
+config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
+config.completeDirectory = config.completeDirectory || 'C:/Videos/MFC';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.createModelDirectory = config.createModelDirectory || false;
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
 config.downloadProgram = config.downloadProgram || 'rtmp';
 config.minFileSizeMb = config.minFileSizeMb || 0;
 config.port = config.port || 8888;
-config.proxyServer = config.proxyServer;
+config.proxyServer = config.proxyServer || false;
+config.rtmpDebug = config.rtmpDebug || false;
+config.debug = config.debug || true;
 config.models = Array.isArray(config.models) ? config.models : [];
 config.queue = Array.isArray(config.queue) ? config.queue : [];
 
@@ -464,7 +466,6 @@ function cacheModels() {
 
 function mainLoop() {
   sleep(2*1000); // sleep for 2 seconds
-//  printDebugMsg(`Start new cycle.`);
   printDebugMsg(`>>> ${colors.gray(`Start new cycle`)} <<<`);
 
   Promise
@@ -528,7 +529,7 @@ function addInQueue(req, res) {
     res.writeHead(422, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Invalid request' }));
   } else {
-    printDebugMsg(colors.green(model.uid || model.nm) + (mode >= 1 ? ` >>> include >>>` : (mode === 0 ? ` <<< exclude <<<` : ` >>> delete <<<`)));
+    printDebugMsg(colors.green(model.uid || model.nm) + (colors.cyan(mode >= 1 ? ` >>> include >>>` : (mode === 0 ? ` <<< exclude <<<` : ` >>> delete <<<`))));
 
     config.queue.push(model);
 
