@@ -274,15 +274,15 @@ function createMainCaptureProcess(model) {
   return Promise
     .try(() => {
 
-var model_dir;
+var modelDir;
    if (config.directoryFormat == 'id+nm') {
-     model_dir = model.uid + '_' + model.nm}
+     modelDir = model.uid + '_' + model.nm}
    if (config.directoryFormat == 'id') {
-     model_dir = (model.uid).toString()}
+     modelDir = (model.uid).toString()}
    if (config.directoryFormat == 'nm') {
-     model_dir = model.nm}
+     modelDir = model.nm}
    if (config.directoryFormat == 'nm+id') {
-     model_dir = model.nm + '_' + model.uid}
+     modelDir = model.nm + '_' + model.uid}
 
       var cxid = mfcClient.stream_cxid;
       var roomId = 100000000 + model.uid;
@@ -349,7 +349,7 @@ var model_dir;
         remove(stoppedModel, captureModels);
 
         var dst = config.createModelDirectory
-          ? path.join(captureDirectory, model_dir, filename)
+          ? path.join(captureDirectory, modelDir, filename)
           : src;
 
         fs.statAsync(src)
@@ -425,7 +425,7 @@ function checkCaptureProcess(model) {
   }
 
   return fs
-    .statAsync(captureDirectory + '/' + model.filename)
+    .statAsync(path.join(captureDirectory, model.filename))
     .then(stats => {
       // we check model's process every 10 minutes,
       // if the size of the file has not changed for the last 10 min, we kill this process
