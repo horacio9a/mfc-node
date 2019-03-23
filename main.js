@@ -1,9 +1,9 @@
-// MyFreeCams Recorder v.1.0.6
+// MyFreeCams Recorder v.1.0.7
 
 'use strict';
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
-var mv = require('mv');
+var mvAsync = Promise.promisify(require('mv'));
 var yaml = require('js-yaml');
 var moment = require('moment');
 var mkdirp = require('mkdirp');
@@ -19,7 +19,7 @@ var dispatcher = new HttpDispatcher();
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
-config.captureDirectory = config.captureDirectory || 'C:\Videos\MFC';
+config.captureDirectory = config.captureDirectory || 'C:/Videos/MFC';
 config.createModelDirectory = config.createModelDirectory || false;
 config.directoryFormat = config.directoryFormat || 'id+nm';
 config.dateFormat = config.dateFormat || 'DDMMYYYY-HHmmss';
@@ -27,6 +27,7 @@ config.downloadProgram = config.downloadProgram || 'ls';
 config.modelScanInterval = config.modelScanInterval || 30;
 config.minFileSizeMb = config.minFileSizeMb || 0;
 config.port = config.port || 8888;
+config.debug = config.debug || true;
 
 config.includeModels = Array.isArray(config.includeModels) ? config.includeModels : [];
 config.excludeModels = Array.isArray(config.excludeModels) ? config.excludeModels : [];
@@ -37,6 +38,7 @@ config.excludeUids = Array.isArray(config.excludeUids) ? config.excludeUids : []
 config.deleteUids = Array.isArray(config.deleteUids) ? config.deleteUids : [];
 
 var captureDirectory = path.resolve(config.captureDirectory);
+var minFileSize = config.minFileSizeMb * 1048576;
 
 function getCurrentDateTime() {
   return moment().format(config.dateFormat);
@@ -150,7 +152,7 @@ function getFileno() {
 
 function getOnlineModels(fileno) {
   var url = `http://www.myfreecams.com/php/FcwExtResp.php?${fileno}`;
-    printDebugMsg(`>>> ${colors.gray(fileno)} <<<`);
+//    printDebugMsg(`>>> ${colors.gray(fileno)} <<<`);
 
   return Promise
     .try(function() {
@@ -357,29 +359,26 @@ printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlPr
     .try(function() {
       var filename = model.nm + '_MFC_' + getCurrentDateTime() + '.' + fileFormat;
 
-var directoryFormat;
+var modelDir;
    if (config.directoryFormat == 'id+nm') {
-     directoryFormat = model.uid + '_' + model.nm}
+     modelDir = model.uid + '_' + model.nm}
    if (config.directoryFormat == 'id') {
-     directoryFormat = model.uid}
+     modelDir = (model.uid).toString()}
    if (config.directoryFormat == 'nm') {
-     directoryFormat = model.nm}
+     modelDir = model.nm}
    if (config.directoryFormat == 'nm+id') {
-     directoryFormat = model.nm + '_' + model.uid}
+     modelDir = model.nm + '_' + model.uid}
 
-var path;
-   if (config.createModelDirectory == false) {
-     path = captureDirectory}
-   if (config.createModelDirectory == true) {
-     path = captureDirectory + '/' + directoryFormat}
+function mkdir(dir) {
+  mkdirp(dir, err => {
+    if (err) {
+      printErrorMsg(err);
+      process.exit(1);
+    }
+  });
+}
 
-mkdirp(path, function (err) {
-   if (err) console.error(err)
-   else { // do nothing
-  }
-});
-
-var fpath = path + '/' + filename;
+var src = path.join(captureDirectory, filename);
 
 var roomId = 100000000 + model.uid;
 
@@ -390,27 +389,27 @@ var captureProcess;
 
    if (config.downloadProgram == 'ls') {
      if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o', fpath])}
+       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o', src])}
      else {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', fpath])}};
+       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])}};
 
    if (config.downloadProgram == 'sl') {
      if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o', fpath])}
+       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o', src])}
      else {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', fpath])}};
+       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])}};
 
    if (config.downloadProgram == 'ff-ts') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', fpath])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', src])};
 
    if (config.downloadProgram == 'ff-flv') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', fpath])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', src])};
 
    if (config.downloadProgram == 'hls') {
-     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',fpath])};
+     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',src])};
 
    if (config.downloadProgram == 'rtmp') {
-     captureProcess = spawn('mfcd', [model.nm, fpath])};
+     captureProcess = spawn('mfcd', [model.nm, src])};
 
 captureProcess.stdout.on('data', function(data) {
   printMsg(data.toString());
@@ -433,15 +432,19 @@ var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {
      modelsCurrentlyCapturing.splice(modelIndex, 1);
    }};
 
-        fs.stat((fpath), function(err, stats) {
-          if (err) {
-            if (err.code == 'ENOENT') {
-              // do nothing, file does not exists
-            } else {
-              printErrorMsg('[' + colors.green(model.nm) + '] ' + err.toString());
+        var dst = config.createModelDirectory
+          ? path.join(captureDirectory, modelDir, filename)
+          : src;
+
+        fs.statAsync(src)
+          // if the file is big enough we keep it otherwise we delete it
+          .then(stats => (stats.size <= minFileSize) ? fs.unlinkAsync(src) : mvAsync(src, dst, { mkdirp: true }))
+          .catch(err => {
+            if (err.code !== 'ENOENT') {
+              printErrorMsg(`[` + colors.green(model.nm) + `] ` + err.toString());
             }
-          } else if (stats.size == 0 || stats.size < (config.minFileSizeMb * 1048576)) {
-            fs.unlink(fpath), function(err) {}}})}); // do nothing, shit happens
+          });
+      });
 
       if (!!captureProcess.pid) {
         modelsCurrentlyCapturing.push({
@@ -480,7 +483,7 @@ function checkCaptureProcess(model) {
   }
 
   return fs
-    .statAsync(path + '/' + model.filename)
+    .statAsync(path.join(captureDirectory, model.filename))
     .then(function(stats) {
       // we check the process every 10 minutes since its start,
       // if the size of the file has not changed for the last 10 min, we kill the process
