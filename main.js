@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.6
+// MyFreeCams Recorder v.3.0.7
 
 'use strict';
 
@@ -10,7 +10,7 @@ var moment = require('moment');
 var colors = require('colors');
 var yaml = require('js-yaml');
 var path = require('path');
-var childProcess = require('child_process');
+var spawn = require('child_process').spawn;
 var HttpDispatcher = require('httpdispatcher');
 var dispatcher = new HttpDispatcher();
 var http = require('http');
@@ -19,7 +19,6 @@ var EOL = require('os').EOL;
 var compression = require('compression');
 var bhttp = require('bhttp');
 var session = bhttp.session();
-var sleep = require('system-sleep');
 
 var useDefaultOptions = {};
 var compress = compression(useDefaultOptions);
@@ -173,7 +172,7 @@ function updateConfigModels() {
       // if we don't have the model in our config we add here in
       config.models.push({
         uid: queueModel.uid,
-        mode: queueModel.mode
+        mode: 1
       });
     } else {
       configModel.mode = queueModel.mode;
@@ -274,15 +273,15 @@ function createMainCaptureProcess(model) {
   return Promise
     .try(() => {
 
-var modelDir;
-   if (config.directoryFormat == 'id+nm') {
-     modelDir = model.uid + '_' + model.nm}
-   if (config.directoryFormat == 'id') {
-     modelDir = (model.uid).toString()}
-   if (config.directoryFormat == 'nm') {
-     modelDir = model.nm}
-   if (config.directoryFormat == 'nm+id') {
-     modelDir = model.nm + '_' + model.uid}
+      var modelDir;
+         if (config.directoryFormat == 'id+nm') {
+           modelDir = model.uid + '_' + model.nm}
+         if (config.directoryFormat == 'id') {
+           modelDir = (model.uid).toString()}
+         if (config.directoryFormat == 'nm') {
+           modelDir = model.nm}
+         if (config.directoryFormat == 'nm+id') {
+           modelDir = model.nm + '_' + model.uid}
 
       var cxid = mfcClient.stream_cxid;
       var roomId = 100000000 + model.uid;
@@ -299,35 +298,35 @@ var modelDir;
       var captureProcess;
          if (config.downloadProgram == 'ls') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o',src])} 
+             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o',src])} 
            else {
-             captureProcess = childProcess.spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
          if (config.downloadProgram == 'sl') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o',src])} 
+             captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o',src])} 
            else {
-             captureProcess = childProcess.spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
          if (config.downloadProgram == 'ff-ts') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c','copy','-vsync','2','-r','60','-b:v','500k',src])}
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c','copy','-vsync','2','-r','60','-b:v','500k',src])}
            else {
-             captureProcess = childProcess.spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',src])}};
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',src])}};
          if (config.downloadProgram == 'ff-flv') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c:v','copy','-c:a','aac','-b:a','192k','-ar','32000',src])}
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c:v','copy','-c:a','aac','-b:a','192k','-ar','32000',src])}
            else {
-             captureProcess = childProcess.spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',src])}};
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',src])}};
          if (config.downloadProgram == 'hls') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, [hlsUrla,'-q','-o',src])} 
+             captureProcess = spawn(dlProgram, [hlsUrla,'-q','-o',src])} 
            else {
-             captureProcess = childProcess.spawn(dlProgram, [hlsUrl,'-b','-q','-o',src])}};
+             captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',src])}};
          if (config.downloadProgram == 'rtmp') {
            if (model.camserv > 1544) {
-             captureProcess = childProcess.spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 1000}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
+             captureProcess = spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 1000}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
              '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-o',src])} 
            else {
-             captureProcess = childProcess.spawn('mfcd', [model.nm,src,src])}};
+             captureProcess = spawn('mfcd', [model.nm,src,src])}};
 
       if (!captureProcess.pid) {
         return;
@@ -387,7 +386,8 @@ var modelDir;
 
 function createCaptureProcess(model) {
   if (model.camserv < 840) { // skip models without "mobile feed"
-    return;
+    printDebugMsg(colors.green(model.nm) + (colors.cyan(` is NO MOBILE FEED - Exclude or Delete!`)));
+    return; // resolve immediately
   }
 
   var captureModel = captureModels.find(m => (m.uid === model.uid));
@@ -427,12 +427,12 @@ function checkCaptureProcess(model) {
   return fs
     .statAsync(path.join(captureDirectory, model.filename))
     .then(stats => {
-      // we check model's process every 10 minutes,
+      // we check model's process every 3 minutes,
       // if the size of the file has not changed for the last 10 min, we kill this process
       if (stats.size > model.size) {
-        printDebugMsg(colors.green(model.nm) + ` >>> recording in progress.`);
+        printDebugMsg(colors.green(model.nm) + ` @ ` + colors.cyan((stats.size/1048576).toFixed(2)) + ` MB >>> recording in progress <<<`);
 
-        model.checkAfter = moment().unix() + 300; // 5 minutes
+        model.checkAfter = moment().unix() + 180; // 3 minutes
         model.size = stats.size;
       } else if (model.captureProcess) {
         // we assume that onClose will do all the cleaning for us
@@ -474,7 +474,6 @@ function cacheModels() {
 }
 
 function mainLoop() {
-  sleep(2*1000); // sleep for 2 seconds
   printDebugMsg(`>>> ${colors.gray(`Start new cycle`)} <<<`);
 
   Promise
@@ -497,8 +496,8 @@ function mainLoop() {
 mkdir(captureDirectory);
 
 Promise
-  .try(() => mfcClient.connect())
-  .timeout(60000) // if we could not get a list of online models in 1 minute then exit
+  .try(() => mfcClient.connectAndWaitForModels())
+  .timeout(120000) // if we could not get a list of online models in 2 minutes then exit
   .then(() => mainLoop())
   .catch(err => {
     printErrorMsg(err.toString());
