@@ -1,14 +1,15 @@
 <!doctype html>
 
-<html lang="en" ng-app="app">
+<html lang="en" ng-app="app" >
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <title>MFC Recorder v.1.0.7</title>
-  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css'>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+  <title>MFC Recorder v.1.0.8</title>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,300' type='text/css' />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.green-red.min.css" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <style>
     a[disabled] {
       pointer-events: none;
@@ -193,7 +194,7 @@
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">MyFreeCams Recorder v.1.0.7 by horacio9a</span>
+        <span class="mdl-layout-title">MyFreeCams Recorder v.1.0.8 by horacio9a</span>
         <div class="mdl-layout-spacer"></div>
         <div class="filter">
           <input type="text" class="search" ng-model="vm.keyword" ng-model-options="{ debounce: 500 }">
@@ -232,12 +233,12 @@
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--green-800" target="_blank" ng-click="vm.viewModel(model)" ng-bind="model.nm"></a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--blue-900" ng-click="vm.enter_room(model)">{{ model.state }}</a></td>
               <td class="mdl-data-table__cell--non-numeric"><a class="mdl-color-text--red-900" ng-click="vm.video_preview(model)">{{ model.camserv < 840 ? 'LD' : '' || model.camserv > 1544 ? 'HD' : 'SD' }}</a></td>
-              <td ng-bind="model.camscore.toFixed(0)"></td>
-              <td ng-bind="model.rank"></td>
-              <td class="mdl-data-table__cell--non-numeric" ng-bind="model.continent"></td>
-              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="model.new_model"></i></td>
-              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--green-500" ng-bind="model.missmfc"></i></td>
-              <td ng-bind="model.rc"></td>
+              <td ng-bind="::model.camscore.toFixed(0)"></td>
+              <td ng-bind="::model.rank"></td>
+              <td class="mdl-data-table__cell--non-numeric" ng-bind="::model.continent"></td>
+              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--orange-500" ng-bind="::model.new_model"></i></td>
+              <td class="mdl-data-table__cell--non-numeric"><i class="material-icons mdi-24 mdl-color-text--green-500" ng-bind="::model.missmfc"></i></td>
+              <td ng-bind="::model.rc"></td>
               <td class="mdl-data-table__cell--non-numeric" ng-bind="model.blurb"></td>
             </tr>
           </tbody>
