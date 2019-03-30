@@ -1,21 +1,23 @@
-// MyFreeCams Recorder v.1.0.7
+// MyFreeCams Recorder v.1.0.8
 
 'use strict';
+
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var mvAsync = Promise.promisify(require('mv'));
-var yaml = require('js-yaml');
-var moment = require('moment');
 var mkdirp = require('mkdirp');
-var WebSocketClient = require('websocket').client;
-var bhttp = require('bhttp');
+var moment = require('moment');
 var colors = require('colors');
-var _ = require('underscore');
-var spawn = require('child_process').spawn;
+var yaml = require('js-yaml');
 var path = require('path');
-var http = require('http');
+var spawn = require('child_process').spawn;
 var HttpDispatcher = require('httpdispatcher');
 var dispatcher = new HttpDispatcher();
+var http = require('http');
+var WebSocketClient = require('websocket').client;
+var bhttp = require('bhttp');
+var _ = require('underscore');
+
 
 var config = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8'));
 
@@ -313,7 +315,6 @@ function createCaptureProcess(model) {
   var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {uid: model.uid});
 
   if (!_.isUndefined(modelCurrentlyCapturing)) {
-    printDebugMsg(colors.green(model.nm) + ` >>> recording in progress.`);
     return; // resolve immediately
   }
 
@@ -341,19 +342,19 @@ var fileFormat;
 
 var dlProgram;
    if (config.downloadProgram == 'ls') {
-     dlProgram = 'livestreamer'}
+     dlProgram = config.livestreamer}
    if (config.downloadProgram == 'sl') {
-     dlProgram = 'streamlink'}
+     dlProgram = config.streamlink}
    if (config.downloadProgram == 'ff-ts') {
-     dlProgram = 'ffmpeg'}
+     dlProgram = config.ffmpeg}
    if (config.downloadProgram == 'ff-flv') {
-     dlProgram = 'ffmpeg'}
+     dlProgram = config.ffmpeg}
    if (config.downloadProgram == 'hls') {
-     dlProgram = 'hlsdl'}
+     dlProgram = config.hlsdl}
    if (config.downloadProgram == 'rtmp') {
-     dlProgram = 'rtmp'}
+     dlProgram = config.mfcd}
 
-printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram)} recording <<<`);
+printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(config.downloadProgram)} recording <<<`);
 
   return Promise
     .try(function() {
@@ -383,21 +384,14 @@ var src = path.join(captureDirectory, filename);
 var roomId = 100000000 + model.uid;
 
 var hlsUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
-var hlsUrla = `http://video${model.camserv - 1000}.myfreecams.com:1935/NxServer/ngrp:mfc_a_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
 
 var captureProcess;
 
    if (config.downloadProgram == 'ls') {
-     if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o', src])}
-     else {
-       captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])}};
+     captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
 
    if (config.downloadProgram == 'sl') {
-     if (model.camserv > 1544) {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o', src])}
-     else {
-       captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])}};
+     captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
 
    if (config.downloadProgram == 'ff-ts') {
      captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', src])};
@@ -406,10 +400,10 @@ var captureProcess;
      captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', src])};
 
    if (config.downloadProgram == 'hls') {
-     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',src])};
+     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o', src])};
 
    if (config.downloadProgram == 'rtmp') {
-     captureProcess = spawn('mfcd', [model.nm, src])};
+     captureProcess = spawn(dlProgram, [model.nm, src])};
 
 captureProcess.stdout.on('data', function(data) {
   printMsg(data.toString());
@@ -453,7 +447,7 @@ var modelCurrentlyCapturing = _.findWhere(modelsCurrentlyCapturing, {
           filename: filename,
           captureProcess: captureProcess,
           pid: captureProcess.pid,
-          checkAfter: getTimestamp() + 600, // we are gonna check the process after 10 min
+          checkAfter: getTimestamp() + 180, // we are gonna check the process after 3 min
           size: 0
         });
       }
@@ -485,12 +479,12 @@ function checkCaptureProcess(model) {
   return fs
     .statAsync(path.join(captureDirectory, model.filename))
     .then(function(stats) {
+      printDebugMsg(colors.green(model.nm) + ` @ ` + colors.cyan((stats.size/1048576).toFixed(2)) + ` MB >>> recording in progress <<<`);
       // we check the process every 10 minutes since its start,
       // if the size of the file has not changed for the last 10 min, we kill the process
       if (stats.size - model.size > 0) {
-        printDebugMsg(colors.green(model.nm) + ` is alive.`);
 
-        model.checkAfter = getTimestamp() + 600; // 10 minutes
+        model.checkAfter = getTimestamp() + 180; // 3 minutes
         model.size = stats.size;
       } else if (!!model.captureProcess) {
         // we assume that onClose will do all clean up for us
@@ -577,20 +571,20 @@ dirty = false}
 
 mainLoop();
 
-dispatcher.onGet('/', function(req, res) {
-  fs.readFile('./index.html', function(err, data) {
+dispatcher.onGet('/', (req, res) => {
+  fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
     if (err) {
-      res.writeHead(404, {'Content-Type': 'text/html'});
+      res.writeHead(404, { 'Content-Type': 'text/html' });
       res.end('Not Found');
     } else {
-      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(data, 'utf-8');
     }
   });
 });
 
-dispatcher.onGet('/favicon.ico', function(req, res) {
-  fs.readFile('./favicon.ico', function(err, data) {
+dispatcher.onGet('/favicon.ico', (req, res) => {
+  fs.readFile(path.join(__dirname, 'favicon.ico'), (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'image/x-icon' });
       res.end('Not Found');
