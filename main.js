@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.7
+// MyFreeCams Recorder v.3.0.8
 
 'use strict';
 
@@ -257,17 +257,17 @@ var fileFormat;
 
 var dlProgram;
    if (config.downloadProgram == 'ls') {
-     dlProgram = 'livestreamer'}
+     dlProgram = config.livestreamer}
    if (config.downloadProgram == 'sl') {
-     dlProgram = 'streamlink'}
+     dlProgram = config.streamlink}
    if (config.downloadProgram == 'ff-ts') {
-     dlProgram = 'ffmpeg'}
+     dlProgram = config.ffmpeg}
    if (config.downloadProgram == 'ff-flv') {
-     dlProgram = 'ffmpeg'}
+     dlProgram = config.ffmpeg}
    if (config.downloadProgram == 'hls') {
-     dlProgram = 'hlsdl'}
+     dlProgram = config.hlsdl}
    if (config.downloadProgram == 'rtmp') {
-     dlProgram = 'rtmp'}
+     dlProgram = config.rtmpdump}
 
 function createMainCaptureProcess(model) {
   return Promise
@@ -326,7 +326,7 @@ function createMainCaptureProcess(model) {
              captureProcess = spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 1000}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
              '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-o',src])} 
            else {
-             captureProcess = spawn('mfcd', [model.nm,src,src])}};
+             captureProcess = spawn(config.mfcd, [model.nm,src])}};
 
       if (!captureProcess.pid) {
         return;
@@ -393,12 +393,12 @@ function createCaptureProcess(model) {
   var captureModel = captureModels.find(m => (m.uid === model.uid));
 
   if (captureModel !== undefined) {
-    printMsg(`>>> ${colors.cyan(captureModel.filename)} @ ${colors.yellow(dlProgram + (model.camserv > 1544 ? ` HD` : ` SD`))} recording <<<`);
+    printMsg(`>>> ${colors.cyan(captureModel.filename)} @ ${colors.yellow(config.downloadProgram + (model.camserv > 1544 ? ` HD` : ` SD`))} recording <<<`);
 
     return;
   }
 
-  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(dlProgram,(model.camserv > 1544 ? `HD` : `SD`))} recording <<<`);
+  printMsg(colors.green(model.nm) + ` now online >>> Starting ${colors.yellow(config.downloadProgram,(model.camserv > 1544 ? `HD` : `SD`))} recording <<<`);
 
   return createMainCaptureProcess(model);
 }
