@@ -1,8 +1,13 @@
 captureDirectory: 'C:\Videos\MFC' # Choose a directory for the recorded files
-createModelDirectory: true # If you want all the files from same model be recorded in the separate subdirectory
-directoryFormat: id+nm # You can choose between 'id+nm','nm+id','id' and 'nm' separate subdirectory format (Of course only if the previous option is 'true')
+createModelDirectory: true # If you want all the files of the same model to be recorded in a separate subdirectory with various 'directoryFormat' names.
+directoryFormat: id+nm # You can choose between 'id+nm','nm+id','id' and 'nm' separate subdirectory format (Of course only if the previous option is 'true').
 dateFormat: DDMMYYYY-HHmmss # Choose date format for the filename, for example: YYYY-MM-DD_HH-mm-ss
-downloadProgram: rtmp # You can choose between 'ls' for 'livestreamer', 'sl' for 'streamlink', 'ff-ts' and 'ff-flv' for 'ffmpeg' or 'rtmp' for 'MFCD.exe'
+downloadProgram: rtmp # You can choose between 'ls' for 'livestreamer', 'sl' for 'streamlink', 'ff-ts' and 'ff-flv' for 'ffmpeg', 'hls' for 'hlsdl' or 'rtmp' for 'MFCD.exe'
+livestreamer: 'C:/Livestreamer/livestreamer.exe' # Enter the path of the program in your computer.
+streamlink: 'C:/Streamlink/bin/streamlink.exe' # Enter the path of the program in your computer.
+ffmpeg: 'C:/Windows/ffmpeg.exe' # Enter the path of the program in your computer.
+hlsdl: 'C:/Windows/hlsdl.exe' # Enter the path of the program in your computer.
+mfcd: 'C:/Windows/mfcd.exe' # Enter the path of the program in your computer.
 modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models
 minFileSizeMb: 0 # If you do not want to save a file smaller than 5 MB enter number 5
 port: 8888 # number of port for your browser url for example: http://localhost:8888/
