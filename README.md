@@ -1,5 +1,20 @@
 What's new?
 ==========
+In v.3.0.8 So far, the most common error was that the DL programs were not in the windows path, so I decided to end. In the future it will be necessary to edit all paths for all DL programs in `config.yml`. This change will allow to choose which version of a program you want use with MFC Recorder, if you have multiple versions of the same program installed.
+In v.3.0.7 are many changes and most of them will be noticeable during MFC models monitoring. The most important news is that the Recorder re-works after the MFCAuto repair. This is particularly important for HD models with whom it was the most problem.
+Now there is also the option of selecting 4 combinations of subdirectory names as previously existed in the basic version of the MFC Recorder. More is explained in the `config.yml` file.
+I've fixed the 'queue' bug so now you can add the model you are looking for at the end of `config.yml` in one of this 2 ways:
+
+queue: [nm: Hornywendyx,uid: 30684187,nm: NickyNoble]
+
+or
+
+queue:
+  - nm: Hornywendyx
+  - uid: 30684187
+  - nm: NickyNoble
+
+Also is added possibility to see the size of the recorded files in the MB every three minutes.
 In v.3.0.3 version is added an auto-save URL's of HD models because I've noticed that sometimes it's possible to watch or record some HD models while in AWAY mode if we have a fresh URL meaning it's enough to briefly capture your favorite model while in PUBLIC because the URL which may occur on that occasion may later be of benefit. Also is added keyword search capability for 'hdv', 'sdv' and 'ldv' words which can be easier than sorting by quality.
 In v.3.0.2 Basic and HD version merged into one. It should be noted that HD models can be recorded like other SD models now. HD and SD models now using unique `config.yml` and `index.html`.
 Now it is possible by simply editing the `config.yml` and `index.html` file to select the program we want to use to record your favorite models show's on myfreecams.com.
@@ -15,7 +30,7 @@ The program ffmpeg still has a problem with freeze MFC videos:
 5. ffmpeg - flv
 6. hsldl
 
-File mfcd.exe using rtmp for download but should not mention more than 8 models at the same time.
+File MFCD.exe using rtmp for download but should not mention more than 8 models at the same time.
 
 mfc-node
 ========
@@ -27,17 +42,16 @@ Credits:
 * [mfc-node](https://github.com/sstativa/mfc-node)
 * [MFCAuto](https://github.com/ZombieAlex/MFCAuto)
 * [MFCD.exe](https://github.com/ruzzy/)
-* [rtmpdump.exe](https://github.com/K-S-V/Scripts/releases)
 
 Requirements
 ============
 1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v11.9.0)
-2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2 It's best to be in C:/Livestreamer
-3. [Streamlink](https://github.com/streamlink/streamlink) (tested with version 0.9.0) - better to install it independently (not in python)
-4. [ffmpeg](https://ffmpeg.zeranoe.com/builds/) must be a last version somewere in the path.
+2. [Livestreamer](https://github.com/chrippa/livestreamer/releases) last version 1.12.2. It's best to install it individually in 'C:/Livestreamer'
+3. [Streamlink](https://github.com/streamlink/streamlink/releases) (tested with the last version 1.0.0) - better to install it independently in in 'C:/Streamlink'
+4. [ffmpeg](https://ffmpeg.zeranoe.com/builds/) It is recommended to install the latest version.
 5. [MFCD.exe](http://www.mediafire.com/file/aim84bicrsbbvci/MFCD.rar) MFC Dump by @RuzzyRullez (little modified)
 6. [hlsdl.exe](https://github.com/samsamsam-iptvplayer/hlsdl) or (https://www.mediafire.com/file/d9obqdq71cqeehr/hlsdl.exe/file) for windows.
-7. [rtmp.exe](http://www.mediafire.com/file/2rpqt3dl3ed8k9z/rtmpdump2.4patch.rar/file) I've tested a lot of version 2.4 and they are all good but file must be renamed to `rtmp.exe`
+7. [rtmpdump.exe](https://github.com/K-S-V/Scripts/releases) I've tested a lot of version 2.4 and they are all good.
 
 Setup
 =====
@@ -45,8 +59,8 @@ Setup
 2. Download and unpack the [code](https://codeload.github.com/horacio9a/mfc-node/zip/v2).
 3. Open Terminal (macOS) or Command Prompt (Windows) and go into the directory where you unpacked the files.
 4. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users have to install [Git](https://git-scm.com/download/win)).
-5. Edit `config.yml` file and set desirable values for `captureDirectory`, `completeDirectory`, `modelScanInterval`.
-6. Put `ffmpeg.exe`, `MFCD.exe`, `rtmp.exe` and `hlsdl.exe` into same directory as `main.js` or somewhere in the windows path.
+5. Edit `config.yml` file with the all necessary data.
+6. `ffmpeg.exe`, `rtmpdump.exe`, `MFCD.exe` and `hlsdl.exe` now can be anywhere but the path's must be edited in `config.yml`.
 
 Running
 =======
@@ -66,11 +80,9 @@ Running
 - If we already have to look at the lines of livestreamer and streamlink I made it to look better and to be useful because we will now know how is big files we are currently recording. This can be of help with other downloadings that we do with livestreamer and streamlink. In your instalation you must found:
 - A new 'quality' column has been added so it is easy to find HD models. It is also possible to sort by the quality criteria that can further facilitate finding the HD models.
 
-   ... /livestreamer_cli/utils/progress.pyc
-   or
-   ... /streamlink_cli/utils/progress.py
+For better view `livestreamer` recording line you can replace original file:
 
-   ... and owerwrite existing files with 'progress.py' on this page.
+`.../livestreamer_cli/utils/progress.py`  with 'progress.py' on this page.
 
 The list of online models will be displayed with a set of allowed commands for each model:
 	Include - if you want to record the model
