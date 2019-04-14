@@ -18,6 +18,7 @@
   "homepage": "https://github.com/horacio9a/mfc-node",
   "dependencies": {
 	"bluebird": "^2.11.0",
+	"mv": "^2.1.1",
 	"js-yaml": "^3.12.2",
 	"bhttp": "^1.2.4",
 	"mkdirp": "^0.5.1",
