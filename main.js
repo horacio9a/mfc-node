@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.3.0.8
+// MyFreeCams Recorder v.3.0.9
 
 'use strict';
 
@@ -288,8 +288,16 @@ function createMainCaptureProcess(model) {
       var pwd = mfcClient.stream_password;
       var ctx = mfcClient.stream_vidctx;
       var auth = mfcClient.stream_auth;
-      var hlsUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
-      var hlsUrla = `https://video${model.camserv - 1000}.myfreecams.com:8444/x-hls/${cxid}/${roomId}/${pwd}/${ctx}/mfc_a_${roomId}.m3u8`;
+
+      var hdUrl;
+        if (model.camserv > 1544) {
+          hdUrl = `https://video${model.camserv - 1000}.myfreecams.com:8444/x-hls/${cxid}/${roomId}/${pwd}/${ctx}/mfc_a_${roomId}.m3u8`}
+
+      var sdUrl;
+        if ((model.camserv < 1544) && (model.phase !== 'a')) {
+          sdUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`}
+        else {
+          sdUrl = `https://video${model.camserv - 500}.myfreecams.com:8444/x-hls/${cxid}/${roomId}/${pwd}/${ctx}/mfc_a_${roomId}.m3u8`}
 
       var m_name = model.camscore ? model.nm : model.uid;
       var filename = m_name + '_MFC_' + moment().format(config.dateFormat) + '.' + fileFormat;
@@ -297,36 +305,39 @@ function createMainCaptureProcess(model) {
 
       var captureProcess;
          if (config.downloadProgram == 'ls') {
-           if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrla,'best','-o',src])} 
+           if ((model.camserv > 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hdUrl,'best','-o',src])} 
            else {
-             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + sdUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
          if (config.downloadProgram == 'sl') {
-           if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrla,'best','-o',src])} 
+           if ((model.camserv > 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, ['-Q','hls://' + hdUrl,'best','-o',src])} 
            else {
-             captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','hls://' + sdUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o',src])}};
          if (config.downloadProgram == 'ff-ts') {
-           if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c','copy','-vsync','2','-r','60','-b:v','500k',src])}
+           if ((model.camserv > 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hdUrl,'-c','copy','-vsync','2','-r','60','-b:v','500k',src])}
            else {
-             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',src])}};
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',sdUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k',src])}};
          if (config.downloadProgram == 'ff-flv') {
-           if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrla,'-c:v','copy','-c:a','aac','-b:a','192k','-ar','32000',src])}
+           if ((model.camserv > 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hdUrl,'-c:v','copy','-c:a','aac','-b:a','192k','-ar','32000',src])}
            else {
-             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',src])}};
+             captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',sdUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000',src])}};
          if (config.downloadProgram == 'hls') {
-           if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, [hlsUrla,'-q','-o',src])} 
+           if ((model.camserv > 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, [hdUrl,'-q','-o',src])} 
            else {
-             captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o',src])}};
+             captureProcess = spawn(dlProgram, [sdUrl,'-b','-q','-o',src])}};
          if (config.downloadProgram == 'rtmp') {
            if (model.camserv > 1544) {
              captureProcess = spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 1000}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
              '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-o',src])} 
-           else {
-             captureProcess = spawn(config.mfcd, [model.nm,src])}};
+           if ((model.camserv < 1544) && (model.phase == 'a')) {
+             captureProcess = spawn(dlProgram, ['-q','-r',`rtmp://video${model.camserv - 500}.myfreecams.com/NxServer`,'-a','NxServer','-CN:${model.sid}','-CS:${pwd}',
+             '-CS:${roomId}','-CS:a','-CS:DOWNLOAD','-CN:${model.uid}','-CS:${ctx}','-y',`mfc_a_${roomId}?ctx=${ctx}&tkx=${pwd}`,config.rtmpDebug ? '-V' : '','-o',src])} 
+           if ((model.camserv < 1544) && (model.phase !== 'a')) {
+             captureProcess = spawn(config.mfcd, [model.nm,src,src])}};
 
       if (!captureProcess.pid) {
         return;
@@ -363,7 +374,7 @@ function createMainCaptureProcess(model) {
 
       var writeHdUrl;
         if (model.camserv > 1544) {
-          fs.appendFile('hd_url.txt','\n' + filename + '\n' + hlsUrla + '\n', function (err) {
+          fs.appendFile('hd_url.txt','\n' + filename + '\n' + hdUrl + '\n', function (err) {
             if (err) 
               return console.log(err);
                 printMsg(`>>> Append ${colors.yellow(`HD URL`)} for ${colors.green(model.nm)} in file ${colors.gray(`hd_url.txt`)} <<<`);
