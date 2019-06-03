@@ -1,4 +1,4 @@
-// MyFreeCams Recorder v.1.0.8
+// MyFreeCams Recorder v.1.0.9
 
 'use strict';
 
@@ -319,11 +319,11 @@ function createCaptureProcess(model) {
   }
 
   if ((model.camserv) < 840) {
-    printDebugMsg(colors.green(model.nm) + (colors.cyan(` is NO MOBILE FEED - Exclude or Delete!`)));
+    printDebugMsg(colors.green(model.nm) + (colors.cyan(` is NO MOBILE FEED - Exclude or Delete this model`)));
     return;} // resolve immediately
 
-  if ((model.camserv) > 1544) {
-    printDebugMsg(colors.green(model.nm) + (colors.cyan(` is HD model - Exclude or Delete!`)));
+  if (model.phase == 'a') {
+    printDebugMsg(colors.green(model.nm) + (colors.cyan(` is HD model - use v.3.0.9 for recording HD models`)));
     return;} // resolve immediately
 
 var fileFormat;
@@ -383,27 +383,26 @@ var src = path.join(captureDirectory, filename);
 
 var roomId = 100000000 + model.uid;
 
-var hlsUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
+var sdUrl = `http://video${model.camserv - 500}.myfreecams.com:1935/NxServer/ngrp:mfc_${roomId}.f4v_mobile/playlist.m3u8?nc=${Date.now()}`;
 
 var captureProcess;
-
    if (config.downloadProgram == 'ls') {
-     captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
+     captureProcess = spawn(dlProgram, ['-Q','hlsvariant://' + sdUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
 
    if (config.downloadProgram == 'sl') {
-     captureProcess = spawn(dlProgram, ['-Q','hls://' + hlsUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
+     captureProcess = spawn(dlProgram, ['-Q','hls://' + sdUrl,'best','--stream-sorting-excludes=>950p,>1500k','-o', src])};
 
    if (config.downloadProgram == 'ff-ts') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', src])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',sdUrl,'-map','0:1','-map','0:2','-c','copy','-vsync','2','-r','60','-b:v','500k', src])};
 
    if (config.downloadProgram == 'ff-flv') {
-     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',hlsUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', src])};
+     captureProcess = spawn(dlProgram, ['-hide_banner','-v','fatal','-i',sdUrl,'-c:v','copy','-map','0:1','-map','0:2','-c:a','aac','-b:a','192k','-ar','32000', src])};
 
    if (config.downloadProgram == 'hls') {
-     captureProcess = spawn(dlProgram, [hlsUrl,'-b','-q','-o', src])};
+     captureProcess = spawn(dlProgram, [sdUrl,'-b','-q','-o', src])};
 
    if (config.downloadProgram == 'rtmp') {
-     captureProcess = spawn(dlProgram, [model.nm, src])};
+       captureProcess = spawn(dlProgram, [model.nm, src])};
 
 captureProcess.stdout.on('data', function(data) {
   printMsg(data.toString());
