@@ -1,22 +1,18 @@
-captureDirectory: 'C:/Videos/MFC' # Choose a directory for the recorded files.
+captureDirectory: 'D:/Videos/MFC' # Choose a directory for the recorded files.
 createModelDirectory: true # If you want all the files of the same model to be recorded in a separate subdirectory with various 'directoryFormat' names.
 directoryFormat: id+nm # You can choose between 'id+nm','nm+id','id' and 'nm' separate subdirectory format (Of course only if the previous option is 'true').
 dateFormat: DDMMYYYY-HHmmss # Choose date format for the filename, for example: YYYY-MM-DD_HH-mm-ss
-downloadProgram: rtmp # Choose program for download stream (rtmp, sl, ls, ff-ts, ff-flv and hls).
-livestreamer: 'C:/Livestreamer/livestreamer.exe' # Enter the path of the program in your computer.
-streamlink: 'C:/Streamlink/bin/streamlink.exe' # Enter the path of the program in your computer.
+downloadProgram: sl # Choose program for download stream (sl, ff, yt).
+streamlink: 'C:/Program Files (x86)/Streamlink/bin/streamlink.exe' # Enter the path of the program in your computer.
 ffmpeg: 'C:/Windows/ffmpeg.exe' # Enter the path of the program in your computer.
-hlsdl: 'C:/Windows/hlsdl.exe' # Enter the path of the program in your computer.
-rtmpdump: 'C:/Windows/rtmpdump.exe' # Enter the path of the program in your computer.
-mfcd: 'C:/Windows/mfcd.exe' # Enter the path of the program in your computer.
+youtube: 'C:/Windows/youtube-dl.exe' # Enter the path of the program in your computer.
 modelScanInterval: 30 # In seconds, how often mfc-node checks for newly online models.
 minFileSizeMb: 1 # If you don't want the files smaller than some value in MB to be recorded.
 port: 8888 # number of port for your browser url for example: http://localhost:8888/
 proxyServer: false # If you want to bypass region block use some good proxy server - replace null with proxy IP Address like 'xx.xx.xx.xxx:xx'.
-rtmpDebug: false # If you want a more detailed rtmpdump data put 'true' or 'false' to skip this option.
 debug: true # If you want a more detailed view put 'true' or 'false' to skip this option.
 models: # This is only example - all your models will be added with your browser with spinner.
-  - uid: 25130842
+  - uid: 33791488
     mode: 1
-    nm: AngelikaRouge
+    nm: Valeria_swang
 queue: []
