@@ -294,9 +294,9 @@ function createMainCaptureProcess(model) {
 
          if (config.downloadProgram === 'sl') {
            if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-Q','hls://' + hdUrl,'best','-f','-o',src])} 
+             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-segment-threads','3','--hls-timeout','20.0','--hls-segment-timeout','5.0','hls://' + hdUrl,'best','-f','-o',src])} 
            else {
-             captureProcess = spawn(dlProgram, ['-Q','hls://' + sdUrl,'best','-f','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-segment-threads','3','--hls-timeout','20.0','--hls-segment-timeout','5.0','hls://' + sdUrl,'best','-f','-o',src])}};
              
          if (config.downloadProgram === 'ff') {
            if (model.camserv > 1544) {
