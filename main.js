@@ -165,12 +165,13 @@ function updateConfigModels() {
 
     // looking for the model in our config
     var configModel = config.models.find(m => (m.uid === queueModel.uid));
-
+    var onlineModel = queueModel;
     if (!configModel) {
       // if we don't have the model in our config we add here in
       config.models.push({
         uid: queueModel.uid,
-        mode: 1
+        mode: 1,
+        nm: onlineModel.nm
       });
     } else {
       configModel.mode = queueModel.mode;
@@ -294,9 +295,9 @@ function createMainCaptureProcess(model) {
 
          if (config.downloadProgram === 'sl') {
            if (model.camserv > 1544) {
-             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-segment-threads','3','--hls-timeout','20.0','--hls-segment-timeout','5.0','hls://' + hdUrl,'best','-f','-o',src])} 
+             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-playlist-reload-attempts','9','--hls-segment-threads','3','--hls-segment-timeout','5.0','--hls-timeout','20.0','hls://' + hdUrl,'best','-f','-o',src])} 
            else {
-             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-segment-threads','3','--hls-timeout','20.0','--hls-segment-timeout','5.0','hls://' + sdUrl,'best','-f','-o',src])}};
+             captureProcess = spawn(dlProgram, ['-Q','--hls-live-edge','1','--hls-playlist-reload-attempts','9','--hls-segment-threads','3','--hls-segment-timeout','5.0','--hls-timeout','20.0','hls://' + sdUrl,'best','-f','-o',src])}};
              
          if (config.downloadProgram === 'ff') {
            if (model.camserv > 1544) {
