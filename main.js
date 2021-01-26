@@ -449,7 +449,7 @@ function saveConfig() {if (!isDirty) {return};
   printDebugMsg(`Save changes in ${colors.yellow(`config.`)}`);
 
   return fs
-    .writeFileAsync('config.yml', yaml.safeDump(config).replace(/\n/g, EOL), 'utf8')
+    .writeFileAsync('config.yml', yaml.safeDump(config), 'utf8')
     .then(() => {
       isDirty = false;
     });
