@@ -9,18 +9,11 @@ Basically everything that didn't work before works great now. If the recording d
 It is best to use the Streamlink program. Youtube-dl also records well, but it seems that the interruption of video recording must be resolved (it doesn't work for me). 
 Ffmpeg as before has a freeze during video recording but there is always hope that someone will fix it in the future versions.
 It is still possible the option of selecting 4 combinations of subdirectory names. More is explained in the `config.yml` file.
-It is still possible the option of 'queue' so you can add the model you are looking for at the end of `config.yml` in one of this 2 ways:
+It is still possible the option of 'queue' so you can add the model you are looking for at the end of `config.yml` like this:
 
 queue: [nm: TheIconicGirl,nm: LovelyClara4u,uid: 34519531]
 
-or
-
-queue:
-  - nm: TheIconicGirl
-  - nm: LovelyClara4u
-  - uid: 34519531
-
-Now we have this three programs for recording live MFC models videos:
+Now we have only this three programs for recording live MFC models videos:
 
 1. streamlink - mp4 - sl
 2. ffmpeg     - flv - ff
@@ -46,7 +39,7 @@ Setup
 =====
 1. Install [Node.js](https://nodejs.org/download/) (minimum node version requirement: v9.4).
 2. Download and unpack the [code](https://codeload.github.com/horacio9a/mfc-node/zip/v2).
-3. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users have to install [Git](https://git-for-windows.en.lo4d.com/download)).
+3. Install requirements by running `npm install` in the same directory as `main.js` is (Windows users must install [Git](https://git-for-windows.en.lo4d.com/download)).
 4. Edit `config.yml` file with the all necessary data.
 5. `streamlink.exe`,`ffmpeg.exe` and `youtube-dl.exe` can be anywhere but the path's must be edited in `config.yml`.
 
@@ -55,6 +48,7 @@ Running
 1. Open Terminal (macOS) or Command Prompt (Windows) and go into the directory where you unpacked the files.
 2. Run `node main.js`.
 3. Open [http://localhost:8888](http://localhost:8888) in your web browser. The list of online models will be displayed with a set of allowed commands for each model:
+
 
 - The online model list can be sorted by various criteria (default is 'state' because at the top are the models currently being recorded).
 - If you looking for some models, click on the model name and a 'spinner' will appear with the model image with all available model data.
@@ -86,14 +80,14 @@ This is just a Proof of Concept to avoid region block.
 To use it you have to start `proxy.js` on some remote server located in a different region then add a parameter `proxyServer` to your local `config.yml`, for example, `proxyServer: '54.206.109.161:9090'`.
 The `main.js` script will try to get models from the remote region then merge them with the list of models available in your region.
 
-Places that can be clicked
+Clickable places
 
-![alt screenshot](./screenshot.jpg)
+![alt screenshot](./screenshot_0.jpg)
 
-New look of 'spinner'
+Sinner window layout
 
-![alt screenshot](./screenshot1.jpg)
+![alt screenshot](./screenshot_1.jpg)
 
-Look of Node's window
+Node.js window layout
 
-![alt screenshot](./screenshot2.jpg)
+![alt screenshot](./screenshot_2.jpg)
