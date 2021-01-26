@@ -1,5 +1,5 @@
 What's new?
-==========
+===========
 Version 4.0.0 came out after a slightly longer break. During that time, a lot has changed, so this program had to be adapted to the new situation. 
 It seems that MFC rejected rtmp, so there are no more models that we could not record with this program. 
 I kept the division into HD and SD models, and there is no need for LD anymore, because there are no more models with CS less than 840 that were exclusively rtmp. 
@@ -33,6 +33,7 @@ Requirements
 1. [Node.js](https://nodejs.org/download/release/) used to run mfc-node, hence the name. (tested with node v14.15.4-x64)
 2. [Streamlink](https://github.com/streamlink/streamlink/releases) (tested with the last version 2.0.0)
 3. [ffmpeg](https://www.videohelp.com/software/ffmpeg) It is recommended to install the latest version.
+4. [youtube-dl](https://github.com/ytdl-org/youtube-dl/releases/) It is recommended to install the latest version.
 
 Setup
 =====
@@ -79,14 +80,18 @@ This is just a Proof of Concept to avoid region block.
 To use it you have to start `proxy.js` on some remote server located in a different region then add a parameter `proxyServer` to your local `config.yml`, for example, `proxyServer: '54.206.109.161:9090'`.
 The `main.js` script will try to get models from the remote region then merge them with the list of models available in your region.
 
-Clickable places
+Win-x64 exe version
+===================
+Windows users who have a problem with this installation can download the EXE version for win-x64 here: [nm-mfc-4.0.0_win-x64](https://www.mediafire.com/file/xicjuj3u8qynzlg/nm-mfc-4.0.0_win-x64.rar/file).
+
+Clickable places:
 
 ![alt screenshot](./Screenshot_0.jpg)
 
-Sinner window layout
+Spinner window layout:
 
 ![alt screenshot](./Screenshot_1.jpg)
 
-Node.js window layout
+Node.js window layout:
 
 ![alt screenshot](./Screenshot_2.jpg)
