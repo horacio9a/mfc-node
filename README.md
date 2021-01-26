@@ -8,8 +8,7 @@ Recording to text files has also been added for SD links in addition to existing
 Basically everything that didn't work before works great now. If the recording doesn’t work it most likely means the model has meanwhile gone Private, Away or Offline. 
 It is best to use the Streamlink program. Youtube-dl also records well, but it seems that the interruption of video recording must be resolved (it doesn't work for me). 
 Ffmpeg as before has a freeze during video recording but there is always hope that someone will fix it in the future versions.
-It is still possible the option of selecting 4 combinations of subdirectory names. More is explained in the `config.yml` file.
-It is still possible the option of 'queue' so you can add the model you are looking for at the end of `config.yml` like this:
+I kept the option of selecting 4 combinations of subdirectory names. More is explained in the `config.yml` file. Also is possible add models you are looking for at the end of `config.yml` like this:
 
 queue: [nm: TheIconicGirl,nm: LovelyClara4u,uid: 34519531]
 
@@ -82,12 +81,12 @@ The `main.js` script will try to get models from the remote region then merge th
 
 Clickable places
 
-![alt screenshot](./screenshot_0.jpg)
+![alt screenshot](./Screenshot_0.jpg)
 
 Sinner window layout
 
-![alt screenshot](./screenshot_1.jpg)
+![alt screenshot](./Screenshot_1.jpg)
 
 Node.js window layout
 
-![alt screenshot](./screenshot_2.jpg)
+![alt screenshot](./Screenshot_2.jpg)
