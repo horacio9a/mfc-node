@@ -80,9 +80,12 @@ This is just a Proof of Concept to avoid region block.
 To use it you have to start `proxy.js` on some remote server located in a different region then add a parameter `proxyServer` to your local `config.yml`, for example, `proxyServer: '54.206.109.161:9090'`.
 The `main.js` script will try to get models from the remote region then merge them with the list of models available in your region.
 
-Win-x64 exe version
+Windows exe version
 ===================
-Windows users who have a problem with this installation can download the EXE version for win-x64 here: [nm-mfc-4.0.0_win-x64](https://www.mediafire.com/file/xicjuj3u8qynzlg/nm-mfc-4.0.0_win-x64.rar/file).
+Windows users who have a problem with this installation can download the EXE version.
+- win-x86 version: [nm-mfc-4.0.0_win-x86](https://www.mediafire.com/file/ecksf6dpj1220b0/nm-mfc-4.0.0_win-x86.rar/file)
+- win-x64 version: [nm-mfc-4.0.0_win-x64](https://www.mediafire.com/file/xicjuj3u8qynzlg/nm-mfc-4.0.0_win-x64.rar/file)
+
 
 Clickable places:
 
